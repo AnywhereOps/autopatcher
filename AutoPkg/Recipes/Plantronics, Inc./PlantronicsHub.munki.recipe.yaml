@@ -1,0 +1,58 @@
+# Downloaded from https://github.com/autopkg/blackthroat-recipes/blob/553de847ae0637b40824192de99c4cd09e8c42ae/Plantronics, Inc./PlantronicsHub.munki.recipe
+# Commit: 553de847ae0637b40824192de99c4cd09e8c42ae
+# Downloaded at: 2025-11-27 22:29:55 UTC
+
+Identifier: com.github.blackthroat.munki.PlantronicsHub
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: PlantronicsHub
+  pkginfo:
+    blocking_applications:
+    - Plantronics Hub.app
+    catalogs:
+    - testing
+    description: Allows end-users to customize their settings and get visible status of their Plantronics audio device on their desktop.
+    developer: Plantronics, Inc.
+    display_name: Plantronics Hub
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.blackthroat.download.PlantronicsHub
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%/Plantronics Software.pkg'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Applications/Plantronics Hub.app'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/inner.pkg/Payload'
+    purge_destination: true
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%'
+    installs_item_paths:
+    - /Applications/Plantronics Hub.app
+- Processor: MunkiPkginfoMerger
+- Processor: PkgCopier
+  Arguments:
+    source_pkg: '%pathname%/Plantronics Software.pkg'
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%destination_path%/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pkg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Applications'
+    - '%RECIPE_CACHE_DIR%/unpack'

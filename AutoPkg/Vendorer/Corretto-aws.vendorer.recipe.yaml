@@ -1,0 +1,17 @@
+Description: Obtain upstream Corretto recipe from autopkg/aws-recipes
+
+Identifier: com.github.anywhereops.vendorer.Corretto
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/aws-recipes
+      folder_path: Corretto
+      commit_sha: 78a69905e70ea3f34e5ca19495c17a8c4ad93af0
+      destination_path: Corretto
+      recipe_type: munki
+      required_license: MIT-0

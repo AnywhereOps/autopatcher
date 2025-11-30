@@ -1,0 +1,24 @@
+# Downloaded from https://github.com/autopkg/n8felton-recipes/blob/646d469b0e6e964e0605774d8541ce29912b9207/SentinelOne/SentinelOne.download.recipe
+# Commit: 646d469b0e6e964e0605774d8541ce29912b9207
+# Downloaded at: 2025-11-27 22:29:15 UTC
+
+Description: Downloads the latest version of SentinelOne.
+Identifier: com.github.n8felton.download.SentinelOne
+Input:
+  NAME: SentinelOne
+  S1_API_TOKEN: ''
+  S1_CONSOLE_HOSTNAME: ''
+  S1_PACKAGE_STATUS: ''
+  S1_PACKAGE_VERSION: ''
+Process:
+- Processor: com.github.n8felton.shared/SentinelOneInfoProvider
+  Arguments:
+    S1_API_TOKEN: '%S1_API_TOKEN%'
+    S1_CONSOLE_HOSTNAME: '%S1_CONSOLE_HOSTNAME%'
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%-%version%.pkg'
+    request_headers:
+      Authorization: ApiToken %S1_API_TOKEN%
+- Processor: EndOfCheckPhase
+- Processor: com.github.n8felton.shared/SHA1Checksum

@@ -1,0 +1,40 @@
+# Downloaded from https://github.com/autopkg/gerardkok-recipes/blob/fba95dd24e8408ba08f9d74cb5f82468883691fa/DotNet/DotNetCoreSDK.munki.recipe
+# Commit: fba95dd24e8408ba08f9d74cb5f82468883691fa
+# Downloaded at: 2025-11-27 22:28:10 UTC
+
+Description: Imports the latest release of Microsoft's .NET Core SDK into Munki.
+Identifier: com.github.gerardkok.munki.DotNetCoreSDK
+Input:
+  MUNKI_REPO_SUBDIR: apps/DotNetCoreSDK
+  MUNKI_CATEGORY: Development
+  NAME: DotNetCoreSDK
+  pkginfo:
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: .NET Core is a general purpose development platform maintained by Microsoft and the .NET community on GitHub. It is cross-platform, supporting Windows, macOS and Linux, and can be used in device, cloud, and embedded/IoT scenarios.
+    developer: Microsoft
+    display_name: .NET Core SDK
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.gerardkok.download.DotNetCoreSDK
+Process:
+- Processor: DeprecationWarning
+  Arguments:
+    warning_message: This recipe will soon be removed. Please remove it from your list of recipes.
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: pkginfo_repo_path == ''
+- Processor: MunkiOptionalReceiptEditor
+  Arguments:
+    pkg_ids_set_optional_true:
+    - com.microsoft.dotnet.sharedhost.component.osx.x64

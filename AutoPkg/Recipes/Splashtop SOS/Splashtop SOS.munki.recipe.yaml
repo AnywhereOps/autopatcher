@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Splashtop SOS/Splashtop SOS.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:33:09 UTC
+
+Description: Downloads the latest version of Splashtop SOS and imports into Munki
+Identifier: com.github.dataJAR-recipes.munki.Splashtop SOS
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: Splashtop SOS
+  pkginfo:
+    catalogs:
+    - testing
+    description: Download and run the SOS app to give your IT Admin remote access to this computer.
+    developer: Splashtop Inc
+    display_name: Splashtop SOS
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 0.5.0
+ParentRecipe: com.github.peetinc.download.SplashtopSOS
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

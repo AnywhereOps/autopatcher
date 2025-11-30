@@ -1,0 +1,33 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/GoToMeeting/GoToMeeting.pkg.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:31:39 UTC
+
+Description: Downloads the current release version of GoToMeeting and builds a package.
+Identifier: com.github.homebysix.pkg.GoToMeeting
+Input:
+  NAME: GoToMeeting
+MinimumVersion: '1.4'
+ParentRecipe: com.github.homebysix.download.GoToMeeting
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Applications/GoToMeeting.app'
+    source_path: '%pathname%/GoToMeeting.app'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      chown:
+      - group: admin
+        mode: '0775'
+        path: Applications
+        user: root
+      id: com.citrixonline.GoToMeeting
+      pkgname: '%NAME%-%version%'
+      pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+      scripts: Scripts
+      version: '%version%'

@@ -1,0 +1,16 @@
+Description: Obtain upstream TalkDesk recipe from autopkg/jc0b-recipes
+
+Identifier: com.github.anywhereops.vendorer.TalkDesk
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/jc0b-recipes
+      folder_path: TalkDesk
+      commit_sha: 2db4a7c0ef51fe76b46c23ef1f4c1f025deac181
+      destination_path: TalkDesk
+      recipe_type: munki

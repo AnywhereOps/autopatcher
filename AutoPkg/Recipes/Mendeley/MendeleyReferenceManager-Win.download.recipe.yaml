@@ -1,0 +1,24 @@
+# Downloaded from https://github.com/autopkg/hansen-m-recipes/blob/de17d7db2537ffa00c27281a392f37fe599efdca/Mendeley/MendeleyReferenceManager-Win.download.recipe.yaml
+# Commit: de17d7db2537ffa00c27281a392f37fe599efdca
+# Downloaded at: 2025-11-27 20:29:06 UTC
+
+Description: Downloads the latest version of Mendeley Reference Manager
+Identifier: com.github.hansen-m.download.MendeleyReferenceManager-Win
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Mendeley Reference Manager
+  DOWNLOAD_URL: https://static.mendeley.com/bin/desktop
+  SEARCH_URL: https://static.mendeley.com/bin/desktop/latest.yml
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      re_pattern: mendeley-reference-manager-(?P<version>.*?)\.exe
+      url: "%SEARCH_URL%"
+
+  - Processor: URLDownloader
+    Arguments:
+      url: "%DOWNLOAD_URL%/mendeley-reference-manager-%version%.exe"
+
+  - Processor: EndOfCheckPhase

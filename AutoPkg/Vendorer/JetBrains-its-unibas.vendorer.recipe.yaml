@@ -1,0 +1,16 @@
+Description: Obtain upstream JetBrains recipe from autopkg/its-unibas-recipes
+
+Identifier: com.github.anywhereops.vendorer.JetBrains
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/its-unibas-recipes
+      folder_path: JetBrains
+      commit_sha: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+      destination_path: JetBrains
+      recipe_type: munki

@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/moofit-recipes/blob/984f1b980c6a7ecc26402693543b0f1f9100b529/Barco/ClickShare.download.recipe
+# Commit: 984f1b980c6a7ecc26402693543b0f1f9100b529
+# Downloaded at: 2025-11-27 22:32:55 UTC
+
+Description: Downloads the latest ClickShare client.
+Identifier: com.github.moofit-recipes.download.ClickShare
+Input:
+  NAME: ClickShare
+MinimumVersion: 0.2.9
+Process:
+- Processor: com.github.smithjw.processors/FriendlyPathDeleter
+  Arguments:
+    fail_deleter_silently: true
+    path_list:
+    - '%RECIPE_CACHE_DIR%/downloads/%NAME%.zip'
+    - '%RECIPE_CACHE_DIR%/ClickShare.app'
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: ClickShare-\d+\..*_mac\.zip
+    url: https://assets.cloud.barco.com/clickshare/release/release.mac
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.zip'
+    url: https://assets.cloud.barco.com/clickshare/release/%match%
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/ClickShare.app'
+    requirement: identifier "com.barco.clickshare.updater" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = P6CDJZR997

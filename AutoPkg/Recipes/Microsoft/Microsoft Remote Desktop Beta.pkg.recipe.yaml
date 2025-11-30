@@ -1,0 +1,15 @@
+# Downloaded from https://github.com/autopkg/n8felton-recipes/blob/646d469b0e6e964e0605774d8541ce29912b9207/Microsoft/Microsoft Remote Desktop Beta.pkg.recipe
+# Commit: 646d469b0e6e964e0605774d8541ce29912b9207
+# Downloaded at: 2025-11-27 22:31:52 UTC
+
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Microsoft Remote Desktop Beta and creates a package.
+Identifier: com.github.n8felton.pkg.MicrosoftRemoteDesktopBeta
+Input:
+  NAME: Microsoft Remote Desktop Beta
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.n8felton.download.MicrosoftRemoteDesktopBeta
+Process:
+- Processor: AppPkgCreator
+  Arguments:
+    app_path: '%RECIPE_CACHE_DIR%/%NAME%/Windows App Beta.app'

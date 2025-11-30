@@ -1,0 +1,26 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Fujitsu/ScanSnapHome.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:29:59 UTC
+
+Description: Downloads the current release version of ScanSnap Home and imports into Munki.
+Identifier: com.github.joshua-d-miller.munki.scansnaphome
+Input:
+  NAME: ScanSnap Home
+  MUNKI_REPO_SUBDIR: apps/ScanSnap Home
+  MUNKI_CATEGORY: Peripherals
+  pkginfo:
+    catalogs:
+    - testing
+    description: ScanSnap Home is a desktop application that edits, manages, and utilizes scanned data from documents, business cards, photos, and receipts to increase your productivity.
+    display_name: '%NAME%'
+    name: '%NAME%'
+    unattended_install: true
+    category: '%MUNKI_CATEGORY%'
+    developer: Fujitsu
+MinimumVersion: 2.0.0
+ParentRecipe: com.github.joshua-d-miller.download.scansnaphome
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

@@ -1,0 +1,21 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/Dropbox/Dropbox.download.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:30:28 UTC
+
+Description: Downloads the current release version of Dropbox. Change the BUILD value from 'stable' to 'beta' for beta builds.
+Identifier: com.github.autopkg.download.dropbox
+Input:
+  NAME: Dropbox
+  DOWNLOADURL: https://www.dropbox.com/download?plat=mac&full=1&build=%BUILD%
+  BUILD: stable
+MinimumVersion: 0.4.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOADURL%'
+    filename: '%NAME%.dmg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Dropbox.app'
+    requirement: identifier "com.getdropbox.dropbox" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = G7HH3F8CAK

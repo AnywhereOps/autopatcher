@@ -1,0 +1,42 @@
+# Downloaded from https://github.com/autopkg/ahousseini-recipes/blob/31e6138b990db5622ef2f3ab05d541edcf92997e/Mersive Solstice/Mersive Solstice.pkg.recipe
+# Commit: 31e6138b990db5622ef2f3ab05d541edcf92997e
+# Downloaded at: 2025-11-27 22:30:42 UTC
+
+Description: Downloads the latest version of Mersive Solstice and creates a package.
+Identifier: com.github.ahousseini-recipes.pkg.Mersive Solstice
+Input:
+  NAME: Mersive Solstice
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.ahousseini-recipes.download.MersiveSolstice
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/Mersive Solstice.app'
+    overwrite: true
+    source_path: '%pathname%/Mersive Solstice.app'
+- Processor: PlistReader
+  Arguments:
+    info_path: '%pathname%/Mersive Solstice.app/Contents/Info.plist'
+    plist_keys:
+      CFBundleIdentifier: bundleid
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      chown:
+      - group: wheel
+        mode: '0775'
+        path: Applications/Mersive Solstice.app
+        user: root
+      - group: wheel
+        mode: '0775'
+        path: Applications
+        user: root
+      force_pkg_build: 'false'
+      id: '%bundleid%'
+      pkgname: '%NAME%-%version%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'

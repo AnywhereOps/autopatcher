@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Snagit/Snagit.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:29:23 UTC
+
+Description: "Downloads the latest version of Snagit and imports it into Munki.\n\nAdd your Snagit licence key to the SNAGIT_LICENCE_KEY variable. "
+Identifier: com.github.dataJAR-recipes.munki.Snagit
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: Snagit
+  SNAGIT_LICENCE_KEY: ''
+  pkginfo:
+    catalogs:
+    - testing
+    description: Screen capture utility.
+    developer: TechSmith Corporation
+    display_name: Snagit
+    name: '%NAME%'
+    postinstall_script: "#!/bin/bash\n\n## postinstall script created from vendors doc here: https://support.techsmith.com/hc/en-us/articles/115007344888-Enterprise-Install-Guidelines-for-Snagit-on-MacOS\n## Uncomment for commands you wish to use\n\n## If it doesn't exist, create licence file\n# if ! [ -f /Users/Shared/TechSmith/Snagit/LicenseKey ]; then\n#  /bin/mkdir -p \"/Users/Shared/TechSmith/Snagit\" ; /usr/bin/touch /Users/Shared/TechSmith/Snagit/LicenseKey ; /bin/echo \"%SNAGIT_LICENCE_KEY%\" > /Users/Shared/TechSmith/Snagit/LicenseKey\n# fi\n\n## Deployment Options see this doc for full details: https://support.techsmith.com/hc/en-us/articles/115007344888-Enterprise-Install-Guidelines-for-Snagit-on-MacOS#options-list\n# defaults write com.TechSmith.Snagit.plist DisableProductLogin -bool YES\n# defaults write com.TechSmith.Snagit.plist HideRegistrationKey -bool YES\ndefaults write com.TechSmith.Snagit.plist DisableCheckForUpdates -bool YES\ndefaults write com.TechSmith.Snagit.plist DisableTracking -bool YES\n\nexit"
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '1.1'
+ParentRecipe: com.github.dataJAR-recipes.download.Snagit
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

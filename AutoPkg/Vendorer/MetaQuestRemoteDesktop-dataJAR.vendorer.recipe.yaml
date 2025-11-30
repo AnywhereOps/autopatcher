@@ -1,0 +1,17 @@
+Description: Obtain upstream Meta Quest Remote Desktop recipe from autopkg/dataJAR-recipes
+
+Identifier: com.github.anywhereops.vendorer.MetaQuestRemoteDesktop
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/dataJAR-recipes
+      folder_path: Meta Quest Remote Desktop
+      commit_sha: b215938ed2a542b52fb1ff552649b6b99ffe155b
+      destination_path: Meta Quest Remote Desktop
+      recipe_type: munki
+      required_license: Apache-2.0

@@ -1,0 +1,29 @@
+# Downloaded from https://github.com/autopkg/ahousseini-recipes/blob/31e6138b990db5622ef2f3ab05d541edcf92997e/PrusaSlicer/PrusaSlicer.pkg.recipe
+# Commit: 31e6138b990db5622ef2f3ab05d541edcf92997e
+# Downloaded at: 2025-11-27 22:30:46 UTC
+
+Identifier: com.github.ahousseini-recipes.pkg.PrusaSlicer
+Input:
+  NAME: PrusaSlicer
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.ahousseini-recipes.download.PrusaSlicer
+Process:
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%pathname%/Original Prusa Drivers/PrusaSlicer.app/Contents/Info.plist'
+    plist_version_key: CFBundleVersion
+- Processor: com.github.homebysix.FindAndReplace/FindAndReplace
+  Arguments:
+    find: PrusaSlicer-
+    input_string: '%version%'
+    replace: ''
+- Processor: com.github.homebysix.FindAndReplace/FindAndReplace
+  Arguments:
+    find: +
+    input_string: '%output_string%'
+    replace: '-'
+- Processor: AppPkgCreator
+  Arguments:
+    app_path: '%pathname%/Original Prusa Drivers/PrusaSlicer.app'
+    bundleid: com.prusa3d.slic3r
+    version: '%output_string%'

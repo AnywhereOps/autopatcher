@@ -1,0 +1,38 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/MicrosoftDefender/MicrosoftDefender.pkg.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:28:24 UTC
+
+Description: Downloads the latest version of the Microsoft Defender installer package and renames the package.
+Identifier: com.github.rtrouton.pkg.microsoftdefender
+Input:
+  NAME: Microsoft Defender
+  VENDOR: Microsoft
+  SOFTWARETITLE: Defender
+  VERSIONTYPE: CFBundleShortVersionString
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.download.microsoftdefender
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/unpack'
+    flat_pkg_path: '%pathname%'
+- Processor: FileFinder
+  Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/downloads/unpack/*wdav*.pkg'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/payload'
+    pkg_payload_path: '%found_filename%/Payload'
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/payload/Microsoft Defender.app/Contents/Info.plist'
+    plist_version_key: '%VERSIONTYPE%'
+- Processor: PkgCopier
+  Arguments:
+    source_pkg: '%pathname%'
+    pkg_path: '%RECIPE_CACHE_DIR%/%VENDOR%_%SOFTWARETITLE%_%version%.pkg'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/downloads/unpack'
+    - '%RECIPE_CACHE_DIR%/downloads/payload'

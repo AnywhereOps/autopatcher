@@ -1,0 +1,65 @@
+# Downloaded from https://github.com/autopkg/MLBZ521-recipes/blob/8b7738eed4c2f8b6b32a897907ee3420fa0c74ef/SPSS Statistics/SPSSStatisticsLegacy.pkg.recipe
+# Commit: 8b7738eed4c2f8b6b32a897907ee3420fa0c74ef
+# Downloaded at: 2025-11-27 22:31:11 UTC
+
+Description: "Downloads and packages the latest or a specified verison of SPSS Statistics from a local file share.\n\nTested on versions of SPSS 26 and older.\n\nTwo override variables are avilable to support the installation of SPSS:\n\t* INSTALL_JDK_CLI\n\t\t* A JDK is required to install SPSS silently; if one is not installed, you can provide a command \n\t\t\tline command to acquire one through any method that is support in your environment\n\t* INSTALL_PROPERTIES\n\t\t* As the name suggests, this the \"installer.properties\" that allows you to customize the install\n\t\t\tof SPSS.  The available parameters are included; customize for your environment.\n\t"
+Identifier: com.github.mlbz521.pkg.SPSSStatisticsLegacy
+Input:
+  NAME: SPSS Statistics
+  INSTALL_JDK_CLI: /usr/local/bin/jamf policy -event "Amazon_Corretto_JDK" -forceNoRecon
+  INSTALL_PROPERTIES: "INSTALLER_UI=silent\nUSER_INSTALL_DIR=/Applications/SPSS Statistics #MAJOR_VERSION#/\nLICENSE_ACCEPTED=true\n#AUTHCODE=\nInstallPython=1\n#LSHOST=\nCOMMUTE_MAX_LIFE=7\n#PROXYHOST=\n#PROXYPORT=\n#PROXYUSER=\n#PROXYPASS="
+ParentRecipe: com.github.mlbz521.download.SPSSStatisticsLegacy
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs: {}
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/scripts'
+    pkgdirs: {}
+- Processor: FileFinder
+  Arguments:
+    pattern: '%found_filename%/*.bin'
+- Processor: FileFinder
+  Arguments:
+    pattern: '%cached_path%/*.dmg'
+- Processor: Copier
+  Arguments:
+    source_path: '%found_filename%/%dmg_found_filename%'
+    destination_path: '%RECIPE_CACHE_DIR%/scripts/%dmg_found_filename%'
+    overwrite: true
+- Processor: com.github.mlbz521.SharedProcessors/FileMode
+  Arguments:
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/scripts/%dmg_found_filename%'
+- Processor: com.github.mlbz521.SharedProcessors/InputVariableTextSubstituter
+  Arguments:
+    original_string: '%INSTALL_PROPERTIES%'
+    string_to_replace: '#MAJOR_VERSION#'
+    variable_to_use: found_major_version
+    return_variable: INSTALL_PROPERTIES
+- Processor: FileCreator
+  Arguments:
+    file_content: '%INSTALL_PROPERTIES%'
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/scripts/installer.properties'
+- Processor: FileCreator
+  Arguments:
+    file_content: "#! /bin/bash\n\n###################################################################################################\n# Script Name:  install_SPSS.sh\n# By:  Zack Thompson / Created:  11/1/2017\n# Version:  1.5.1 / Updated:  1/27/2020 / By:  ZT\n#\n# Description:  This script silently installs SPSS.\n#\n###################################################################################################\n\necho \"*****  Install SPSS process:  START  *****\"\n\n##################################################\n# Define Variables\n\n# Set working directory\npkgDir=$( /usr/bin/dirname \"${0}\" )\n# Get the filename of the .bin file\ninstallBin=$( /bin/ls \"${pkgDir}\" | /usr/bin/grep .bin )\n\n# Version that's being installed\nversion=\"%version%\"\nmajorVersion=\"%found_major_version%\"\n\n##################################################\n# Bits staged...\n\necho \"Checking for a JDK...\"\nif [[ -z $( /usr/bin/find \"/Library/Java/JavaVirtualMachines\" -iname \"*.jdk\" -type d ) ]]; then\n\t# Install prerequisite:  Java JDK\n\techo \"Installing prerequisite Java JDK...\"\n\t%INSTALL_JDK_CLI%\nelse\n\techo \"JDK exists...continuing...\"\nfi\n\n# Make sure the Installer.bin file is executable\n/bin/chmod +x \"${pkgDir}/${installBin}\"\n\n# Silent install using information in the installer.properties file\necho \"Installing SPSS...\"\nexitStatus=$( \"${pkgDir}/${installBin}\" -f \"${pkgDir}/installer.properties\" )\nexitCode=$?\n\n# For exit code 208:  https://www.ibm.com/support/pages/exit-code-208-install-spss-22-mac\nif [[ $exitCode != 0 && $exitCode != 208 ]]; then\n\techo \"ERROR:  Install failed!\"\n\techo \"Exit Code:  ${exitCode}\"\n\techo \"ERROR Content:  ${exitStatus}\"\n\techo \"*****  Install SPSS process:  FAILED  *****\"\n\texit 1\nfi\n\n# Setting permissions to resolve issues seen in:  https://www-01.ibm.com/support/docview.wss?uid=swg21966637\necho \"Setting permissions on SPSS ${majorVersion} files...\"\n/usr/sbin/chown -R root:admin \"/Applications/SPSS Statistics ${majorVersion}\"\n\necho \"*****  Install SPSS process:  COMPLETE  *****\"\nexit 0"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/scripts/postinstall'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      version: '%version%'
+      id: com.ibm.spssstatistics
+      options: purge_ds_store
+      scripts: Scripts
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/pkgroot'
+    - '%RECIPE_CACHE_DIR%/scripts'

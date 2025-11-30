@@ -1,0 +1,16 @@
+Description: Obtain upstream Microsoft recipe from autopkg/foigus-recipes
+
+Identifier: com.github.anywhereops.vendorer.Microsoft
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/foigus-recipes
+      folder_path: Microsoft
+      commit_sha: 6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63
+      destination_path: Microsoft
+      recipe_type: munki

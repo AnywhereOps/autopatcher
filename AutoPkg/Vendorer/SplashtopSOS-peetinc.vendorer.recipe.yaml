@@ -1,0 +1,17 @@
+Description: Obtain upstream SplashtopSOS recipe from autopkg/peetinc-recipes
+
+Identifier: com.github.anywhereops.vendorer.SplashtopSOS
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/peetinc-recipes
+      folder_path: SplashtopSOS
+      commit_sha: 6ad7836570feb23d45b5ea150db2773fca2674a8
+      destination_path: SplashtopSOS
+      recipe_type: munki
+      required_license: Apache-2.0

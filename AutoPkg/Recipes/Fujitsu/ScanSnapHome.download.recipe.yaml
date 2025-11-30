@@ -1,0 +1,39 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Fujitsu/ScanSnapHome.download.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:29:59 UTC
+
+Description: Downloads the latest verison of ScanSnap Home
+Identifier: com.github.joshua-d-miller.download.scansnaphome
+Input:
+  NAME: ScanSnap Home
+  SEARCH_URL: https://scansnap.fujitsu.com/global/dl/mac-sshoffline-q.html
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 11_0_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36 Edg/86.0.622.68
+MinimumVersion: 2.0.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    request_headers:
+      user-agent: '%USER_AGENT%'
+    re_pattern: ScanSnap Home Offline Installer (?P<major>[\d])\.(?P<minor>[\d])\.(?P<patch>[\d]+)
+- Processor: URLDownloader
+  Arguments:
+    url: https://origin.pfultd.com/downloads/ss/sshinst/m-%major%%minor%%patch%/MacSSHOfflineInstaller_%major%_%minor%_%patch%.dmg
+    filename: '%NAME%.dmg'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/Download/MacSSHomeInstaller_%major%_%minor%_%patch%.dmg'
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%-Installer.dmg'
+- Processor: EndOfCheckPhase
+- Processor: Copier
+  Arguments:
+    source_path: '%RECIPE_CACHE_DIR%/%NAME%-Installer.dmg/%NAME%.pkg'
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+    expected_authority_names:
+    - 'Developer ID Installer: PFU LIMITED (XW4U7W2E9L)'
+    - Developer ID Certification Authority
+    - Apple Root CA

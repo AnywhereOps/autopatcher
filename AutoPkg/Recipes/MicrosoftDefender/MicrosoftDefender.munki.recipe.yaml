@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/MicrosoftDefender/MicrosoftDefender.munki.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:28:24 UTC
+
+Description: Microsoft Defender anti-virus software
+Identifier: com.github.rtrouton.munki.microsoftdefender
+ParentRecipe: com.github.rtrouton.download.microsoftdefender
+Input:
+  NAME: MicrosoftDefender
+  MUNKI_REPO_SUBDIR: apps/Microsoft
+  pkginfo:
+    catalogs:
+    - testing
+    description: Microsoft Defender anti-virus software
+    display_name: Microsoft Defender Anti-Virus
+    developer: Microsoft
+    category: Productivity
+    name: '%NAME%'
+    minimum_os_version: 10.12.0
+MinimumVersion: 1.0.0
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

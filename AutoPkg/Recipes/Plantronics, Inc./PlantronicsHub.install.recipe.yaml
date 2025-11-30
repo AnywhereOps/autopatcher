@@ -1,0 +1,18 @@
+# Downloaded from https://github.com/autopkg/blackthroat-recipes/blob/553de847ae0637b40824192de99c4cd09e8c42ae/Plantronics, Inc./PlantronicsHub.install.recipe
+# Commit: 553de847ae0637b40824192de99c4cd09e8c42ae
+# Downloaded at: 2025-11-27 22:29:55 UTC
+
+Comment: Created with Recipe Robot v2.1.0 (https://github.com/homebysix/recipe-robot)
+Description: Installs the latest version of Plantronics Hub.
+Identifier: com.github.blackthroat.install.PlantronicsHubr
+Input:
+  NAME: PlantronicsHub
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.blackthroat.download.PlantronicsHub
+Process:
+- Processor: InstallFromDMG
+  Arguments:
+    dmg_path: '%pathname%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: Plantronics Hub Helper.app

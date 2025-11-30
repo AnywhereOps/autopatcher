@@ -1,0 +1,16 @@
+# Downloaded from https://github.com/autopkg/aws-recipes/blob/78a69905e70ea3f34e5ca19495c17a8c4ad93af0/Corretto/AmazonCorrettoJDK.install.recipe
+# Commit: 78a69905e70ea3f34e5ca19495c17a8c4ad93af0
+# Downloaded at: 2025-11-27 22:25:45 UTC
+
+Description: "This recipe downloads the signed installer package from Amazon Corretto and installs it on the device.\n\nDownloads the latest version of Amazon Corretto JDK. Requires ARCH (x64 [Intel], or aarch64 [Apple Silicon]) and MAJOR_VERSION (8,11,17,18)."
+Identifier: com.amazon.aws.install.amazoncorretto
+Input:
+  NAME: Amazon Corretto %MAJOR_VERSION%
+  MAJOR_VERSION: '8'
+  ARCH: x64
+MinimumVersion: 1.4.0
+ParentRecipe: com.amazon.aws.download.amazoncorretto
+Process:
+- Processor: Installer
+  Arguments:
+    pkg_path: '%pathname%'

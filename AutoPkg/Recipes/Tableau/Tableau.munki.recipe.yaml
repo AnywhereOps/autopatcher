@@ -1,0 +1,93 @@
+# Downloaded from https://github.com/autopkg/gmarnin-recipes/blob/c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c/Tableau/Tableau.munki.recipe
+# Commit: c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c
+# Downloaded at: 2025-11-27 22:30:03 UTC
+
+Description: "Downloads latest Tableau Desktop disk image and imports into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator."
+Identifier: com.github.gmarnin.munki.tableau-desktop
+Input:
+  DERIVE_MIN_OS: YES
+  MUNKI_REPO_SUBDIR: apps/Tableau
+  NAME: TableauDesktop
+  pkg_ids_set_optional_true:
+  - com.tableausoftware.desktopShortcut
+  pkginfo:
+    blocking_applications:
+    - Tableau
+    catalogs:
+    - testing
+    preinstall_script: "#!/bin/sh\necho \"Removing old copies of Tableau Desktop\"\nrm -rf /Applications/Tableau\\ Desktop\\ *.app\n\nexit $?\n\t\t        "
+    description: Tableau Desktop is data visualization software that lets you see and understand data in minutes.
+    display_name: Tableau Desktop
+    installer_choices_xml:
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.tableausoftware.desktop.app
+    - attributeSetting: 0
+      choiceAttribute: selected
+      choiceIdentifier: com.tableausoftware.desktopShortcut
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.amazon.redshiftodbc
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.tableausoftware.mysql
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.tableausoftware.oracle
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.tableausoftware.postgresql
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.simba.sparkodbc
+    - attributeSetting: 1
+      choiceAttribute: selected
+      choiceIdentifier: com.simba.sqlserverodbc
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.gmarnin.download.tableau-desktop
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%/Tableau Desktop.pkg'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Applications'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/Tableau App.pkg/payload'
+    purge_destination: true
+- Processor: FileFinder
+  Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/Applications/Tableau*.app'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+    faux_root: '%RECIPE_CACHE_DIR%'
+    installs_item_paths:
+    - /Applications/%found_basename%
+    version_comparison_key: CFBundleShortVersionString
+- Processor: MunkiPkginfoMerger
+- Processor: PlistReader
+  Arguments:
+    info_path: '%found_filename%/Contents/Info.plist'
+    plist_keys:
+      CFBundleShortVersionString: version
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Applications'
+    - '%RECIPE_CACHE_DIR%/unpack'
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: munki_repo_changed == False
+- Processor: MunkiOptionalReceiptEditor

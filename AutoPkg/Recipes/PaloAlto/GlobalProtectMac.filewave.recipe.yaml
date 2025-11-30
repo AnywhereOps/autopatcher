@@ -1,0 +1,34 @@
+# Downloaded from https://github.com/autopkg/peshay-recipes/blob/dcbcd986ccd675a3a0b5362a97be857abad0151d/PaloAlto/GlobalProtectMac.filewave.recipe
+# Commit: dcbcd986ccd675a3a0b5362a97be857abad0151d
+# Downloaded at: 2025-11-27 22:27:36 UTC
+
+Description: Imports GlobalProtect into FileWave.
+Identifier: com.github.peshay.filewave.GlobalProtect
+Input:
+  NAME: GlobalProtect
+  PLATFORM: mac
+  fw_app_bundle_id: com.github.peshay.filewave.GlobalProtect
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.peshay.download.GlobalProtect
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%'
+    flat_pkg_path: '%pathname%'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/%NAME%/gp.pkg/Payload'
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%/GlobalProtect.app/Contents'
+    source_path: '%RECIPE_CACHE_DIR%/%NAME%/Contents'
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/%NAME%/GlobalProtect.app/Contents/Info.plist'
+- Processor: com.github.autopkg.filewave.FWTool/FileWaveImporter
+  Arguments:
+    fw_app_bundle_id: '%fw_app_bundle_id%'
+    fw_app_version: '%version%'
+    fw_fileset_name: '%NAME% - %version%'
+    fw_import_source: '%pathname%'

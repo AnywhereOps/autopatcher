@@ -1,0 +1,22 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/Sublime HQ/Sublime Merge.install.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:29:27 UTC
+
+Comment: Created with Recipe Robot v1.1.3 (https://github.com/homebysix/recipe-robot)
+Description: Installs the latest version of Sublime Merge.
+Identifier: com.github.homebysix.install.SublimeMerge
+Input:
+  NAME: Sublime Merge
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.homebysix.download.SublimeMerge
+Process:
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/%NAME%'
+- Processor: InstallFromDMG
+  Arguments:
+    dmg_path: '%dmg_path%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: Sublime Merge.app

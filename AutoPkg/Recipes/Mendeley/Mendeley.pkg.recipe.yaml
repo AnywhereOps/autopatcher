@@ -1,0 +1,38 @@
+# Downloaded from https://github.com/autopkg/hansen-m-recipes/blob/de17d7db2537ffa00c27281a392f37fe599efdca/Mendeley/Mendeley.pkg.recipe
+# Commit: de17d7db2537ffa00c27281a392f37fe599efdca
+# Downloaded at: 2025-11-27 20:29:06 UTC
+
+Description: Downloads the latest version of Mendeley Desktop and copies the package to the build directory with an appended version number.
+Identifier: com.github.hansen-m.pkg.Mendeley
+Input:
+  NAME: Mendeley
+  APPNAME: Mendeley Desktop
+MinimumVersion: 0.4.0
+ParentRecipe: com.github.hansen-m.download.Mendeley
+Process:
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%pathname%'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/%APPNAME%.app'
+    destination_path: '%pkgroot%/Applications/%APPNAME%.app'
+- Processor: PkgInfoCreator
+  Arguments:
+    template_path: PackageInfoTemplate
+    infofile: '%RECIPE_CACHE_DIR%/PackageInfo'
+    pkgtype: flat
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      id: com.mendeley.desktop.pkg
+      chown:
+      - path: Applications
+        user: root
+        group: wheel

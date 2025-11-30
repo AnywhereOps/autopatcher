@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/EndNote/EndNoteX9.munki.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:33:05 UTC
+
+Description: Downloads latest Endnote X9 installer and imports it into munki.
+Identifier: com.github.rtrouton.munki.EndNoteX9
+Input:
+  DEFAULT_CATALOG: testing
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: EndNoteX9
+  pkginfo:
+    catalogs:
+    - '%DEFAULT_CATALOG%'
+    category: Reference
+    description: Bibliographic management app.
+    developer: Thomson Reuters
+    display_name: EndNote X9
+    minimum_os_version: 10.10.0
+    name: '%NAME%'
+    unattended_install: true
+    blocking_applications:
+    - Microsoft Word
+    - EndNote X9
+    postinstall_script: "#!/bin/zsh\nDIR=\"EndNote CWYW Word 16.bundle\"\nPATH_SRC=\"/Applications/EndNote X9/Cite While You Write/$DIR\"\nPATH_DEST=\"/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/\"\n\n[[ -d \"$PATH_DEST\" ]] || mkdir -p \"$PATH_DEST\"\nif [ -d \"$PATH_SRC\" ]\nthen\n    echo \"Copying $DIR to $PATH_DEST\"\n    cp -r \"$PATH_SRC\" \"$PATH_DEST\"\nelse\n    echo \"Error: Directory $PATH_DEST does not exists.\"\nfi\n\t\t\t"
+    postuninstall_script: "#!/bin/zsh\nDIR=\"EndNote CWYW Word 16.bundle\"\nPATH_DEST=\"/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/$DIR\"\n\nif [ -d \"$PATH_DEST\" ]\nthen\n    echo \"Removing $PATH_DEST\"\n    rm -r \"$PATH_DEST\"\nfi\n\t\t\t"
+    preinstall_script: "#!/bin/zsh\nendnote_bundle_2008=\"/Applications/Microsoft Office 2008/Office/Startup/Word/EndNote CWYW Word 2008.bundle\"\nendnote_bundle_2011=\"/Applications/Microsoft Office 2011/Office/Startup/Word/EndNote CWYW Word 2011.bundle\"\nendnote_bundle_2016=\"/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/EndNote CWYW Word 2016.bundle\"\n\nbundles=(\"$endnote_bundle_2008\" \"$endnote_bundle_2011\" \"$endnote_bundle_2016\")\n\nfor i in $bundles; do\n  if [ -d \"$i\" ]\n  then\n    echo \"Removing old CWYW bundle $i\"\n    rm -r \"$i\"\n  else\n    echo \"$i is not installed\"\n    echo \"Proceeding with installation\"\n  fi\ndone\n\t\t\t"
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.pkg.EndNoteX9
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

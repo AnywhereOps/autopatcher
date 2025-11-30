@@ -1,0 +1,37 @@
+# Downloaded from https://github.com/autopkg/moofit-recipes/blob/984f1b980c6a7ecc26402693543b0f1f9100b529/Smartsheet/Smartsheet.pkg.recipe
+# Commit: 984f1b980c6a7ecc26402693543b0f1f9100b529
+# Downloaded at: 2025-11-27 22:30:50 UTC
+
+Description: Downloads latest Smartsheet app
+Identifier: com.github.moofit-recipes.pkg.Smartsheet
+Input:
+  DOWNLOAD_URL: https://builds.desktopapp.smartsheet.com/public/darwin/Smartsheet-setup.dmg
+  NAME: Smartsheet
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+    filename: '%NAME%.dmg'
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%pathname%'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/%app_name%'
+    destination_path: '%pkgroot%/Applications/%app_name%'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      version: '%version%'
+      id: '%bundleid%'
+      options: purge_ds_store
+      chown:
+      - path: Applications
+        user: root
+        group: admin

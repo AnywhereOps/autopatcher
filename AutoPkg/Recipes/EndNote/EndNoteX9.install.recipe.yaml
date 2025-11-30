@@ -1,0 +1,12 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/EndNote/EndNoteX9.install.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:33:04 UTC
+
+Description: Downloads the current release version of EndNote X9, builds a package and installs it.
+Identifier: com.github.rtrouton.install.EndNoteX9
+Input:
+  NAME: EndNoteX9
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.pkg.EndNoteX9
+Process:
+- Processor: Installer

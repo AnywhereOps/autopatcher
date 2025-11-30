@@ -1,0 +1,17 @@
+Description: Obtain upstream DotNet recipe from autopkg/gerardkok-recipes
+
+Identifier: com.github.anywhereops.vendorer.DotNet
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/gerardkok-recipes
+      folder_path: DotNet
+      commit_sha: fba95dd24e8408ba08f9d74cb5f82468883691fa
+      destination_path: DotNet
+      recipe_type: munki
+      required_license: Apache-2.0

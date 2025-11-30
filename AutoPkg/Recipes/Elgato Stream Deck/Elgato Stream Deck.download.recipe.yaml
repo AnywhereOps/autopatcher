@@ -1,0 +1,22 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Elgato Stream Deck/Elgato Stream Deck.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:26:39 UTC
+
+Description: Downloads latest version of Elgato Stream Deck.
+Identifier: com.github.dataJAR-recipes.download.Elgato Stream Deck
+Input:
+  NAME: ElgatoStreamDeck
+MinimumVersion: '1.1'
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.pkg'
+    url: https://gc-updates.elgato.com/mac/sd-update/final/download-website.php
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Corsair Memory, Inc. (Y93VXCB8Q5)'
+    - Developer ID Certification Authority
+    - Apple Root CA

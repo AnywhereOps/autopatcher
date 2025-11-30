@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/its-unibas-recipes/blob/c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c/TableauPrep/TableauPrep.download.recipe
+# Commit: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+# Downloaded at: 2025-11-27 22:30:07 UTC
+
+Description: Downloads latest Tableau Prep disk image.
+Identifier: ch.unibas.its.git.mcs.download.tableau-prep
+Input:
+  DOWNLOAD_URL: https://www.tableau.com/downloads/prep/mac
+  NAME: TableauPrep
+MinimumVersion: 0.3.1
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: '%DOWNLOAD_URL%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Tableau Software, LLC (QJ4XPRK37C)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%/Tableau Prep Builder.pkg'

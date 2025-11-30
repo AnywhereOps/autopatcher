@@ -1,0 +1,17 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/VLC/VLC.install.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:29:33 UTC
+
+Description: Downloads and installs latest VLC.
+Identifier: com.github.autopkg.install.VLC
+Input:
+  NAME: VLC
+MinimumVersion: 0.4.0
+ParentRecipe: com.github.autopkg.download.VLC
+Process:
+- Processor: InstallFromDMG
+  Arguments:
+    dmg_path: '%pathname%'
+    items_to_copy:
+    - source_item: VLC.app
+      destination_path: /Applications/

@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Elgato Camera Hub/Elgato Camera Hub.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:26:31 UTC
+
+Description: Downloads the latest version of Elgato Camera Hub.
+Identifier: com.github.dataJAR-recipes.download.Elgato Camera Hub
+Input:
+  NAME: ElgatoCameraHub
+MinimumVersion: '1.1'
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: \"fileURL\":\"(https://edge\.elgato\.com/egc/macos/echm/([A-Za-z0-9]+(\.[A-Za-z0-9]+)+)/Camera_Hub_([0-9]+(\.[0-9]+)+)\.pkg)\"
+    result_output_var_name: DOWNLOAD_URL
+    url: https://gc-updates.elgato.com/mac/echm-update/final/app-version-check.json.php
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.pkg'
+    url: '%DOWNLOAD_URL%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Corsair Memory, Inc. (Y93VXCB8Q5)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%'

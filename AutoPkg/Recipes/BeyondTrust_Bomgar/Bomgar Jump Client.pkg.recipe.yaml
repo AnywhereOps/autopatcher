@@ -1,0 +1,48 @@
+# Downloaded from https://github.com/autopkg/MLBZ521-recipes/blob/8b7738eed4c2f8b6b32a897907ee3420fa0c74ef/BeyondTrust_Bomgar/Bomgar Jump Client.pkg.recipe
+# Commit: 8b7738eed4c2f8b6b32a897907ee3420fa0c74ef
+# Downloaded at: 2025-11-27 22:25:57 UTC
+
+Description: "Downloads and packages the latest verison of Bomgar Jump Client from a local file share.\n\nThe name of the bundled application and the package will be named based on the NAME substituion variable.\n\t"
+Identifier: com.github.mlbz521.pkg.BomgarJumpClient
+Input:
+  NAME: Bomgar Jump Client
+ParentRecipe: com.github.mlbz521.download.BomgarJumpClient
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs:
+      tmp: '0755'
+- Processor: com.github.mlbz521.SharedProcessors/StringRightSplitter
+  Arguments:
+    string_to_split: '%found_filename%'
+    split_on: /
+    occurrence: 1
+    index: 1
+    return_variable: file_name
+- Processor: Copier
+  Arguments:
+    source_path: '%found_filename%'
+    destination_path: '%pkgroot%/tmp/%file_name%'
+- Processor: com.github.mlbz521.SharedProcessors/StringRightSplitter
+  Arguments:
+    string_to_split: '%version%'
+    split_on: .
+    occurrence: 1
+    index: 0
+    return_variable: version
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      version: '%version%'
+      id: '%bundleid%'
+      options: purge_ds_store
+      chown:
+      - path: tmp
+        user: root
+        group: admin
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/pkgroot'

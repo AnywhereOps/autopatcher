@@ -1,0 +1,59 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Meta Quest Remote Desktop/Meta Quest Remote Desktop.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:29:51 UTC
+
+Comment: 'Please note to successfully import the package in to your munki repo this PR needs to be resolved: https://github.com/munki/munki/pull/1238 or the changes within need to be made manually.'
+Description: "Downloads the latest version of Meta Quest Remote Desktop and imports it into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: com.github.dataJAR-recipes.munki.Meta Quest Remote Desktop
+Input:
+  DERIVE_MIN_OS: YES
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: MetaQuestRemoteDesktop
+  pkginfo:
+    catalogs:
+    - testing
+    developer: Facebook Technologies, LLC
+    description: Remote Desktop lets you pair your computer to your Meta Quest headset, streaming what is on your computer screen into VR.
+    display_name: Meta Quest Remote Desktop
+    name: '%NAME%'
+    uninstall_method: uninstall_script
+    uninstall_script: "#!/bin/bash\n\n# Uninstall script for Meta Quest Remote Desktop\n# System-level removal only - no user data affected\n# Based on the install package scripts\n\n# Exit on any error\nset -e\n\n# Define paths\nINSTALL_PATH=\"/Applications/Meta Quest Remote Desktop.app\"\nOLD_INSTALL_PATH=\"/Applications/VirtualDesktop.app\"\nDAEMON_DIR=\"/Library/PrivilegedHelperTools\"\nAUDIO_DRIVERS=(\n    \"/Library/Audio/Plug-Ins/HAL/NullAudio.driver\"\n    \"/Library/Audio/Plug-Ins/HAL/FbRemoteDesktop.driver\"\n    \"/Library/Audio/Plug-Ins/HAL/OculusRemoteDesktopASP.driver\"\n)\nLAUNCH_DAEMONS=(\n    \"/Library/LaunchDaemons/com.oculus.xr2dsd.auto.plist\"\n    \"/Library/LaunchDaemons/com.oculus.xr2dsd.plist\"\n)\n\necho \"Starting uninstall script...\"\n\n# Function to stop running processes\nstop_processes() {\n    echo \"Stopping running processes...\"\n    # Stop all related processes\n    pkill -15 \"Meta Quest Remote Desktop\" 2>/dev/null || true\n    pkill -15 \"Meta Quest Remote Desktop Helper\" 2>/dev/null || true\n    pkill -15 \"OrdServerMac\" 2>/dev/null || true\n    pkill -15 \"Oculus Remote Desktop\" 2>/dev/null || true\n    pkill -15 \"Oculus Remote Desktop Server\" 2>/dev/null || true\n    pkill -15 \"VirtualDesktop\" 2>/dev/null || true\n}\n\n# Function to clean launch daemons\nclean_launch_daemons() {\n    echo \"Cleaning launch daemons...\"\n\n    # Remove launch daemon entries\n    launchctl remove com.oculus.xr2dsd.autoload 2>/dev/null || true\n    launchctl remove com.oculus.xr2dsd.nonauto 2>/dev/null || true\n    launchctl remove com.oculus.xr2dsd 2>/dev/null || true\n    launchctl remove com.meta.mqrd.launcher 2>/dev/null || true\n\n    # Remove launch daemon files\n    for daemon in \"${LAUNCH_DAEMONS[@]}\"; do\n        if [ -f \"$daemon\" ]; then\n            echo \"Removing daemon: $daemon\"\n            launchctl unload \"$daemon\" 2>/dev/null || true\n            rm -f \"$daemon\"\n        fi\n    done\n}\n\n# Function to clean application packages\nclean_app_packages() {\n    echo \"Removing application packages...\"\n\n    # Remove current version\n    if [ -d \"$INSTALL_PATH\" ]; then\n        echo \"Removing current version at $INSTALL_PATH\"\n        rm -rf \"$INSTALL_PATH\"\n    fi\n\n    # Remove old version\n    if [ -d \"$OLD_INSTALL_PATH\" ]; then\n        echo \"Removing old version at $OLD_INSTALL_PATH\"\n        rm -rf \"$OLD_INSTALL_PATH\"\n    fi\n}\n\n# Function to clean audio drivers\nclean_audio_drivers() {\n    echo \"Cleaning audio drivers...\"\n\n    for driver in \"${AUDIO_DRIVERS[@]}\"; do\n        if [ -d \"$driver\" ]; then\n            echo \"Removing audio driver: $driver\"\n            rm -rf \"$driver\"\n        fi\n    done\n}\n\n# Function to clean system-level components\nclean_system_components() {\n    echo \"Cleaning system-level components...\"\n\n    # Remove daemon directory\n    if [ -d \"$DAEMON_DIR\" ]; then\n        rm -rf \"$DAEMON_DIR\"\n    fi\n\n    # Clear system-level registration\n    /System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister -u \"$INSTALL_PATH\"\n}\n\n# Main execution\necho \"Starting system-level uninstall...\"\n\nstop_processes\nclean_launch_daemons\nclean_app_packages\nclean_audio_drivers\nclean_system_components\n\necho \"System-level uninstall completed successfully\"\necho \"Note: User-specific preferences and data were preserved\"\nexit"
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.dataJAR-recipes.download.Meta Quest Remote Desktop
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpacked'
+    flat_pkg_path: '%pathname%'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Applications/Meta Quest Remote Desktop.app'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/Distribution.pkg/Payload'
+    purge_destination: true
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+    faux_root: '%RECIPE_CACHE_DIR%'
+    installs_item_paths:
+    - /Applications/Meta Quest Remote Desktop.app
+- Processor: MunkiPkginfoMerger
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/Applications/Meta Quest Remote Desktop.app/Contents/Info.plist'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+    version_comparison_key: CFBundleShortVersionString
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpacked'
+    - '%RECIPE_CACHE_DIR%/Applications'

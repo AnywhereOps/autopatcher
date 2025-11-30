@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/its-unibas-recipes/blob/c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c/JetBrains/PyCharm.munki.recipe
+# Commit: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+# Downloaded at: 2025-11-27 22:28:52 UTC
+
+Description: "Downloads the latest PyCharm disk image and imports into Munki.\nDefaults to the PyCharm Community Edition for intel architecture. Override the following keys for other versions:\nFor macOS Silicon: \n    - ARCHITECTURE == \"M1\"\nFor PyCharm Professional Edition: \n    - CODESIGNATUREAPPNAME == \"PyCharm\"\n    - CODESIGNATUREIDENTIFIER == \"com.jetbrains.pycharm\"\n    - EDITION == \"PCP\""
+Identifier: com.github.its-unibas.munki.PyCharm
+Input:
+  MUNKI_REPO_SUBDIR: apps/JetBrains/PyCharm
+  NAME: PyCharm
+  pkginfo:
+    catalogs:
+    - testing
+    category: Productivity
+    description: "PyCharm provides smart code completion, code inspections, on-the-fly error highlighting and\n                    quick-fixes, along with automated code refactorings and rich navigation capabilities.\n                "
+    developer: JetBrains
+    display_name: '%NAME%'
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.its-unibas.download.PyCharm
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

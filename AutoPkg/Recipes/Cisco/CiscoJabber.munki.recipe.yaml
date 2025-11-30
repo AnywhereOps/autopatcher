@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Cisco/CiscoJabber.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:29:47 UTC
+
+Description: Download the latest version of Cisco Jabber and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.ciscojabber
+Input:
+  MUNKI_REPO_SUBDIR: apps/ciscojabber
+  NAME: Cisco Jabber
+  pkginfo:
+    catalogs:
+    - testing
+    display_name: '%NAME%'
+    category: Social
+    developer: Cisco Systems Inc.
+    description: "Collaborate anywhere, on any device\nMobility doesn\u2019t have to limit productivity. Cisco Jabber delivers instant messaging, voice and video calls, voice messaging, desktop sharing, conferencing, and presence. Find the right people, see whether and how they\u2019re available, and collaborate more effectively."
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.3.0
+ParentRecipe: com.github.joshua-d-miller.download.ciscojabber
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

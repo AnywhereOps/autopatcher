@@ -1,0 +1,17 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/GoToMeeting/GoToMeeting.install.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:31:39 UTC
+
+Description: "Installs the latest version of GoToMeeting on the Mac running AutoPkg.\n\nNOTE: This recipe does not utilize the preinstall cleanup script used by the pkg and munki recipes."
+Identifier: com.github.homebysix.install.GoToMeeting
+Input:
+  NAME: GoToMeeting
+MinimumVersion: '1.4'
+ParentRecipe: com.github.homebysix.download.GoToMeeting
+Process:
+- Processor: InstallFromDMG
+  Arguments:
+    dmg_path: '%pathname%'
+    items_to_copy:
+    - destination_path: /Applications
+      source_item: GoToMeeting.app

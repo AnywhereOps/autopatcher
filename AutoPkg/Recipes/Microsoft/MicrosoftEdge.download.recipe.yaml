@@ -1,0 +1,22 @@
+# Downloaded from https://github.com/autopkg/n8felton-recipes/blob/646d469b0e6e964e0605774d8541ce29912b9207/Microsoft/MicrosoftEdge.download.recipe
+# Commit: 646d469b0e6e964e0605774d8541ce29912b9207
+# Downloaded at: 2025-11-27 22:31:52 UTC
+
+Description: Downloads the latest version of Microsoft Edge for the specified branch.
+Identifier: com.github.n8felton.download.MicrosoftEdge
+Input:
+  CHANNEL: ''
+  NAME: MicrosoftEdge
+MinimumVersion: '1.0'
+Process:
+- Processor: MicrosoftEdgeURLProvider
+- Processor: com.github.n8felton.shared/RemoteFilenameFinder
+- Processor: URLDownloader
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%'

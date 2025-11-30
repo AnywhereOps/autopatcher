@@ -1,0 +1,61 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Omnissa Horizon Client/Omnissa Horizon Client.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:27:48 UTC
+
+Description: Downloads the latest version of Omnissa Horizon Client for Mac and imports into Munki.
+Identifier: com.github.dataJAR-recipes.munki.Omnissa Horizon Client
+Input:
+  MUNKI_CATEGORY: Productivity
+  MUNKI_REPO_SUBDIR: apps/Omnissa
+  pkginfo:
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: Omnissa Horizon Client for Mac allows you to connect to your Omnissa Horizon virtual desktop from your device of choice giving you on-the-go access from any location.
+    developer: Omnissa
+    display_name: Omnissa Horizon Client
+    name: OmnissaHorizonClient
+    postinstall_script: "#!/bin/sh\n\n/Applications/Omnissa\\ Horizon\\ Client.app/Contents/Library/InitUsbServices.tool\n\nexit"
+    uninstall_method: uninstall_script
+    uninstall_script: "#!/bin/sh\n\n/Applications/Omnissa\\ Horizon\\ Client.app/Contents/Resources/Uninstall\\ Omnissa\\ Horizon\\ Client.app/Contents/Library/uninstall.tool\n\nexit"
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.dataJAR-recipes.download.Omnissa Horizon Client
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    flat_pkg_path: '%pathname%/Omnissa Horizon Client.pkg'
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/Omnissa.Horizon.Client.pkg/Payload'
+    destination_path: '%RECIPE_CACHE_DIR%/payload/Applications'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    derive_minimum_os_version: 'true'
+    faux_root: '%RECIPE_CACHE_DIR%/payload'
+    installs_item_paths:
+    - /Applications/Omnissa Horizon Client.app
+- Processor: MunkiPkginfoMerger
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/payload/Applications/Omnissa Horizon Client.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: PkgCopier
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/OmnissaHorizonClient.pkg'
+    source_pkg: '%pathname%/Omnissa Horizon Client.pkg'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pkg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpack'
+    - '%RECIPE_CACHE_DIR%/payload'

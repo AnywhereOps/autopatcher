@@ -1,0 +1,28 @@
+# Downloaded from https://github.com/autopkg/foigus-recipes/blob/6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63/Cisco/CiscoWebexAudioDriver.munki.recipe
+# Commit: 6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63
+# Downloaded at: 2025-11-27 22:26:09 UTC
+
+Description: Downloads latest Cisco Webex Audio Driver, builds an installation package, and imports it into Munki.
+Identifier: com.github.foigus.munki.ciscowebexaudiodriver
+Input:
+  MUNKI_REPO_SUBDIR: drivers/cisco
+  NAME: CiscoWebexAudioDriver
+  pkginfo:
+    catalogs:
+    - development-cisco-CiscoWebexAudioDriver
+    category: Productivity
+    description: This is a special audio driver package used to allow admins to pre-install the drivers on the end-user computers.
+    developer: Cisco
+    display_name: Cisco Webex Audio Driver
+    name: '%NAME%'
+    postinstall_script: "#!/bin/bash\n#Forget the receipt from the earlier AutoPkg-built package\nreceiptName=com.cisco.CiscoWebexAudioDriver.pkg\n\nif `pkgutil --pkgs=\"${receiptName}\" 2>&1 > /dev/null`\nthen\n\tpkgutil --forget \"${receiptName}\"\nfi"
+    postuninstall_script: "#!/bin/bash\n\n#Trigger macOS to reload the audio drivers, including detecting the Cisco Webex Audio\n#Driver has been removed.\nlaunchctl kickstart -k system/com.apple.audio.coreaudiod"
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.foigus.download.ciscowebexaudiodriver
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/unarchive/CiscoAudioDeviceInstall.pkg'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

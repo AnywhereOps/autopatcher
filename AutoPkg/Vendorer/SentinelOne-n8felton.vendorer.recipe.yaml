@@ -1,0 +1,16 @@
+Description: Obtain upstream SentinelOne recipe from autopkg/n8felton-recipes
+
+Identifier: com.github.anywhereops.vendorer.SentinelOne
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/n8felton-recipes
+      folder_path: SentinelOne
+      commit_sha: 646d469b0e6e964e0605774d8541ce29912b9207
+      destination_path: SentinelOne
+      recipe_type: munki

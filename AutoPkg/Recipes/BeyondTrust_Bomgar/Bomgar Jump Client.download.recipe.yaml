@@ -1,0 +1,36 @@
+# Downloaded from https://github.com/autopkg/MLBZ521-recipes/blob/8b7738eed4c2f8b6b32a897907ee3420fa0c74ef/BeyondTrust_Bomgar/Bomgar Jump Client.download.recipe
+# Commit: 8b7738eed4c2f8b6b32a897907ee3420fa0c74ef
+# Downloaded at: 2025-11-27 22:25:57 UTC
+
+Description: Downloads the latest verison of Bomgar Jump Client from a local file share.
+Identifier: com.github.mlbz521.download.BomgarJumpClient
+Input:
+  NAME: Bomgar Jump Client
+  SEARCH_STRING: Bomgar Jump Client
+  MAJOR_VERSION: ''
+  NAME_LIMITATION: ''
+  NAME_EXCEPTION: testing
+  FILE_SHARE: /path/to/offline/repository
+  VERSION_STRING_SEPARATOR: '-'
+  MAX_FOLDER_DEPTH: '1'
+Process:
+- Processor: com.github.mlbz521.SharedProcessors/OfflineApps
+  Arguments:
+    search_path: '%FILE_SHARE%'
+    search_string: '%SEARCH_STRING%'
+    major_version: '%MAJOR_VERSION%'
+    exception_string: '%NAME_EXCEPTION%'
+    limitation_string: '%NAME_LIMITATION%'
+    version_separator: '%VERSION_STRING_SEPARATOR%'
+    max_depth: '%MAX_FOLDER_DEPTH%'
+- Processor: FileFinder
+  Arguments:
+    pattern: '%cached_path%/*.dmg'
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%found_filename%'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%found_filename%/*.app'
+    requirement: identifier "com.bomgar.bomgar-scc" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = B65TM49E24
+- Processor: EndOfCheckPhase

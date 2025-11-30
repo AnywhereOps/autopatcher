@@ -1,0 +1,33 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/Sublime HQ/Sublime Merge.download.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:29:27 UTC
+
+Comment: Created with Recipe Robot v1.1.3 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Sublime Merge.
+Identifier: com.github.homebysix.download.SublimeMerge
+Input:
+  NAME: Sublime Merge
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: https://download\.sublimetext\.com/sublime_merge_build_.*?_mac\.zip
+    result_output_var_name: url
+    url: https://www.sublimemerge.com/download_thanks?target=mac
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.zip'
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%'
+    purge_destination: true
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/%NAME%/Sublime Merge.app'
+    requirement: identifier "com.sublimemerge" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = Z6D26JE4Y4
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/%NAME%/Sublime Merge.app/Contents/Info.plist'
+    plist_version_key: CFBundleVersion

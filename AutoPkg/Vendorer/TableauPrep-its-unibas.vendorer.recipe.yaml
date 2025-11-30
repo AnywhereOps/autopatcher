@@ -1,0 +1,16 @@
+Description: Obtain upstream TableauPrep recipe from autopkg/its-unibas-recipes
+
+Identifier: com.github.anywhereops.vendorer.TableauPrep
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/its-unibas-recipes
+      folder_path: TableauPrep
+      commit_sha: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+      destination_path: TableauPrep
+      recipe_type: munki

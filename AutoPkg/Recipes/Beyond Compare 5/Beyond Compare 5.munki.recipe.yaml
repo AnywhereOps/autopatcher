@@ -1,0 +1,31 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Beyond Compare 5/Beyond Compare 5.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:25:50 UTC
+
+Description: Downloads the latest version of Beyond Compare 5 and imports it into Munki.
+Identifier: com.github.dataJAR-recipes.munki.Beyond Compare 5
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: BeyondCompare5
+  pkginfo:
+    catalogs:
+    - testing
+    description: Beyond Compare allows you to quickly and easily compare your files and folders.  By using simple, powerful commands you can focus on the differences you're interested in and ignore those you're not.  You can then merge the changes, synchronize your files, and generate reports for your records.
+    developer: Scooter Software, Inc.
+    display_name: Beyond Compare 5
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.dataJAR-recipes.download.Beyond Compare 5
+Process:
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/%NAME%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%dmg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list: '%RECIPE_CACHE_DIR%/%NAME%'

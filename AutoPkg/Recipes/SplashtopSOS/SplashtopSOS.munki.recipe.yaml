@@ -1,0 +1,26 @@
+# Downloaded from https://github.com/autopkg/peetinc-recipes/blob/6ad7836570feb23d45b5ea150db2773fca2674a8/SplashtopSOS/SplashtopSOS.munki.recipe
+# Commit: 6ad7836570feb23d45b5ea150db2773fca2674a8
+# Downloaded at: 2025-11-27 22:33:10 UTC
+
+Comment: Created with Recipe Robot v2.2.0 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Splashtop SOS and imports it into Munki.
+Identifier: com.github.peetinc.munki.SplashtopSOS
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: SplashtopSOS
+  pkginfo:
+    catalogs:
+    - testing
+    description: Download and run the SOS app to give your IT Admin remote access to this computer.
+    developer: Splashtop
+    display_name: Splashtop SOS
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.peetinc.download.SplashtopSOS
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

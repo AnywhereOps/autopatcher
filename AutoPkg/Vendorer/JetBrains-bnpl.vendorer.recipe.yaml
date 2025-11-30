@@ -1,0 +1,17 @@
+Description: Obtain upstream JetBrains recipe from autopkg/bnpl-recipes
+
+Identifier: com.github.anywhereops.vendorer.JetBrains
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/bnpl-recipes
+      folder_path: JetBrains
+      commit_sha: 90d8fb437cb2819f34487c26eb7b68928bfb079b
+      destination_path: JetBrains
+      recipe_type: munki
+      required_license: MIT

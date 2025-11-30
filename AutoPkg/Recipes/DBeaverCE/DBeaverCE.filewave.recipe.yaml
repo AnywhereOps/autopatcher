@@ -1,0 +1,34 @@
+# Downloaded from https://github.com/autopkg/peshay-recipes/blob/dcbcd986ccd675a3a0b5362a97be857abad0151d/DBeaverCE/DBeaverCE.filewave.recipe
+# Commit: dcbcd986ccd675a3a0b5362a97be857abad0151d
+# Downloaded at: 2025-11-27 22:26:19 UTC
+
+Description: Downloads latest version of DBeaver Community Edition and imports into FileWave.
+Identifier: com.github.peshay.filewave.DBeaverCE
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.peshay.download.DBeaverCE
+Input:
+  NAME: DBeaverCE
+  fw_app_bundle_id: com.github.peshay.filewave.DBeaverCE
+  fw_destination_root: /Applications/DBeaverCE.app
+  os: macos
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/Applications'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/DBeaverCE.app'
+    source_path: '%pathname%/*.app'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pkgroot%/DBeaverCE.app'
+    requirement: identifier "org.jkiss.dbeaver.core.product" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "42B6MDKMW8"
+- Processor: com.github.autopkg.filewave.FWTool/FileWaveImporter
+  Arguments:
+    fw_app_bundle_id: '%fw_app_bundle_id%'
+    fw_app_version: '%version%'
+    fw_destination_root: '%fw_destination_root%'
+    fw_fileset_name: '%NAME% - %version%'
+    fw_import_source: '%pkgroot%/DBeaverCE.app'

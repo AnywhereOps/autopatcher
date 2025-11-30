@@ -1,0 +1,12 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/Dropbox/Dropbox.pkg.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:30:28 UTC
+
+Description: Downloads the latest version of Dropbox and makes a pkg of it.
+Identifier: com.github.autopkg.pkg.dropbox
+Input:
+  NAME: Dropbox
+MinimumVersion: '1.0'
+ParentRecipe: com.github.autopkg.download.dropbox
+Process:
+- Processor: AppPkgCreator

@@ -1,0 +1,42 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/Blender/Blender.pkg.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:29:43 UTC
+
+Description: Downloads the current release version of Blender and builds a package.
+Identifier: io.github.hjuutilainen.pkg.Blender
+Input:
+  NAME: Blender
+ParentRecipe: io.github.hjuutilainen.download.Blender
+MinimumVersion: 0.4.2
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/Blender.app'
+    destination_path: '%pkgroot%/Applications/Blender.app'
+    purge_destination: true
+- Processor: PlistReader
+  Arguments:
+    info_path: '%pkgroot%/Applications/Blender.app'
+    plist_keys:
+      CFBundleIdentifier: bundleid
+      CFBundleName: app_name
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      version: '%version%'
+      id: '%bundleid%'
+      chown:
+      - path: Applications
+        user: root
+        group: admin
+        mode: '0755'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/pkgroot'

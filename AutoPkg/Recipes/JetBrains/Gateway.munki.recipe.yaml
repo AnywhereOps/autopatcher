@@ -1,0 +1,31 @@
+# Downloaded from https://github.com/autopkg/bnpl-recipes/blob/90d8fb437cb2819f34487c26eb7b68928bfb079b/JetBrains/Gateway.munki.recipe
+# Commit: 90d8fb437cb2819f34487c26eb7b68928bfb079b
+# Downloaded at: 2025-11-27 22:28:02 UTC
+
+Description: Downloads the current release version of JetBrains Gateway and imports into Munki.
+Comment: For the SUPPORTED_ARCH variable use "x86_64" for Intel, use "arm64" for Apple Silicon
+Identifier: com.github.bnpl.autopkg.munki.jetbrainsgateway
+Input:
+  NAME: JetBrains Gateway
+  MUNKI_REPO_SUBDIR: apps/jetbrains
+  SUPPORTED_ARCH: arm64
+  pkginfo:
+    catalogs:
+    - testing
+    category: Developer Tools
+    description: JetBrains Gateway is a compact desktop app that allows you to work remotely with a JetBrains IDE without even downloading one.
+    developer: JetBrains
+    display_name: JetBrains Gateway
+    name: '%NAME%'
+    supported_architectures:
+    - '%SUPPORTED_ARCH%'
+    unattended_install: true
+    unattended_uninstall: true
+    uninstallable: true
+MinimumVersion: 0.4.3
+ParentRecipe: com.github.bnpl.autopkg.download.jetbrainsgateway
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

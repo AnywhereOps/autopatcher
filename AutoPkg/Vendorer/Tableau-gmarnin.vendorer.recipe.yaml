@@ -1,0 +1,16 @@
+Description: Obtain upstream Tableau recipe from autopkg/gmarnin-recipes
+
+Identifier: com.github.anywhereops.vendorer.Tableau
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/gmarnin-recipes
+      folder_path: Tableau
+      commit_sha: c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c
+      destination_path: Tableau
+      recipe_type: munki

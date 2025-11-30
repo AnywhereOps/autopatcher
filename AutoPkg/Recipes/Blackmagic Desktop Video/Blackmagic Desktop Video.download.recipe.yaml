@@ -1,0 +1,46 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Blackmagic Desktop Video/Blackmagic Desktop Video.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:30:17 UTC
+
+Description: Downloads the latest version of Black Magic Desktop Video
+Identifier: com.github.dataJAR-recipes.download.Blackmagic Desktop Video
+Input:
+  NAME: BlackmagicDesktopVideo
+  PRODUCT_NAME_PATTERN: ^Desktop Video (?P<version>\d+\.\d+(\.\d+)?)$
+  REG_FIRSTNAME: ''
+  REG_LASTNAME: ''
+  REG_EMAIL: ''
+  REG_PHONE: ''
+  REG_CITY: ''
+  REG_STATE: ''
+  REG_COUNTRY: ''
+MinimumVersion: '1.1'
+Process:
+- Processor: com.github.timsutton.download.davinciresolvelite11/BlackMagicURLProvider
+  Arguments:
+    product_name_pattern: '%PRODUCT_NAME_PATTERN%'
+    product_name: Desktop Video
+    registration_info:
+      firstname: '%REG_FIRSTNAME%'
+      lastname: '%REG_LASTNAME%'
+      email: '%REG_EMAIL%'
+      phone: '%REG_PHONE%'
+      city: '%REG_CITY%'
+      country: '%REG_COUNTRY%'
+      state: '%REG_STATE%'
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%-%version%.zip'
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%'
+    purge_destination: true
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Blackmagic Design Inc (9ZGFBWLSYP)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%RECIPE_CACHE_DIR%/%NAME%/Blackmagic_Desktop_Video_%version%.dmg/Install Desktop Video %version%.pkg'

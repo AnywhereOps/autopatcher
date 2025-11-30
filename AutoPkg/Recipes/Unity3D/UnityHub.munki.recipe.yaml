@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Unity3D/UnityHub.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:32:26 UTC
+
+Description: Downloads latest UnityHub disk image, builds a package and imports it into Munki.
+Identifier: com.github.dataJAR-recipes.munki.UnityHub
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: UnityHub
+  pkginfo:
+    catalogs:
+    - testing
+    description: The Unity Hub is a standalone application that streamlines the way you find, download, and manage your Unity Projects and installations. In addition, you can manually add versions of the Editor that you have already installed on your machine to your Hub.
+    developer: Unity 3D
+    display_name: Unity Hub
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.dataJAR-recipes.pkg.UnityHub
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%dmg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+    version_comparison_key: CFBundleShortVersionString

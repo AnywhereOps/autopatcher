@@ -1,0 +1,210 @@
+# Downloaded from https://github.com/autopkg/grahampugh-recipes/blob/efb3512b57ba07bdf23c9f7f800236911a81b295/PostProcessors/LastRecipeRunResult.py
+# Commit: efb3512b57ba07bdf23c9f7f800236911a81b295
+# Downloaded at: 2025-11-28 05:24:46 UTC
+
+#!/usr/local/autopkg/python
+#
+# 2019 Graham R Pugh
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""See docstring for LastRecipeRunResult class"""
+
+import os.path
+import json
+
+from autopkglib import Processor  # pylint: disable=import-error
+
+
+__all__ = ["LastRecipeRunResult"]
+
+
+class LastRecipeRunResult(Processor):
+    """An AutoPkg processor which writes useful results of a recipe to a JSON file, which can be
+    used to run a different recipe based on those values."""
+
+    input_variables = {
+        "RECIPE_CACHE_DIR": {"required": False, "description": ("RECIPE_CACHE_DIR.")},
+        "output_file_path": {
+            "description": ("Path to output file."),
+            "required": False,
+        },
+        "output_file_name": {
+            "description": ("Name of output file."),
+            "required": False,
+            "default": "latest_version.json",
+        },
+        "url": {"description": ("the download URL."), "required": False},
+        "pkg_path": {
+            "description": ("The path where the package is stored."),
+            "required": False,
+        },
+        "pkg_name": {
+            "description": ("The name of the package."),
+            "required": False,
+            "default": "",
+        },
+        "pkg_uploaded": {
+            "description": ("whether a package was uploaded on the last run or not."),
+            "required": False,
+        },
+        "pkg_metadata_updated": {
+            "description": ("whether package metadata was uploaded on the last run or not."),
+            "required": False,
+        },
+        "pathname": {
+            "description": ("The path to the downloaded installer."),
+            "required": False,
+        },
+        "version": {
+            "description": ("The current package version."),
+            "required": False,
+            "default": "",
+        },
+        "bundleid": {
+            "description": ("Bundle identifier of the app."),
+            "required": False,
+            "default": "",
+        },
+        "license_key": {
+            "description": ("The outputted value for license_key."),
+            "required": False,
+            "default": "",
+        },
+        "PKG_CATEGORY": {
+            "description": ("The package category in Jamf Pro."),
+            "required": False,
+            "default": "",
+        },
+        "policy_name": {
+            "description": ("The policy name in Jamf Pro."),
+            "required": False,
+            "default": "",
+        },
+        "minimum_os_version": {
+            "description": (
+                "The minimum OS version compatibility of a package, "
+                "determined by a PlistReader processor."
+            ),
+            "required": False,
+            "default": "",
+        },
+        "SELFSERVICE_DESCRIPTION": {
+            "description": ("The self-service description in Jamf Pro."),
+            "required": False,
+            "default": "",
+        },
+    }
+
+    output_variables = {
+        "url": {"description": ("the download URL.")},
+        "version": {"description": ("The current package version.")},
+        "bundleid": {"description": ("Bundle identifier of the app.")},
+        "license_key": {"description": ("The outputted value for license_key.")},
+        "pkg_path": {"description": ("the package path.")},
+        "pkg_name": {"description": ("the package name.")},
+        "pkg_uploaded": {"description": ("whether a package was uploaded on the last run or not")},
+        "pkg_metadata_updated": {"description": ("whether package metadata was uploaded on the last run or not")},
+        "pkg_name": {"description": ("the package name.")},
+        "PKG_CATEGORY": {"description": ("The package category.")},
+        "policy_name": {"description": ("The policy name.")},
+        "minimum_os_version": {
+            "description": ("The minimum OS version compatibility of a package.")
+        },
+        "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
+    }
+
+    description = __doc__
+
+    def get_latest_recipe_run_info(self, output_file):
+        """get information from the output files of a LastRecipeRunResult processor"""
+        try:
+            with open(output_file, "r") as fp:
+                data = json.load(fp)
+        except (IOError, ValueError):
+            data = {}
+        return data
+
+    def main(self):
+        """output the values to a file in the location provided"""
+
+        output_file_path = self.env.get("output_file_path")
+        output_file_name = self.env.get("output_file_name")
+        pathname = self.env.get("pathname")
+        pkg_path = self.env.get("pkg_path")
+        pkg_name = self.env.get("pkg_name")
+        pkg_uploaded = self.env.get("pkg_uploaded")
+        pkg_metadata_updated = self.env.get("pkg_metadata_updated")
+        url = self.env.get("url")
+        version = self.env.get("version")
+        bundleid = self.env.get("bundleid")
+        license_key = self.env.get("license_key")
+        category = self.env.get("PKG_CATEGORY")
+        policy_name = self.env.get("policy_name")
+        minimum_os_version = self.env.get("minimum_os_version")
+        self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
+
+        if pathname:
+            self.output("Download: {}".format(pathname))
+        if pkg_path:
+            self.output("Package path: {}".format(pkg_path))
+        if pkg_name:
+            self.output("Package name: {}".format(pkg_name))
+        if pkg_uploaded:
+            self.output("Package updated on last run: {}".format(pkg_uploaded))
+        if pkg_metadata_updated:
+            self.output("Package metadata updated on last run: {}".format(pkg_metadata_updated))
+        if url:
+            self.output("URL: {}".format(url))
+        if version:
+            self.output("Version: {}".format(version))
+        if bundleid:
+            self.output("Bundle identifier: {}".format(bundleid))
+        if license_key:
+            self.output("License Key: {}".format(license_key))
+        if category:
+            self.output("Pkg Category: {}".format(category))
+        if policy_name:
+            self.output("Policy name: {}".format(policy_name))
+        if minimum_os_version:
+            self.output("Minimum OS version: {}".format(minimum_os_version))
+        if self_service_description:
+            self.output("Self Service Description: {}".format(self_service_description))
+
+        if not output_file_path:
+            output_file_path = self.env.get("RECIPE_CACHE_DIR")
+        output_file = os.path.join(output_file_path, output_file_name)
+
+        data = self.get_latest_recipe_run_info(output_file)
+        data["pathname"] = pathname
+        data["pkg_path"] = pkg_path
+        data["pkg_name"] = pkg_name
+        data["pkg_uploaded"] = pkg_uploaded
+        data["pkg_metadata_updated"] = pkg_metadata_updated
+        data["url"] = url
+        data["version"] = version
+        data["bundleid"] = bundleid
+        data["license_key"] = license_key
+        data["category"] = category
+        data["policy_name"] = policy_name
+        data["minimum_os_version"] = minimum_os_version
+        data["self_service_description"] = self_service_description
+
+        with open(output_file, "w") as outfile:
+            json.dump(data, outfile)
+
+        self.output(f"Results written to: {output_file}")
+
+
+if __name__ == "__main__":
+    PROCESSOR = LastRecipeRunResult()
+    PROCESSOR.execute_shell()

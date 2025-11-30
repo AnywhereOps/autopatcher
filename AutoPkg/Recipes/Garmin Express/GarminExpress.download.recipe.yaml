@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/andredb90-recipes/blob/b086f2d096ab3b53a4c2f5db7c6ec60ba3437ab5/Garmin Express/GarminExpress.download.recipe
+# Commit: b086f2d096ab3b53a4c2f5db7c6ec60ba3437ab5
+# Downloaded at: 2025-11-27 22:30:34 UTC
+
+Description: Downloads the latest version of Garmin Express.
+Identifier: com.github.andredb90.download.GarminExpress
+Input:
+  DOWNLOAD_URL: https://download.garmin.com/omt/express/GarminExpress.dmg
+  NAME: Garmin Express
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: '%DOWNLOAD_URL%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Garmin International (72ES32VZUA)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%/Install Garmin Express.pkg'

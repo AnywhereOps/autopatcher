@@ -1,0 +1,16 @@
+Description: Obtain upstream Plantronics, Inc. recipe from autopkg/blackthroat-recipes
+
+Identifier: com.github.anywhereops.vendorer.Plantronics,Inc.
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/blackthroat-recipes
+      folder_path: Plantronics, Inc.
+      commit_sha: 553de847ae0637b40824192de99c4cd09e8c42ae
+      destination_path: Plantronics, Inc.
+      recipe_type: munki

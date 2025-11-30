@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/Blender/Blender.download.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:29:42 UTC
+
+Description: Downloads the latest Blender. (At least) Since v2.93 you may choose between x64 and arm64 as architecture. This recipes defaults to x64.
+Identifier: io.github.hjuutilainen.download.Blender
+Input:
+  NAME: Blender
+  ARCHITECTURE: x64
+MinimumVersion: 0.4.2
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://download.blender.org/release/
+    re_pattern: (?s)(Blender(\d+\.\d+)/)(?!.*(Blender(\d+\.\d+)/))
+  Comment: Get a link to a release page
+- Processor: URLTextSearcher
+  Arguments:
+    URL_INTER: https://download.blender.org/release/%match%
+    url: https://download.blender.org/release/%match%
+    re_pattern: (?s)(blender-(?P<version>\d+\.\d+\.\d+)-macos-%ARCHITECTURE%.dmg)(?!.*(blender-(\d+\.\d+\.\d+)-macos-%ARCHITECTURE%.dmg))
+  Comment: Get the dmg download URL from the release page. Adapted from https://github.com/autopkg/NickETH-recipes/blob/master/Blender/Blender-Win64.download.recipe.yaml
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: '%URL_INTER%%match%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Blender.app'
+    requirement: identifier "org.blenderfoundation.blender" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "68UA947AUU"
+    strict_verification: true

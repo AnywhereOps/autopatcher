@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/vmiller-recipes/blob/417cadde43e565a7223ce2ae4ad9a9a89e4b3ac1/PowerShell/PowerShell.munki.recipe
+# Commit: 417cadde43e565a7223ce2ae4ad9a9a89e4b3ac1
+# Downloaded at: 2025-11-27 22:28:46 UTC
+
+Comment: Created with Recipe Robot v1.0 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of PowerShell and imports it into Munki.
+Identifier: com.github.vmiller.munki.PowerShell
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: PowerShell
+  pkginfo:
+    catalogs:
+    - testing
+    description: PowerShell for every system!
+    developer: PowerShell Team
+    display_name: PowerShell
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.5.0
+ParentRecipe: com.github.vmiller.download.PowerShell
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

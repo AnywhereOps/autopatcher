@@ -1,0 +1,24 @@
+# Downloaded from https://github.com/autopkg/its-unibas-recipes/blob/c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c/JetBrains/Intellij.download.recipe
+# Commit: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+# Downloaded at: 2025-11-27 22:28:51 UTC
+
+Description: "Downloads latest Intellij disk image. Recipe inspired by https://github.com/facebook/Recipes-for-AutoPkg.\nDefaults to the Intellij Community Edition for intel architecture. Override the following keys for other versions:\nFor macOS Silicon: \n    - arch == \"aarch64\"\nFor IntelliJ Ultimate Edition: \n    - CODESIGNATUREAPPNAME == \"IntelliJ IDEA.app\"\n    - CODESIGNATUREREQUIREMENT == \"identifier \"com.jetbrains.intellij\" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = \"2ZEFAR8TH3\"\"\n    - edition == \"U\""
+Identifier: com.github.its-unibas.download.Intellij
+Input:
+  arch: intel
+  NAME: Intellij
+  CODESIGNATUREAPPNAME: IntelliJ IDEA CE.app
+  CODESIGNATUREREQUIREMENT: anchor apple generic and identifier "com.jetbrains.intellij.ce" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */) and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"
+  edition: C
+MinimumVersion: 0.6.0
+Process:
+- Processor: IntellijURLProvider
+- Processor: URLDownloader
+  Arguments:
+    url: '%url%'
+    filename: '%NAME%.dmg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/%CODESIGNATUREAPPNAME%'
+    requirement: '%CODESIGNATUREREQUIREMENT%'

@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/bnpl-recipes/blob/90d8fb437cb2819f34487c26eb7b68928bfb079b/JetBrains/Rider.munki.recipe
+# Commit: 90d8fb437cb2819f34487c26eb7b68928bfb079b
+# Downloaded at: 2025-11-27 22:28:04 UTC
+
+Description: Downloads the current release version of Rider and imports into Munki.
+Comment: For the SUPPORTED_ARCH variable use "x86_64" for Intel, use "arm64" for Apple Silicon
+Identifier: com.github.bnpl.autopkg.munki.rider
+Input:
+  NAME: Rider
+  MUNKI_REPO_SUBDIR: apps/jetbrains
+  SUPPORTED_ARCH: x86_64
+  pkginfo:
+    catalogs:
+    - testing
+    category: Developer Tools
+    description: "A cross-platform .NET IDE based on the IntelliJ platform and ReSharper\n\nhttps://www.jetbrains.com/rider"
+    developer: JetBrains
+    display_name: Rider
+    name: '%NAME%'
+    supported_architectures:
+    - '%SUPPORTED_ARCH%'
+    unattended_install: true
+    unattended_uninstall: true
+    uninstallable: true
+MinimumVersion: 0.4.3
+ParentRecipe: com.github.bnpl.autopkg.download.rider
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    munkiimport_appname: Rider.app
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

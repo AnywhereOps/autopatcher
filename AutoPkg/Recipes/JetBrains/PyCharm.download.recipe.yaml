@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/its-unibas-recipes/blob/c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c/JetBrains/PyCharm.download.recipe
+# Commit: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+# Downloaded at: 2025-11-27 22:28:52 UTC
+
+Description: "Downloads latest PyCharm disk image.\nDefaults to the PyCharm Community Edition for intel architecture. Override the following keys for other versions:\nFor macOS Silicon: \n    - ARCHITECTURE == \"M1\"\nFor PyCharm Professional Edition: \n    - CODESIGNATUREAPPNAME == \"PyCharm\"\n    - CODESIGNATUREIDENTIFIER == \"com.jetbrains.pycharm\"\n    - EDITION == \"PCP\""
+Identifier: com.github.its-unibas.download.PyCharm
+Input:
+  ARCHITECTURE: ''
+  CODESIGNATUREAPPNAME: PyCharm CE
+  CODESIGNATUREIDENTIFIER: com.jetbrains.pycharm.ce
+  EDITION: PCC
+  NAME: PyCharm
+MinimumVersion: 0.6.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    curl_opts:
+    - --location
+    prefetch_filename: true
+    url: https://download.jetbrains.com/product?code=%EDITION%&latest&distribution=mac%ARCHITECTURE%
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/%CODESIGNATUREAPPNAME%.app'
+    requirement: identifier "%CODESIGNATUREIDENTIFIER%" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"

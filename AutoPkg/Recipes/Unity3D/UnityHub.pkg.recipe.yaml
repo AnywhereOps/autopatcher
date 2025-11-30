@@ -1,0 +1,34 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Unity3D/UnityHub.pkg.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:32:26 UTC
+
+Description: Downloads latest UnityHub disk image and builds a package.
+Identifier: com.github.dataJAR-recipes.pkg.UnityHub
+Input:
+  NAME: UnityHub
+  DOWNLOAD_URL: https://public-cdn.cloud.unity3d.com/hub/prod/UnityHubSetup.dmg
+MinimumVersion: '0.0'
+ParentRecipe: com.github.hansen-m.download.UnityHub
+Process:
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%pathname%'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/%app_name%'
+    destination_path: '%pkgroot%/Applications/%app_name%'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      version: '%version%'
+      id: '%bundleid%'
+      chown:
+      - path: Applications
+        user: root
+        group: admin

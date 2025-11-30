@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/VLC/VLC.munki.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:29:33 UTC
+
+Description: "Downloads latest VLC disk image and imports into Munki.\n\nThis recipe defaults supported_architectures to both \"x86_64\" and \"arm64\" for\nthe Universal download of VLC. If you override the default ARCHITECTURE value,\nalso remember to adjust the supported_architectures in your override."
+Identifier: com.github.autopkg.munki.VLC
+Input:
+  NAME: VLC
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  pkginfo:
+    catalogs:
+    - testing
+    description: VLC is a free and open source cross-platform multimedia player and framework that plays most multimedia files as well as DVD, Audio CD, VCD, and various streaming protocols.
+    developer: The VideoLAN Project
+    display_name: VLC Media Player
+    name: '%NAME%'
+    unattended_install: true
+    supported_architectures:
+    - arm64
+    - x86_64
+MinimumVersion: 0.4.0
+ParentRecipe: com.github.autopkg.download.VLC
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

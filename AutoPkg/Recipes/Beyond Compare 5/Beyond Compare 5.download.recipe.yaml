@@ -1,0 +1,38 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Beyond Compare 5/Beyond Compare 5.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:25:50 UTC
+
+Description: Downloads the latest version of Beyond Compare 5.
+Identifier: com.github.dataJAR-recipes.download.Beyond Compare 5
+Input:
+  NAME: BeyondCompare5
+MinimumVersion: 0.3.1
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: /files/BCompareOSX-.*?\.zip
+    url: https://www.scootersoftware.com/download/
+- Processor: URLDownloader
+  Arguments:
+    url: https://www.scootersoftware.com/%match%
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%'
+    purge_destination: true
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/%NAME%/Beyond Compare.app'
+    requirement: identifier "com.ScooterSoftware.BeyondCompare" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = BS29TEJF86
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/%NAME%/Beyond Compare.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+- Processor: com.github.homebysix.VersionSplitter/VersionSplitter
+  Arguments:
+    version: '%version%'
+    index: 0
+    split_on: .
+- Processor: StopProcessingIf
+  Arguments:
+    predicate: '%version% < 5 || %version% > 5'

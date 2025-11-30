@@ -1,0 +1,29 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/SQLDeveloper/SQLDeveloper.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:28:42 UTC
+
+Description: "Downloads the latest version of SQLDeveloper.\n\nTo download Apple Silicon use: \"aarch64\" in the DOWNLOAD_ARCH variable\nTo download Intel use: x64\"\" in the DOWNLOAD_ARCH variable"
+Identifier: com.github.dataJAR-recipes.download.SQLDeveloper
+Input:
+  DOWNLOAD_ARCH: aarch64
+  NAME: SQLDeveloper
+MinimumVersion: '1.1'
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://www.oracle.com/uk/database/sqldeveloper/technologies/download/#sqldev-install-mac
+    re_pattern: href=\"//(?P<downloadurl>download\.oracle\.com/otn_software/java/sqldeveloper/sqldeveloper-(?P<version>[0-9]+(\.[0-9]+)+)-macos-%DOWNLOAD_ARCH%\.app\.zip)\"
+- Processor: URLDownloader
+  Arguments:
+    url: https://%downloadurl%
+    filename: '%NAME%.zip'
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/Applications'
+    purge_destination: true
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/Applications/SQLDeveloper.app'
+    requirement: identifier "com.oracle.SQLDeveloper" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = VB5E2TV963

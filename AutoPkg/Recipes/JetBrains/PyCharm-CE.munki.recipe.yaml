@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/bnpl-recipes/blob/90d8fb437cb2819f34487c26eb7b68928bfb079b/JetBrains/PyCharm-CE.munki.recipe
+# Commit: 90d8fb437cb2819f34487c26eb7b68928bfb079b
+# Downloaded at: 2025-11-27 22:28:03 UTC
+
+Description: Downloads the current release version of PyCharm Community Edition and imports into Munki.
+Comment: For the SUPPORTED_ARCH variable use "x86_64" for Intel, use "arm64" for Apple Silicon
+Identifier: com.github.bnpl.autopkg.munki.pycharmce
+Input:
+  NAME: PyCharm Community Edition
+  MUNKI_REPO_SUBDIR: apps/jetbrains
+  SUPPORTED_ARCH: x86_64
+  pkginfo:
+    catalogs:
+    - testing
+    category: Developer Tools
+    description: "Python IDE for professional developers\n\nhttps://www.jetbrains.com/pycharm"
+    developer: JetBrains
+    display_name: PyCharm Community Edition
+    name: '%NAME%'
+    supported_architectures:
+    - '%SUPPORTED_ARCH%'
+    unattended_install: true
+    unattended_uninstall: true
+    uninstallable: true
+MinimumVersion: 0.4.3
+ParentRecipe: com.github.bnpl.autopkg.download.pycharmce
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    munkiimport_appname: PyCharm CE.app
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

@@ -1,0 +1,52 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/CitrixReceiver/CitrixWorkspace.munki.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:26:14 UTC
+
+Description: "Downloads the current release version of Citrix Workspace and imports into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: io.github.hjuutilainen.munki.CitrixWorkspace
+Input:
+  DERIVE_MIN_OS: YES
+  NAME: CitrixWorkspace
+  MUNKI_REPO_SUBDIR: apps/Citrix
+  MUNKI_CATEGORY: Internet
+  pkginfo:
+    blocking_applications:
+    - Citrix Workspace
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: "The new Citrix Workspace app gives users a great experience\u2014a secure, contextual, unified workspace\u2014on any device. Give teams instant access to all their SaaS and web apps, files, mobile apps, Citrix Virtual Apps and Desktops from an easy-to-use, all-in-one interface powered by Citrix Workspace services."
+    developer: Citrix Systems, Inc.
+    display_name: Citrix Workspace
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '2.7'
+ParentRecipe: io.github.hjuutilainen.download.CitrixWorkspace
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    flat_pkg_path: '%pathname%/*.pkg'
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/com.citrix.ICAClient.pkg/Payload'
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/payload'
+    installs_item_paths:
+    - /Applications/Citrix Workspace.app
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+- Processor: MunkiPkginfoMerger
+  Arguments: {}
+- Processor: MunkiImporter
+  Arguments:
+    munkiimport_pkgname: Install Citrix Workspace.pkg
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpack'
+    - '%RECIPE_CACHE_DIR%/payload'

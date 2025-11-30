@@ -1,0 +1,35 @@
+# Downloaded from https://github.com/autopkg/gmarnin-recipes/blob/c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c/Tableau/Tableau.pkg.recipe
+# Commit: c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c
+# Downloaded at: 2025-11-27 22:30:03 UTC
+
+Description: Downloads latest Tableau Desktop disk image and makes a pkg.
+Identifier: com.github.gmarnin.pkg.tableau-desktop
+Input:
+  NAME: TableauDesktop
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.gmarnin.download.tableau-desktop
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%/Tableau Desktop.pkg'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/Tableau App.pkg/payload'
+    purge_destination: true
+- Processor: PlistReader
+  Arguments:
+    info_path: '%RECIPE_CACHE_DIR%/payload'
+    plist_keys:
+      CFBundleShortVersionString: version
+- Processor: PkgCopier
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/Tableau Desktop-%version%.pkg'
+    source_pkg: '%pathname%/Tableau Desktop.pkg'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/payload'
+    - '%RECIPE_CACHE_DIR%/unpack'

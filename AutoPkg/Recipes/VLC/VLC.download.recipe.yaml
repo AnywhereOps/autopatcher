@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/VLC/VLC.download.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:29:33 UTC
+
+Description: "Downloads latest VLC disk image.\n\nAllowable ARCHITECTURE values (as of October 2021) include:\n- \"universal\" for the Universal build (this is the default)\n- \"intel64\" for the Intel build\n- \"arm64\" for the Apple Silicon build\n"
+Identifier: com.github.autopkg.download.VLC
+Input:
+  NAME: VLC
+  ARCHITECTURE: universal
+MinimumVersion: 0.4.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://www.videolan.org/vlc/download-macosx.html
+    re_pattern: href="\/\/get\.videolan\.org\/vlc\/([\d\.]+)\/macosx\/vlc-[\d\.]+-%ARCHITECTURE%\.dmg"
+    result_output_var_name: version
+- Processor: URLDownloader
+  Arguments:
+    url: https://get.videolan.org/vlc/%version%/macosx/vlc-%version%-%ARCHITECTURE%.dmg
+    filename: '%NAME%-%version%.dmg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/VLC.app'
+    requirement: anchor apple generic and identifier "org.videolan.vlc" and (certificate leaf[field.1.2.840.113635.100.6.1.9] /* exists */ or certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "75GAHG3SZQ")

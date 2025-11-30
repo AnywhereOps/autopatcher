@@ -1,0 +1,17 @@
+Description: Obtain upstream Microsoft Azure Storage Explorer recipe from autopkg/dataJAR-recipes
+
+Identifier: com.github.anywhereops.vendorer.MicrosoftAzureStorageExplorer
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/dataJAR-recipes
+      folder_path: Microsoft Azure Storage Explorer
+      commit_sha: b215938ed2a542b52fb1ff552649b6b99ffe155b
+      destination_path: Microsoft Azure Storage Explorer
+      recipe_type: munki
+      required_license: Apache-2.0

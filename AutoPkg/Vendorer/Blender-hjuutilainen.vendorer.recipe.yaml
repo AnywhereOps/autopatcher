@@ -1,0 +1,17 @@
+Description: Obtain upstream Blender recipe from autopkg/hjuutilainen-recipes
+
+Identifier: com.github.anywhereops.vendorer.Blender
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/hjuutilainen-recipes
+      folder_path: Blender
+      commit_sha: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+      destination_path: Blender
+      recipe_type: munki
+      required_license: MIT

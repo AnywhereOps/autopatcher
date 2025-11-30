@@ -1,0 +1,52 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/EndNote/EndNoteX8.pkg.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:33:04 UTC
+
+Description: Downloads latest Endnote X8 installer and uses it to create a package.
+Identifier: com.github.rtrouton.pkg.EndNoteX8
+Input:
+  NAME: EndNoteX8
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.rtrouton.download.EndNoteX8
+Process:
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/Install EndNote X8.app/Contents/Resources/EndNote.zip'
+    destination_path: '%RECIPE_CACHE_DIR%/EndNote.zip'
+    purge_destination: true
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%RECIPE_CACHE_DIR%/EndNote.zip'
+    destination_path: '%RECIPE_CACHE_DIR%/unarchive'
+    purge_destination: true
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/unarchive/EndNote X8/EndNote X8.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/EndNote X8'
+    source_path: '%RECIPE_CACHE_DIR%/unarchive/EndNote X8'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      chown:
+      - group: admin
+        path: Applications
+        user: root
+      id: com.ThomsonResearchSoft.EndNoteX8.pkg
+      pkgname: EndNoteX8-%version%
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      pkgtype: flat
+      version: '%version%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/EndNote.zip'
+    - '%RECIPE_CACHE_DIR%/unarchive'
+    - '%RECIPE_CACHE_DIR%/pkgroot'

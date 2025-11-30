@@ -1,0 +1,63 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/CitrixReceiver/CitrixReceiver.munki.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:26:14 UTC
+
+Description: Downloads the current release version of Citrix Receiver and imports into Munki.
+Identifier: io.github.hjuutilainen.munki.CitrixReceiver
+Input:
+  NAME: CitrixReceiver
+  MUNKI_REPO_SUBDIR: apps/Citrix
+  MUNKI_CATEGORY: Internet
+  pkginfo:
+    blocking_applications:
+    - Citrix Receiver
+    - Citrix Viewer
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: Citrix Receiver is an easy-to-install client software that lets you access enterprise data, applications and desktops from any computing device including smartphones, tablets and PCs. Workers today typically use multiple computing devices and crave a consistent computing experience across all of them. Organizations everywhere are struggling to cope with the rapid proliferation of these devices and give users the mobile, high-definition experience they demand. Working in tandem with a Citrix-enabled IT infrastructure, Citrix Receiver gives workers consistent, secure, high-performance access from any device without introducing layers of management complexity for IT.
+    developer: Citrix Systems, Inc.
+    display_name: Citrix Receiver
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 0.2.0
+ParentRecipe: io.github.hjuutilainen.download.CitrixReceiver
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    flat_pkg_path: '%pathname%/*.pkg'
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/com.citrix.ICAClient.pkg/Payload'
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/payload'
+    installs_item_paths:
+    - /Applications/Citrix Receiver.app
+    - /Library/Internet Plug-Ins/CitrixICAClientPlugIn.plugin
+- Processor: MunkiPkginfoMerger
+  Arguments: {}
+- Processor: PlistReader
+  Arguments:
+    info_path: '%RECIPE_CACHE_DIR%/payload/Applications/Citrix Receiver.app/Contents/Info.plist'
+    plist_keys:
+      CFBundleShortVersionString: version
+      LSMinimumSystemVersion: min_os_version
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      minimum_os_version: '%min_os_version%'
+      version: '%version%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpack'
+    - '%RECIPE_CACHE_DIR%/payload'
+- Processor: MunkiImporter
+  Arguments:
+    munkiimport_pkgname: Install Citrix Receiver.pkg
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

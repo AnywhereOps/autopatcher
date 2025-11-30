@@ -1,0 +1,30 @@
+# Downloaded from https://github.com/autopkg/hansen-m-recipes/blob/de17d7db2537ffa00c27281a392f37fe599efdca/Mendeley/Mendeley-Win.download.recipe
+# Commit: de17d7db2537ffa00c27281a392f37fe599efdca
+# Downloaded at: 2025-11-27 20:29:05 UTC
+
+Description: Downloads the latest version of Mendeley Desktop for Windows.
+Identifier: com.github.hansen-m.download.Mendeley-Win
+Input:
+  NAME: Mendeley
+  DOWNLOAD_URL: https://www.mendeley.com/client/get/1/
+  USER_AGENT: Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; AS; rv:11.0) like Gecko
+MinimumVersion: 0.2.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+    request_headers:
+      user-agent: '%USER_AGENT%'
+    filename: '%NAME%.exe'
+- Processor: EndOfCheckPhase
+- Processor: com.github.hansen-m.SharedProcessors/WinInstallerExtractor
+  Arguments:
+    exe_path: '%pathname%'
+    extract_dir: EXEExtract
+- Processor: com.github.hansen-m.SharedProcessors/HachoirMetaDataProvider3
+  Arguments:
+    file_path: '%RECIPE_CACHE_DIR%/EXEExtract/MendeleyDesktop.exe'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/EXEExtract'

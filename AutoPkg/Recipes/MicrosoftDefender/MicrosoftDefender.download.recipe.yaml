@@ -1,0 +1,26 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/MicrosoftDefender/MicrosoftDefender.download.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:28:23 UTC
+
+Description: Downloads the latest Microsoft Defender installer pkg.
+Identifier: com.github.rtrouton.download.microsoftdefender
+MinimumVersion: 1.0.0
+Input:
+  NAME: Microsoft Defender
+  VENDOR: Microsoft
+  SOFTWARETITLE: Defender
+  PRODUCTID: '2097502'
+  DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOADURL%'
+    filename: '%VENDOR%_%SOFTWARETITLE%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA

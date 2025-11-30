@@ -1,0 +1,26 @@
+# Downloaded from https://github.com/autopkg/peshay-recipes/blob/dcbcd986ccd675a3a0b5362a97be857abad0151d/PaloAlto/GlobalProtect.download.recipe
+# Commit: dcbcd986ccd675a3a0b5362a97be857abad0151d
+# Downloaded at: 2025-11-27 22:27:36 UTC
+
+Description: Downloads latest version of GlobalProtect VPN Client from YOUR Palo Alto.
+Comment: Use HOSTNAME var to specify your PaloAlto VPN Gateway. For PLATFORM use either mac or win
+Identifier: com.github.peshay.download.GlobalProtect
+Input:
+  NAME: GlobalProtect
+  HOSTNAME: vpn.example.com
+  PLATFORM: mac
+  DOWNLOAD_URL: https://%HOSTNAME%/global-protect/getmsi.esp?platform=%PLATFORM%
+MinimumVersion: 0.6.1
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+    filename: '%NAME%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Palo Alto Networks (PXPZ95SK77)'
+    - Developer ID Certification Authority
+    - Apple Root CA

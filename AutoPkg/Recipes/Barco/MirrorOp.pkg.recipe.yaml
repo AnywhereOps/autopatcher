@@ -1,0 +1,14 @@
+# Downloaded from https://github.com/autopkg/moofit-recipes/blob/984f1b980c6a7ecc26402693543b0f1f9100b529/Barco/MirrorOp.pkg.recipe
+# Commit: 984f1b980c6a7ecc26402693543b0f1f9100b529
+# Downloaded at: 2025-11-27 22:32:55 UTC
+
+Description: Downloads the latest MirrorOp Mac Sender and creates a package.
+Identifier: com.github.moofit-recipes.pkg.MirrorOp
+Input:
+  NAME: MirrorOp
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.moofit-recipes.download.MirrorOp
+Process:
+- Processor: AppPkgCreator
+  Arguments:
+    app_path: '%pathname%/MirrorOp.app'

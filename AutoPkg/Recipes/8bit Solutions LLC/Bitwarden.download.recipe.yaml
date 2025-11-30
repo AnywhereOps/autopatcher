@@ -1,0 +1,28 @@
+# Downloaded from https://github.com/autopkg/blackthroat-recipes/blob/553de847ae0637b40824192de99c4cd09e8c42ae/8bit Solutions LLC/Bitwarden.download.recipe
+# Commit: 553de847ae0637b40824192de99c4cd09e8c42ae
+# Downloaded at: 2025-11-27 22:31:05 UTC
+
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Bitwarden.
+Identifier: com.github.blackthroat.download.Bitwarden
+Input:
+  GITHUB_REPO: bitwarden/desktop
+  NAME: Bitwarden
+MinimumVersion: 1.0.0
+Process:
+- Processor: GitHubReleasesInfoProvider
+  Arguments:
+    github_repo: '%GITHUB_REPO%'
+    asset_regex: '%NAME%-[\S]+\.dmg'
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%-%version%.dmg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%-%version%.dmg/Bitwarden.app'
+    requirement: identifier "com.bitwarden.desktop" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = LTZ2PFU5D6
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%-%version%.dmg/Bitwarden.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString

@@ -1,0 +1,15 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/AdobeCreativeCloud/AdobeCreativeCloudInstaller.install.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:25:38 UTC
+
+Description: Installs the latest version of Adobe's Creative Cloud Desktop App Installer.
+Identifier: com.github.rtrouton.install.AdobeCreativeCloudInstaller
+Input:
+  NAME: Creative Cloud Installer
+  VENDOR: Adobe
+  SOFTWARETITLE: Creative Cloud Installer
+  NAMEWITHOUTSPACES: CreativeCloudInstaller
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.pkg.AdobeCreativeCloudInstaller
+Process:
+- Processor: Installer

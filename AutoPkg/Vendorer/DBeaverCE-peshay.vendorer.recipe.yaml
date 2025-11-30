@@ -1,0 +1,16 @@
+Description: Obtain upstream DBeaverCE recipe from autopkg/peshay-recipes
+
+Identifier: com.github.anywhereops.vendorer.DBeaverCE
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/peshay-recipes
+      folder_path: DBeaverCE
+      commit_sha: dcbcd986ccd675a3a0b5362a97be857abad0151d
+      destination_path: DBeaverCE
+      recipe_type: munki

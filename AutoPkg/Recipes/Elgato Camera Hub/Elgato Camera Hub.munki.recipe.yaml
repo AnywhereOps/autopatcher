@@ -1,0 +1,69 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Elgato Camera Hub/Elgato Camera Hub.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:26:31 UTC
+
+Comment: "NOTE: The vendors postinstall script renames the app installed on disk from Camera Hub.app to Elgato Camera Hub.app. Thus FileMover is needed in order to generate a correct installs array.\n\nThis workflow may break in a future release from the vendor."
+Description: "Downloads the latest version of Elgato Camera Hub and imports it into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: com.github.dataJAR-recipes.munki.Elgato Camera Hub
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: ElgatoCameraHub
+  DERIVE_MIN_OS: YES
+  pkginfo:
+    blocking_applications:
+    - QtWebEngineProcess.app
+    - Camera Hub.app
+    catalogs:
+    - testing
+    description: "Unleash your webcam\u2019s full potential."
+    developer: Corsair Memory, Inc.
+    display_name: Camera Hub
+    name: '%NAME%'
+    uninstall_method: uninstall_script
+    uninstall_script: "#!/bin/bash\n\n# This uninstall script is taken from the Elagto Stream Deck Uninstaller Package:\n# https://help.elgato.com/hc/en-us/articles/4420177682189-Elgato-Camera-Hub-Uninstall-Procedure-on-macOS\n\n# kill process\n/usr/bin/killall \"Camera Hub\" > /dev/null 2>&1 || :\n\n# remove app. bundle\n/bin/rm -rf \"/Applications/Camera Hub.app\"\n/bin/rm -rf \"/Applications/Elgato Camera Hub.app\"\n\n# remove support files\n/bin/rm -rf /Library/Application\\ Support/Elgato/Camera\\ Hub\n\nexit 0"
+    unattended_install: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.dataJAR-recipes.download.Elgato Camera Hub
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpacked'
+    flat_pkg_path: '%pathname%'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/Camera_Hub.pkg/Payload'
+    purge_destination: true
+- Processor: FileMover
+  Arguments:
+    overwrite: 'true'
+    source: '%RECIPE_CACHE_DIR%/Payload/Applications/Camera Hub.app/'
+    target: '%RECIPE_CACHE_DIR%/Payload/Applications/Elgato Camera Hub.app'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/Payload'
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+    installs_item_paths:
+    - /Applications/Elgato Camera Hub.app
+- Processor: MunkiPkginfoMerger
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/Payload/Applications/Elgato Camera Hub.app/Contents/Info.plist'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+  Arguments:
+    mode: '777'
+    resource_path: '%RECIPE_CACHE_DIR%/Payload'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpacked'
+    - '%RECIPE_CACHE_DIR%/Payload'

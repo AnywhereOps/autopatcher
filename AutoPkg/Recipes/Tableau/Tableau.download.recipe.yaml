@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/gmarnin-recipes/blob/c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c/Tableau/Tableau.download.recipe
+# Commit: c26cfc3ad6a1f3bfe3458b780cc0bc45ec15536c
+# Downloaded at: 2025-11-27 22:30:03 UTC
+
+Description: "Downloads latest Tableau Desktop disk image.\n\tTo get the Intel build, create a recipe-override with DOWNLOAD_URL of https://www.tableau.com/downloads/desktop/mac"
+Identifier: com.github.gmarnin.download.tableau-desktop
+Input:
+  DOWNLOAD_URL: https://www.tableau.com/downloads/desktop/mac-arm64
+  NAME: TableauDesktop
+MinimumVersion: 0.3.1
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: '%DOWNLOAD_URL%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Tableau Software, LLC (QJ4XPRK37C)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%/Tableau Desktop.pkg'

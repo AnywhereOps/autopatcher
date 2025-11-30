@@ -1,0 +1,14 @@
+# Downloaded from https://github.com/autopkg/bnpl-recipes/blob/90d8fb437cb2819f34487c26eb7b68928bfb079b/JetBrains/PyCharm-PE.download.recipe
+# Commit: 90d8fb437cb2819f34487c26eb7b68928bfb079b
+# Downloaded at: 2025-11-27 22:28:03 UTC
+
+Description: Downloads the current release version of PyCharm Professional Edition.
+Comment: For the ARCH_TYPE variable use "mac" for Intel, use "macM1" for Apple Silicon
+Identifier: com.github.bnpl.autopkg.download.pycharmpe
+Input:
+  NAME: PyCharm Professional Edition
+  ARCH_TYPE: mac
+  PROD_CODE: PCP
+  CSV_REQ: identifier "com.jetbrains.pycharm" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.bnpl.autopkg.download.jetbrains

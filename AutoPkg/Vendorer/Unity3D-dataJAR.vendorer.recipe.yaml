@@ -1,0 +1,17 @@
+Description: Obtain upstream Unity3D recipe from autopkg/dataJAR-recipes
+
+Identifier: com.github.anywhereops.vendorer.Unity3D
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/dataJAR-recipes
+      folder_path: Unity3D
+      commit_sha: b215938ed2a542b52fb1ff552649b6b99ffe155b
+      destination_path: Unity3D
+      recipe_type: munki
+      required_license: Apache-2.0

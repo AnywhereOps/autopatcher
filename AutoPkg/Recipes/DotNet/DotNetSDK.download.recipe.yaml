@@ -1,0 +1,36 @@
+# Downloaded from https://github.com/autopkg/gerardkok-recipes/blob/fba95dd24e8408ba08f9d74cb5f82468883691fa/DotNet/DotNetSDK.download.recipe
+# Commit: fba95dd24e8408ba08f9d74cb5f82468883691fa
+# Downloaded at: 2025-11-27 22:28:10 UTC
+
+Description: "Downloads the latest version of Microsoft's .NET SDK.\n\nValid PLATFORM_ARCH arguments are:\n- \"arm64\": Downloads .NET for Apple Silicon Macs\n- \"x64\": Downloads .NET for Intel Macs (default)"
+Identifier: com.github.gerardkok.download.DotNetSDK
+Input:
+  LANGUAGE_CODE: en-us
+  NAME: DotNetSDK
+  PLATFORM_ARCH: x64
+  RELEASE: LTS
+MinimumVersion: '1.4'
+Process:
+- Processor: DotNetURLProvider
+  Arguments:
+    release: '%RELEASE%'
+    language_code: '%LANGUAGE_CODE%'
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%release_url%'
+    re_pattern: href="(?P<intermediate_url>/%LANGUAGE_CODE%/download/dotnet/thank-you/sdk-[0-9\.]+-(?:[a-z0-9\.]+-)?macos-%PLATFORM_ARCH%-installer)"
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://dotnet.microsoft.com%intermediate_url%
+    re_pattern: href="(?P<url>https://download.visualstudio.microsoft.com/download/pr/[0-9A-Fa-f\-/]+/dotnet-sdk-(?P<version>[0-9\.]+)-(?:[a-z0-9\.]+-)?osx-%PLATFORM_ARCH%\.pkg)"
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%-%PLATFORM_ARCH%-%version%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA

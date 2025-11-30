@@ -1,0 +1,17 @@
+Description: Obtain upstream PolyLens recipe from autopkg/rtrouton-recipes
+
+Identifier: com.github.anywhereops.vendorer.PolyLens
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/rtrouton-recipes
+      folder_path: PolyLens
+      commit_sha: 90eb2447addd20cddc99e28709d274c79cc9fe55
+      destination_path: PolyLens
+      recipe_type: munki
+      required_license: MIT

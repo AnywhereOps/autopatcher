@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Mendeley/MendeleyReferenceManager.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:31:18 UTC
+
+Description: Download the latest version of Mendeley Reference Manager and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.mendeleyreferencemanager
+Input:
+  MUNKI_REPO_SUBDIR: apps/mendeleyreferencemanager
+  NAME: Mendeley Reference Manager
+  pkginfo:
+    catalogs:
+    - testing
+    category: Reference
+    developer: Elsevier
+    display_name: '%NAME%'
+    description: Mendeley Reference Manager simplifies your workflow, so you can focus on achieving your goals.
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.3.0
+ParentRecipe: com.github.joshua-d-miller.download.mendeleyreferencemanager
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

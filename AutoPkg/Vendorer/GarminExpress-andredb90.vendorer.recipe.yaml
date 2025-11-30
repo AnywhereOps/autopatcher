@@ -1,0 +1,17 @@
+Description: Obtain upstream Garmin Express recipe from autopkg/andredb90-recipes
+
+Identifier: com.github.anywhereops.vendorer.GarminExpress
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/andredb90-recipes
+      folder_path: Garmin Express
+      commit_sha: b086f2d096ab3b53a4c2f5db7c6ec60ba3437ab5
+      destination_path: Garmin Express
+      recipe_type: munki
+      required_license: Apache-2.0

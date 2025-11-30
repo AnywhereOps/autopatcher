@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/MicrosoftWindowsApp/MicrosoftWindowsApp.download.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:28:29 UTC
+
+Description: Downloads the latest Microsoft Windows App installer pkg.
+Identifier: com.github.rtrouton.download.microsoftwindowsapp
+MinimumVersion: 1.0.0
+Input:
+  NAME: Microsoft Windows App
+  VENDOR: Microsoft
+  SOFTWARETITLE1: Windows
+  SOFTWARETITLE2: App
+  PRODUCTID: '868963'
+  DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOADURL%'
+    filename: '%VENDOR%_%SOFTWARETITLE1%_%SOFTWARETITLE2%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA

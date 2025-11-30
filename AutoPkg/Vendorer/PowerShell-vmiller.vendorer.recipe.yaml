@@ -1,0 +1,16 @@
+Description: Obtain upstream PowerShell recipe from autopkg/vmiller-recipes
+
+Identifier: com.github.anywhereops.vendorer.PowerShell
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/vmiller-recipes
+      folder_path: PowerShell
+      commit_sha: 417cadde43e565a7223ce2ae4ad9a9a89e4b3ac1
+      destination_path: PowerShell
+      recipe_type: munki

@@ -1,0 +1,35 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/PolyLens/PolyLens.download.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:27:53 UTC
+
+Description: Downloads the current release version of Poly Lens for macOS.
+Identifier: com.github.rtrouton.download.polylens
+Input:
+  NAME: Poly Lens
+  VENDOR: Poly
+  SOFTWARETITLE: Lens
+  CONTENT_TYPE_HEADER: application/json
+  DATA_BINARY_CONTENT: '{"query":"\n          query {\n            availableProductSoftwareByPid(pid:\"lens-desktop-mac\") {\n              name\n              version\n              publishDate\n              productBuild {\n                archiveUrl\n              }\n            }\n        }"}'
+  SEARCH_PATTERN: https://swupdate\.lens\.poly\.com/lens-desktop-mac/.*?/.*?/LensDesktop-.*?.dmg
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    curl_opts:
+    - --data-binary
+    - '%DATA_BINARY_CONTENT%'
+    re_pattern: '%SEARCH_PATTERN%'
+    request_headers:
+      content-type: '%CONTENT_TYPE_HEADER%'
+    url: https://api.silica-prod01.io.lens.poly.com/graphql
+- Processor: URLDownloader
+  Arguments:
+    curl_opts: []
+    url: '%match%'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/LensDesktop-*.pkg'
+    expected_authority_names:
+    - 'Developer ID Installer: Polycom (WJCM3F7AQ4)'
+    - Developer ID Certification Authority
+    - Apple Root CA

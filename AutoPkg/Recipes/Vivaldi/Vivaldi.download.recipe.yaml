@@ -1,0 +1,24 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/Vivaldi/Vivaldi.download.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:33:15 UTC
+
+Description: Downloads the current release version of Vivaldi.
+Identifier: com.github.homebysix.download.Vivaldi
+Input:
+  NAME: Vivaldi
+MinimumVersion: 0.4.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: https:\/\/downloads\.vivaldi\.com\/stable\/Vivaldi[0-9\.]+universal\.dmg
+    result_output_var_name: match
+    url: https://vivaldi.com/download/
+- Processor: URLDownloader
+  Arguments:
+    filename: Vivaldi.dmg
+    url: '%match%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Vivaldi.app'
+    requirement: identifier "com.vivaldi.Vivaldi" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "4XF3XNRN6Y"

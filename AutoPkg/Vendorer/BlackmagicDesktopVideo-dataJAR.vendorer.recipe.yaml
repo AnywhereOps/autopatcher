@@ -1,0 +1,17 @@
+Description: Obtain upstream Blackmagic Desktop Video recipe from autopkg/dataJAR-recipes
+
+Identifier: com.github.anywhereops.vendorer.BlackmagicDesktopVideo
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/dataJAR-recipes
+      folder_path: Blackmagic Desktop Video
+      commit_sha: b215938ed2a542b52fb1ff552649b6b99ffe155b
+      destination_path: Blackmagic Desktop Video
+      recipe_type: munki
+      required_license: Apache-2.0

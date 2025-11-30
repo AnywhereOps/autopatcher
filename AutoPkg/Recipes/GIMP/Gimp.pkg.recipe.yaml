@@ -1,0 +1,37 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/GIMP/Gimp.pkg.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:30:39 UTC
+
+Description: Downloads the latest version of GIMP from gimp.org and builds a package.
+Identifier: io.github.hjuutilainen.pkg.GIMP
+Input:
+  NAME: GIMP
+ParentRecipe: io.github.hjuutilainen.download.GIMP
+MinimumVersion: 1.0.4
+Process:
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%pathname%'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/GIMP*.app'
+    destination_path: '%pkgroot%/Applications/GIMP.app'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%ARCH%-%version%'
+      pkgdir: '%RECIPE_CACHE_DIR%'
+      id: org.gimp.gimp
+      chown:
+      - path: Applications
+        user: root
+        group: admin
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%pkgroot%'

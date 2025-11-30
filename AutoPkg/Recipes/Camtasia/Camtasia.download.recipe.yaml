@@ -1,0 +1,21 @@
+# Downloaded from https://github.com/autopkg/jps3-recipes/blob/a2dc2f004beee8fce0effd29e01c11365516dc50/Camtasia/Camtasia.download.recipe
+# Commit: a2dc2f004beee8fce0effd29e01c11365516dc50
+# Downloaded at: 2025-11-27 22:26:05 UTC
+
+Description: Downloads the latest Camtasia DMG from the TechSmith web site. (Currently "Camtasia 2023")
+Identifier: com.github.jps3.download.Camtasia
+Input:
+  DOWNLOAD_URL: https://download.techsmith.com/camtasiamac/releases/Camtasia.dmg
+  NAME: Camtasia
+MinimumVersion: 2.0.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    deep_verification: true
+    input_path: '%pathname%/Camtasia*.app'
+    requirement: identifier "com.techsmith.camtasia" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "7TQL462TU8"
+    strict_verification: true
+- Processor: EndOfCheckPhase

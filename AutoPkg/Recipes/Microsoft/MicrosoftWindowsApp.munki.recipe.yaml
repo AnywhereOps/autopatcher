@@ -1,0 +1,59 @@
+# Downloaded from https://github.com/autopkg/foigus-recipes/blob/6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63/Microsoft/MicrosoftWindowsApp.munki.recipe
+# Commit: 6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63
+# Downloaded at: 2025-11-27 22:28:28 UTC
+
+Description: Downloads the latest Windows App installer pkg and imports it into Munki.
+Identifier: com.github.foigus.munki.microsoftwindowsapp
+Input:
+  MUNKI_REPO_SUBDIR: apps/microsoft
+  NAME: WindowsApp
+  pkginfo:
+    blocking_applications:
+    - Windows App
+    catalogs:
+    - development-microsoft-MicrosoftWindowsApp
+    category: Utility
+    description: Use the new Windows App to connect to a remote PC or virtual apps and desktops made available by your administrator. The app helps you be productive no matter where you are.
+    developer: Microsoft
+    display_name: Windows App
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.rtrouton.download.microsoftwindowsapp
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Applications/'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/com.microsoft.rdc.macos.pkg/Payload'
+    purge_destination: true
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%'
+    installs_item_paths:
+    - /Applications/Windows App.app
+    version_comparison_key: CFBundleShortVersionString
+- Processor: MunkiPkginfoMerger
+- Processor: PlistReader
+  Arguments:
+    info_path: '%RECIPE_CACHE_DIR%/Applications/Windows App.app/Contents/Info.plist'
+    plist_keys:
+      LSMinimumSystemVersion: min_os_version
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      minimum_os_version: '%min_os_version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Applications/'
+    - '%RECIPE_CACHE_DIR%/unpack/'

@@ -1,0 +1,25 @@
+# Downloaded from https://github.com/autopkg/peetinc-recipes/blob/6ad7836570feb23d45b5ea150db2773fca2674a8/SplashtopSOS/SplashtopSOS.download.recipe
+# Commit: 6ad7836570feb23d45b5ea150db2773fca2674a8
+# Downloaded at: 2025-11-27 22:33:10 UTC
+
+Comment: Created with Recipe Robot v2.2.0 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Splashtop SOS.
+Identifier: com.github.peetinc.download.SplashtopSOS
+Input:
+  NAME: SplashtopSOS
+  DOWNLOAD_URL: https://download.splashtop.com/sos/SplashtopSOS.dmg
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: '%DOWNLOAD_URL%'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Splashtop SOS.app'
+    requirement: identifier "com.splashtop.Splashtop-SOS" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = CPQQ3AW49Y
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%pathname%/Splashtop SOS.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString

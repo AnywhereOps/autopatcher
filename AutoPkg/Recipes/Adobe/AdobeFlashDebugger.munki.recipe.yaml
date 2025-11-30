@@ -1,0 +1,55 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Adobe/AdobeFlashDebugger.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:25:37 UTC
+
+Description: Download the latest version of the Debug Version of Adobe Flash and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.AdobeFlashDebbugger
+Input:
+  NAME: Adobe Flash Player Debug
+  MUNKI_REPO_SUBDIR: apps/adobe
+  pkginfo:
+    catalogs:
+    - testing
+    developer: Adobe Systems Inc.
+    category: Web Plugins
+    description: "Adobe\xAE Flash\xAE Player is a cross-platform browser-based application runtime that delivers uncompromised viewing of expressive applications, content, and videos across screens and browsers.  This installer installs the Debug version to be used with the development of Flash Applications."
+    display_name: Adobe Flash Player Debug
+    unattended_install: true
+MinimumVersion: 0.5.1
+ParentRecipe: com.github.vmule.download.AdobeFlashDebugger
+Process:
+- Processor: Copier
+  Arguments:
+    source_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/Install Adobe Flash Player Debugger.app/Contents/Resources/Adobe Flash Player Debugger.pkg'
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+- Processor: FlatPkgUnpacker
+  Arguments:
+    flat_pkg_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+    destination_path: '%RECIPE_CACHE_DIR%/unpack/'
+    purge_destination: true
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/root/'
+    pkgdirs: {}
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    purge_destination: true
+    destination_path: '%RECIPE_CACHE_DIR%/root/'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/AdobeFlashPlayerComponent.pkg/Payload'
+- Processor: AdobeFlashDmgUnpacker
+  Arguments:
+    pkgroot: '%pkgroot%'
+    finalize_script_path: '%RECIPE_CACHE_DIR%/unpack/AdobeFlashPlayerComponent.pkg/Scripts'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/root'
+    installs_item_paths:
+    - /Library/Internet Plug-Ins/Flash Player.plugin/Contents/PlugIns/FlashPlayerDebugger-10.6.plugin
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%.pkg'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+    additional_makepkginfo_options:
+    - --name
+    - '%NAME%'

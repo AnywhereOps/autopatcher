@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/foigus-recipes/blob/6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63/Cisco/CiscoWebexAudioDriver.download.recipe
+# Commit: 6f91cdaf425ac5f98dfc8ae5c62fa5eb15441d63
+# Downloaded at: 2025-11-27 22:26:09 UTC
+
+Description: Downloads latest Cisco Webex Audio Driver.
+Identifier: com.github.foigus.download.ciscowebexaudiodriver
+Input:
+  DOWNLOAD_URL: https://www.cisco.com/c/dam/en/us/td/docs/collaboration/webex_centers/Collaboration-Help/TS-Help-Portal-Support-Utilities/CiscoAudioDeviceInstall.zip
+  NAME: CiscoWebexAudioDriver
+MinimumVersion: 0.2.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/unarchive'
+    purge_destination: true
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Cisco (DE8Y96K9QP)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%RECIPE_CACHE_DIR%/unarchive/CiscoAudioDeviceInstall.pkg'

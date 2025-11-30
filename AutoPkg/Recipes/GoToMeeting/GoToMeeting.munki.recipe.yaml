@@ -1,0 +1,30 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/GoToMeeting/GoToMeeting.munki.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:31:39 UTC
+
+Description: Downloads the latest version of GoToMeeting and imports it into Munki.
+Identifier: com.github.homebysix.munki.GoToMeeting
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: GoToMeeting
+  pkginfo:
+    catalogs:
+    - testing
+    description: Online meeting, desktop sharing, and video conferencing software.
+    developer: LogMeIn
+    display_name: GoToMeeting
+    name: '%NAME%'
+    preinstall_script: "#!/bin/bash\n\necho \"Removing old copies of GoToMeeting from the /Applications folder...\"\n\nrm -rf /Applications/GoToMeeting\\ \\(*\\).app\n\nif [[ -d \"/Applications/GoToMeeting\" ]]; then\n    rm -rf \"/Applications/GoToMeeting\"\nfi\n\nif [[ -f \"/Applications/GoToMeeting.app/Contents/Info.plist\" ]]; then\n    rm -rf \"/Applications/GoToMeeting.app\"\nfi\n\nexit 0\n            "
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '1.4'
+ParentRecipe: com.github.homebysix.download.GoToMeeting
+Process:
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

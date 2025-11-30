@@ -1,0 +1,29 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/CitrixReceiver/CitrixReceiver.download.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:26:13 UTC
+
+Description: Downloads the latest Citrix Receiver disk image.
+Identifier: io.github.hjuutilainen.download.CitrixReceiver
+Input:
+  NAME: CitrixReceiver
+MinimumVersion: '1.1'
+Process:
+- Processor: DeprecationWarning
+  Arguments:
+    warning_message: 'Citrix Receiver was replaced by Citrix Workspace in August 2018 (details: https://www.citrix.com/downloads/citrix-receiver/). This recipe is deprecated and will be removed in the future.'
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://www.citrix.com/downloads/citrix-receiver/mac/receiver-for-mac-latest.html
+    re_pattern: (?P<DYNAMIC_URL>//downloads.citrix.com/[\d]+/CitrixReceiver\.dmg\?__gda__\=[\S][^"]+)
+- Processor: URLDownloader
+  Arguments:
+    url: https:%DYNAMIC_URL%
+    filename: '%NAME%.dmg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Install Citrix Receiver.pkg'
+    expected_authority_names:
+    - 'Developer ID Installer: Citrix Systems, Inc. (KBVSJ83SS9)'
+    - Developer ID Certification Authority
+    - Apple Root CA

@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Audacity/Audacity.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:31:01 UTC
+
+Description: "Downloads the latest version of Audacity and imports it into Munki\n\nSet the ARCHITECTURE variable to \"x86_64\" for Intel\n\nSet the ARCHITECTURE variable to \"arm64\" for Apple Silicone\n\nSet the ARCHITECTURE variable to \"universal\" for universal\n"
+Identifier: com.github.dataJAR-recipes.munki.Audacity
+Input:
+  NAME: Audacity
+  MUNKI_REPO_SUBDIR: apps/Audacity
+  pkginfo:
+    catalogs:
+    - testing
+    description: Audacity is a free, easy-to-use, multi-track audio editor and recorder for Windows, Mac OS X, GNU/Linux and other operating systems.
+    display_name: Audacity
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.dataJAR-recipes.download.Audacity
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

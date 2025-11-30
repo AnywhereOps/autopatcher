@@ -1,0 +1,16 @@
+Description: Obtain upstream Dedoose recipe from autopkg/rustymyers-recipes
+
+Identifier: com.github.anywhereops.vendorer.Dedoose
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/rustymyers-recipes
+      folder_path: Dedoose
+      commit_sha: 7ce7904e3e5bf5c5ed64da5ba61c9a1bb082891a
+      destination_path: Dedoose
+      recipe_type: download

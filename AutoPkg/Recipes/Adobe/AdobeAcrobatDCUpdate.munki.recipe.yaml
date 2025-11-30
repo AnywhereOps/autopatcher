@@ -1,0 +1,43 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Adobe/AdobeAcrobatDCUpdate.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:25:37 UTC
+
+Description: Download the latest version of Adobe Acrobat DC and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.AdobeAcrobatDCUpdate
+Input:
+  MUNKI_REPO_SUBDIR: apps/adobe
+  NAME: Adobe Acrobat DC Update
+  pkginfo:
+    catalogs:
+    - testing
+    category: Productivity
+    developer: Adobe Systems Inc.
+    display_name: Adobe Acrobat DC Update
+    description: This update provides system requirement enhancements, mitigation for security issues, improved overall stability, bug fixes, and feature enhancements. For a list of specific bug fixes, new features, and other changes in this release, see the Release Notes.
+    name: '%NAME%'
+    update_for:
+    - Adobe Acrobat DC
+    unattended_install: true
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.novaksam.download.AdobeAcrobatDCUpdate
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://armmf.adobe.com/arm-manifests/mac/AcrobatDC/acrobat/current_version.txt
+    re_pattern: (?P<version>[0-9]*\.[0-9*?\.[0-9]*)
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      installs:
+      - CFBundleIdentifier: com.adobe.Acrobat.Pro
+        CFBundleName: Acrobat Pro
+        CFBundleShortVersionString: '%version%'
+        CFBundleVersion: '%version%'
+        path: /Applications/Adobe Acrobat DC/Adobe Acrobat.app
+        type: application
+        version_comparison_key: CFBundleShortVersionString
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

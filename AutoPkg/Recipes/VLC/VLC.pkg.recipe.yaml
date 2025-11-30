@@ -1,0 +1,38 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/VLC/VLC.pkg.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:29:33 UTC
+
+Description: Downloads latest VLC disk image and builds a package.
+Identifier: com.github.autopkg.pkg.VLC
+Input:
+  NAME: VLC
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.autopkg.download.VLC
+Process:
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%pathname%'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+    pkgdirs:
+      Applications: '0775'
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/VLC.app'
+    destination_path: '%pkgroot%/Applications/VLC.app'
+- Processor: PkgInfoCreator
+  Arguments:
+    template_path: PackageInfoTemplate
+    infofile: '%RECIPE_CACHE_DIR%/PackageInfo'
+    pkgtype: flat
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      pkgdir: '%RECIPE_CACHE_DIR%'
+      id: org.videolan.vlc.pkg
+      chown:
+      - path: Applications
+        user: root
+        group: admin

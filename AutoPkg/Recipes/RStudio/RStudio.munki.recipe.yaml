@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/RStudio/RStudio.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:28:56 UTC
+
+Description: Download the latest version of RStudio and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.RStudio
+Input:
+  MUNKI_REPO_SUBDIR: apps/rstudio
+  NAME: RStudio
+  pkginfo:
+    catalogs:
+    - testing
+    category: Mathematics
+    developer: RStudio
+    display_name: RStudio
+    description: RStudio is the premier integrated development environment for R. It is available in open source and commercial editions and runs on the desktop (Windows, Mac, and Linux) or over the web with RStudio Server.
+    name: '%NAME%'
+    unattended_install: true
+    requires:
+    - R
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.hansen-m.download.RStudio
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

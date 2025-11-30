@@ -1,0 +1,16 @@
+Description: Obtain upstream Smartsheet recipe from autopkg/moofit-recipes
+
+Identifier: com.github.anywhereops.vendorer.Smartsheet
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/moofit-recipes
+      folder_path: Smartsheet
+      commit_sha: 984f1b980c6a7ecc26402693543b0f1f9100b529
+      destination_path: Smartsheet
+      recipe_type: pkg

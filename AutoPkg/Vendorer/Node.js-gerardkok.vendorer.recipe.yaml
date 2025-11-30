@@ -1,0 +1,17 @@
+Description: Obtain upstream Node.js recipe from autopkg/gerardkok-recipes
+
+Identifier: com.github.anywhereops.vendorer.Node.js
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/gerardkok-recipes
+      folder_path: Node.js
+      commit_sha: fba95dd24e8408ba08f9d74cb5f82468883691fa
+      destination_path: Node.js
+      recipe_type: munki
+      required_license: Apache-2.0

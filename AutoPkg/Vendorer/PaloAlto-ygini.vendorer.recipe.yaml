@@ -1,0 +1,16 @@
+Description: Obtain upstream PaloAlto recipe from autopkg/ygini-recipes
+
+Identifier: com.github.anywhereops.vendorer.PaloAlto
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/ygini-recipes
+      folder_path: PaloAlto
+      commit_sha: 4abcf39b4f0f6e857da01a83b9fbf34b443e7b36
+      destination_path: PaloAlto
+      recipe_type: munki

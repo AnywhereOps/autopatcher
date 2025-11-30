@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/gerardkok-recipes/blob/fba95dd24e8408ba08f9d74cb5f82468883691fa/DotNet/DotNetCoreSDK.download.recipe
+# Commit: fba95dd24e8408ba08f9d74cb5f82468883691fa
+# Downloaded at: 2025-11-27 22:28:10 UTC
+
+Description: Downloads the latest version of Microsoft's .NET Core SDK.
+Identifier: com.github.gerardkok.download.DotNetCoreSDK
+Input:
+  NAME: DotNetCoreSDK
+MinimumVersion: '1.4'
+Process:
+- Processor: DeprecationWarning
+  Arguments:
+    warning_message: This recipe will soon be removed. Please remove it from your list of recipes.
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://dotnet.microsoft.com/download
+    re_pattern: href="(?P<intermediate_url>/download/dotnet/thank-you/sdk-3\.[0-9\.]+-macos-x64-installer)"
+- Processor: URLTextSearcher
+  Arguments:
+    url: https://dotnet.microsoft.com%intermediate_url%
+    re_pattern: href="(?P<url>https://download.visualstudio.microsoft.com/download/pr/[0-9A-Fa-f\-/]+/dotnet-sdk-(?P<version>[0-9\.]+)-osx-x64\.pkg)"
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA

@@ -1,0 +1,65 @@
+# Downloaded from https://github.com/autopkg/n8felton-recipes/blob/646d469b0e6e964e0605774d8541ce29912b9207/Microsoft/MicrosoftEdge.munki.recipe
+# Commit: 646d469b0e6e964e0605774d8541ce29912b9207
+# Downloaded at: 2025-11-27 22:31:52 UTC
+
+Description: "Downloads the latest version of Microsoft Edge for the specified branch.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: com.github.n8felton.munki.MicrosoftEdge
+Input:
+  CHANNEL: ''
+  DERIVE_MIN_OS: YES
+  MUNKI_CATEGORY: Productivity
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: MicrosoftEdge
+  pkginfo:
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: Microsoft's Chromium-based browser
+    developer: Microsoft
+    display_name: Microsoft Edge
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.n8felton.download.MicrosoftEdge
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0755'
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+- Processor: FileFinder
+  Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/unpack/MicrosoftEdge*.pkg/'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/'
+    pkg_payload_path: '%found_filename%/Payload'
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications/Microsoft Edge.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+    faux_root: '%RECIPE_CACHE_DIR%/pkgroot'
+    installs_item_paths:
+    - /Applications/Microsoft Edge.app
+    version_comparison_key: CFBundleVersion
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/pkgroot'
+    - '%RECIPE_CACHE_DIR%/unpack'

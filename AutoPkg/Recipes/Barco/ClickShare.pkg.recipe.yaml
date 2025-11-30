@@ -1,0 +1,45 @@
+# Downloaded from https://github.com/autopkg/moofit-recipes/blob/984f1b980c6a7ecc26402693543b0f1f9100b529/Barco/ClickShare.pkg.recipe
+# Commit: 984f1b980c6a7ecc26402693543b0f1f9100b529
+# Downloaded at: 2025-11-27 22:32:55 UTC
+
+Description: Downloads the latest ClickShare client and creates a package.
+Identifier: com.github.moofit-recipes.pkg.ClickShare
+Input:
+  NAME: ClickShare
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.moofit-recipes.download.ClickShare
+Process:
+- Processor: AppDmgVersioner
+  Arguments:
+    dmg_path: '%found_filename%'
+- Processor: com.github.homebysix.VersionSplitter/VersionSplitter
+  Arguments:
+    split_on: '-'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs:
+      payload/Applications: '0775'
+      scripts: '0755'
+- Processor: Copier
+  Arguments:
+    source_path: '%found_filename%/ClickShare.app'
+    destination_path: '%pkgroot%/payload/Applications/ClickShare.app'
+- Processor: FileCreator
+  Arguments:
+    file_path: '%pkgroot%/scripts/postinstall'
+    file_content: "#!/usr/bin/env sh\n\n# Check for and delete legacy ClickShare Launcher app\nif [ -e \"/Applications/ClickShare Launcher.app\" ]\nthen\n    rm -rf \"/Applications/ClickShare Launcher.app\"\n    pkgutil --forget com.barco.clicksharelauncher\nfi\n\n# Check for and delete legacy LaunchAgent\nif [ -e \"/Library/LaunchAgents/com.barco.clicksharelauncher.plist\" ]\nthen\n    rm -rf \"/Library/LaunchAgents/com.barco.clicksharelauncher.plist\"\nfi"
+    file_mode: '0755'
+  Comment: Make postinstall script
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      options: purge_ds_store
+      scripts: '%pkgroot%/scripts'
+      pkgroot: '%pkgroot%/payload'
+      id: '%bundleid%'
+      chown:
+      - path: Applications
+        user: root
+        group: admin

@@ -1,0 +1,31 @@
+# Downloaded from https://github.com/autopkg/blackthroat-recipes/blob/553de847ae0637b40824192de99c4cd09e8c42ae/8bit Solutions LLC/Bitwarden.munki.recipe
+# Commit: 553de847ae0637b40824192de99c4cd09e8c42ae
+# Downloaded at: 2025-11-27 22:31:05 UTC
+
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Bitwarden and imports it into Munki.
+Identifier: com.github.blackthroat.munki.Bitwarden
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: Bitwarden
+  pkginfo:
+    blocking_applications:
+    - Bitwarden.app
+    - Bitwarden Login Helper.app
+    - Bitwarden Helper NP.app
+    - Bitwarden Helper.app
+    - Bitwarden Helper EH.app
+    catalogs:
+    - testing
+    description: Solve your password management problems. The easiest and safest way for individuals, teams, and business organizations to store, share, and sync sensitive data.
+    developer: 8bit Solutions LLC
+    display_name: Bitwarden
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.blackthroat.download.Bitwarden
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

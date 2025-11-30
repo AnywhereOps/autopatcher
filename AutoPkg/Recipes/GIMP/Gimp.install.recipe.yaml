@@ -1,0 +1,12 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/GIMP/Gimp.install.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:30:39 UTC
+
+Description: Installs the latest version of GIMP from gimp.org.
+Identifier: io.github.hjuutilainen.install.GIMP
+Input:
+  NAME: GIMP
+MinimumVersion: 0.5.2
+ParentRecipe: io.github.hjuutilainen.pkg.GIMP
+Process:
+- Processor: Installer

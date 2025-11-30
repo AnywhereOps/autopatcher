@@ -1,0 +1,11 @@
+[
+   "1Password.munki.recipe.yaml",
+   "Bitwarden.munki.recipe.yaml",
+   "Blender.munki.recipe.yaml",
+   "DockerDesktop.munki.recipe.yaml",
+   "GIMP.munki.recipe.yaml",
+   "GoogleChrome.munki.recipe.yaml",
+   "MicrosoftEdge.munki.recipe.yaml",
+   "VisualStudioCode.munki.recipe.yaml",
+   "VLC.munki.recipe.yaml"
+]

@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/bnpl-recipes/blob/90d8fb437cb2819f34487c26eb7b68928bfb079b/JetBrains/GoLand.munki.recipe
+# Commit: 90d8fb437cb2819f34487c26eb7b68928bfb079b
+# Downloaded at: 2025-11-27 22:28:02 UTC
+
+Description: Downloads the current release version of GoLand and imports into Munki.
+Comment: For the SUPPORTED_ARCH variable use "x86_64" for Intel, use "arm64" for Apple Silicon
+Identifier: com.github.bnpl.autopkg.munki.goland
+Input:
+  NAME: GoLand
+  MUNKI_REPO_SUBDIR: apps/jetbrains
+  SUPPORTED_ARCH: x86_64
+  pkginfo:
+    catalogs:
+    - testing
+    category: Developer Tools
+    description: "A clever IDE to Go\n\nhttps://www.jetbrains.com/go"
+    developer: JetBrains
+    display_name: GoLand
+    name: '%NAME%'
+    supported_architectures:
+    - '%SUPPORTED_ARCH%'
+    unattended_install: true
+    unattended_uninstall: true
+    uninstallable: true
+MinimumVersion: 0.4.3
+ParentRecipe: com.github.bnpl.autopkg.download.goland
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    munkiimport_appname: GoLand.app
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

@@ -1,0 +1,33 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Omnissa Horizon Client/Omnissa Horizon Client.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:27:48 UTC
+
+Description: "Downloads the latest version of Omnissa Horizon Client for Mac.\n\nTo download a specific major version, override the HORIZON_MAJOR_VERSION variable with a value below:\n\nVersion 8: 8\n    "
+Identifier: com.github.dataJAR-recipes.download.Omnissa Horizon Client
+Input:
+  HORIZON_MAJOR_VERSION: '8'
+MinimumVersion: '1.1'
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: '{\"name\":\"Omnissa Horizon Client for macOS\",\"code\":\"(?P<downloadGroup>(?P<clientGroup>CART.*?)_MAC_.*?)\",\"releaseDate\":\".*\",\"productId\":\".*\",\"releasePackageId\":\".*\",\"isFirmwareImage\":.*,\"orderId\":.*}'
+    comment: "Example for 8.14.0:\n                    https://customerconnect.omnissa.com/channel/public/api/v1.0/products/getRelatedDLGList?locale=en_US&category=desktop_end_user_computing&product=omnissa_horizon_clients&version=8&dlgType=PRODUCT_BINARY"
+    url: https://customerconnect.omnissa.com/channel/public/api/v1.0/products/getRelatedDLGList?locale=en_US&category=desktop_end_user_computing&product=omnissa_horizon_clients&version=%HORIZON_MAJOR_VERSION%&dlgType=PRODUCT_BINARY
+- Processor: URLTextSearcher
+  Arguments:
+    re_pattern: Omnissa-Horizon-Client-.*\.dmg
+    comment: "Example for 8.14.0:\n                    https://customerconnect.omnissa.com/channel/public/api/v1.0/dlg/details?locale=en_US&downloadGroup=CART25FQ4_MAC_2412"
+    result_output_var_name: dmg_url
+    url: https://customerconnect.omnissa.com/channel/public/api/v1.0/dlg/details?locale=en_US&downloadGroup=%downloadGroup%
+- Processor: URLDownloader
+  Arguments:
+    url: https://download3.omnissa.com/software/%downloadGroup%/%dmg_url%
+    comment: "Example for 8.14.0:\n                    https://download3.omnissa.com/software/CART25FQ4_MAC_2412/Omnissa-Horizon-Client-2412-8.14.0-12437218286.dmg"
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Wandering WiFi LLC (S2ZMFGQM93)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%/Omnissa Horizon Client.pkg'

@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/Wireshark/Wireshark.munki.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:29:38 UTC
+
+Description: Builds Wireshark and imports into a Munki repo.
+Identifier: com.github.homebysix.munki.Wireshark
+Input:
+  MUNKI_REPO_SUBDIR: apps/wireshark
+  NAME: Wireshark
+  pkginfo:
+    blocking_applications:
+    - Wireshark
+    catalogs:
+    - testing
+    description: Wireshark is a network protocol analyzer.
+    display_name: Wireshark
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 0.4.0
+ParentRecipe: com.github.homebysix.download.Wireshark
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    munkiimport_appname: Wireshark.app
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

@@ -1,0 +1,14 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Microsoft Azure Storage Explorer/Microsoft Azure Storage Explorer.pkg.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:28:15 UTC
+
+Description: Downloads the latest version of Microsoft Azure Storage Explorer and creates a package.
+Identifier: com.github.dataJAR-recipes.pkg.MicrosoftAzureStorageExplorer
+MinimumVersion: 1.0.0
+Input:
+  NAME: Microsoft Azure Storage Explorer
+ParentRecipe: com.github.dataJAR-recipes.download.MicrosoftAzureStorageExplorer
+Process:
+- Processor: AppPkgCreator
+  Arguments:
+    app_path: '%RECIPE_CACHE_DIR%/Applications/Microsoft Azure Storage Explorer.app'

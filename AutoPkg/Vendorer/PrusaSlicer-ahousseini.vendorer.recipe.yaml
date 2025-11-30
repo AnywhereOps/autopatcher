@@ -1,0 +1,17 @@
+Description: Obtain upstream PrusaSlicer recipe from autopkg/ahousseini-recipes
+
+Identifier: com.github.anywhereops.vendorer.PrusaSlicer
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/ahousseini-recipes
+      folder_path: PrusaSlicer
+      commit_sha: 31e6138b990db5622ef2f3ab05d541edcf92997e
+      destination_path: PrusaSlicer
+      recipe_type: download
+      required_license: Apache-2.0

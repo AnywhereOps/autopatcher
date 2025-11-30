@@ -1,0 +1,52 @@
+# Downloaded from https://github.com/autopkg/n8felton-recipes/blob/646d469b0e6e964e0605774d8541ce29912b9207/SentinelOne/SentinelOne.munki.recipe
+# Commit: 646d469b0e6e964e0605774d8541ce29912b9207
+# Downloaded at: 2025-11-27 22:29:15 UTC
+
+Description: Downloads a release of SentinelOne and imports it into Munki.
+Identifier: com.github.n8felton.munki.SentinelOne
+Input:
+  MUNKI_CATEGORY: Utilities
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: SentinelOne
+  pkginfo:
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: A cybersecurity platform that uses AI to protect networks, devices, and identities from threats. It can detect, remove, and prevent malware and other security risks.
+    developer: SentinelOne, Inc.
+    display_name: SentinelOne
+    name: '%NAME%'
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.n8felton.download.SentinelOne
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/dmgroot'
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/%NAME%.pkg'
+    source_path: '%pathname%'
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%-%version%.dmg'
+    dmg_root: '%pkgroot%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/dmgroot'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      installcheck_script: "#!/bin/zsh\n# Exit codes\nPROCEED_WITH_INSTALL=0\nINSTALL_NOT_NEEDED=1\n\nif [[ ! -e /usr/local/bin/sentinelctl ]]; then\n    exit ${PROCEED_WITH_INSTALL}\nfi\n\nSENTINEL_VERSION=$(/usr/local/bin/sentinelctl version | awk '{print $2}')\n\nif [[ ${SENTINEL_VERSION} < %version% ]]; then\n    exit ${PROCEED_WITH_INSTALL}\nfi\n\nexit ${INSTALL_NOT_NEEDED}\n\t\t\t\t\t"
+      postinstall_script: "#!/bin/sh\nINSTALL_PKG=\"/tmp/%NAME%.pkg\"\n\nif [[ -e /usr/local/bin/sentinelctl ]]; then\n\techo \"sentinelctl found. Upgrading...\"\n\t/usr/local/bin/sentinelctl upgrade-pkg \"${INSTALL_PKG}\"\n\tRETURN_CODE=$?\nelse\n\techo \"sentinelctl not found. Installing...\"\n\tinstaller -pkg \"${INSTALL_PKG}\" -target /\n\tRETURN_CODE=$?\nfi\n\nrm -f \"${INSTALL_PKG}\"\nexit ${RETURN_CODE}\n\t\t\t\t\t"
+      uninstallable: false
+- Processor: MunkiImporter
+  Arguments:
+    additional_makepkginfo_options:
+    - --item=%NAME%.pkg
+    - --destinationpath=/tmp
+    - --unattended_install
+    - --pkgvers=%version%
+    pkg_path: '%dmg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

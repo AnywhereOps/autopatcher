@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/ahousseini-recipes/blob/31e6138b990db5622ef2f3ab05d541edcf92997e/Mersive Solstice/Mersive Solstice.download.recipe
+# Commit: 31e6138b990db5622ef2f3ab05d541edcf92997e
+# Downloaded at: 2025-11-27 22:30:42 UTC
+
+Description: Downloads the latest version of Mersive Solstice.
+Identifier: com.github.ahousseini-recipes.download.MersiveSolstice
+Input:
+  NAME: Mersive Solstice
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: https://www.mersive.com/files/41693/
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Mersive Solstice.app'
+    requirement: identifier "com.mersive.solstice.client" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "63B5A5WDNG"
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%pathname%/Mersive Solstice.app/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString

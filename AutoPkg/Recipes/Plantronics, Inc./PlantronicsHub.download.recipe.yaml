@@ -1,0 +1,22 @@
+# Downloaded from https://github.com/autopkg/blackthroat-recipes/blob/553de847ae0637b40824192de99c4cd09e8c42ae/Plantronics, Inc./PlantronicsHub.download.recipe
+# Commit: 553de847ae0637b40824192de99c4cd09e8c42ae
+# Downloaded at: 2025-11-27 22:29:55 UTC
+
+Description: Downloads the latest version of Plantronics Hub.
+Identifier: com.github.blackthroat.download.PlantronicsHub
+Input:
+  NAME: PlantronicsHub
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: https://www.poly.com/content/dam/www/software/PlantronicsHubInstaller.dmg
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    expected_authority_names:
+    - 'Developer ID Installer: Plantronics, Inc. (SKWK2Q7JJV)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+    input_path: '%pathname%/Plantronics Software.pkg'

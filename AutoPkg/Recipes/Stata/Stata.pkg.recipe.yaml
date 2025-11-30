@@ -1,0 +1,140 @@
+# Downloaded from https://github.com/autopkg/MLBZ521-recipes/blob/8b7738eed4c2f8b6b32a897907ee3420fa0c74ef/Stata/Stata.pkg.recipe.yaml
+# Commit: 8b7738eed4c2f8b6b32a897907ee3420fa0c74ef
+# Downloaded at: 2025-11-27 22:30:55 UTC
+
+Description: |
+  Downloads and packages the latest version of Stata from a local file share.
+
+  The vendor package defaults to installing nothing, so you must select the edition to installed...
+
+  The edition is based on the license type.  This recipe allows you specify the license type to install, which can be one of:
+    * BE (Base Edition)
+    * SE (Standard Edition)
+    * MP (Parallel-Processing Edition)
+
+  Assign the desired edition to the input variable "EDITION".
+
+  Note:  Version 16 and newer is Universal.
+Identifier: com.github.mlbz521.pkg.Stata
+ParentRecipe: com.github.mlbz521.download.Stata
+MinimumVersion: "2.3"
+Input:
+  NAME: Stata
+  EDITION: MP
+Process:
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+      pkgdirs: {}
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: "%RECIPE_CACHE_DIR%/Scripts"
+      pkgdirs: {}
+  - Processor: com.github.mlbz521.SharedProcessors/XarExtractSingleFile
+    Arguments:
+      archive_path: "%found_filename%/*.pkg"
+      file_to_extract: Distribution
+  - Processor: com.github.mlbz521.SharedProcessors/XPathParser
+    Arguments:
+      xml_file: "%extracted_file%"
+      xpath: .//pkg-ref[@id="com.stata.pkg.statanow%found_major_version%.StataBase"][@version]
+      attribute_one: version
+      return_variable_attribute_one: version
+  - Processor: Copier
+    Arguments:
+      source_path: "%found_filename%/*.pkg"
+      destination_path: "%RECIPE_CACHE_DIR%/Scripts/%NAME%.pkg"
+  - Processor: FileCreator
+    Arguments:
+      file_content: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <array>
+            <dict>
+                <key>attributeSetting</key>
+                <integer>1</integer>
+                <key>choiceAttribute</key>
+                <string>selected</string>
+                <key>choiceIdentifier</key>
+                <string>Stata%EDITION%</string>
+            </dict>
+        </array>
+        </plist>
+      file_mode: "0755"
+      file_path: "%RECIPE_CACHE_DIR%/Scripts/choices.plist"
+  - Processor: FileCreator
+    Arguments:
+      file_content: |
+        #!/bin/bash
+
+        ###################################################################################################
+        # Script Name:  Install-ViaChoicePlist.sh
+        # By:  Zack Thompson / Created:  8/05/2023
+        # Version:  1.0.0 / Updated:  8/05/2023 / By:  ZT
+        #
+        # Description:  This script installs a package with a choice plist.
+        #
+        ###################################################################################################
+
+        echo "*****  Install %NAME% Process:  START  *****"
+
+        ##################################################
+        # Define Variables
+
+        # Set working directory
+        temp_pkg_dir=$( /usr/bin/dirname "${0}" )
+
+        # Get the filename of the .pkg file
+        pkg=$( /bin/ls "${temp_pkg_dir}" | /usr/bin/grep .pkg )
+
+        ##################################################
+        # Define Functions
+
+        exit_check() {
+          # Handles checking the exit code of tasks.
+          exit_code="${1}"
+          error_text="${2}"
+
+          if [[ "${exit_code}" != 0 ]]; then
+            echo -e "[ERROR] ${error_text}\nExit Code:  ${exit_code}"
+            echo -e "\n*****  %NAME% Process:  FAILED  *****"
+            exit "${exit_code}"
+          fi
+        }
+
+        ##################################################
+        # Bits staged...
+
+        # Check the installation target.
+        if [[ $3 != "/" ]]; then
+          exit_check "1" "Target disk is not the startup disk."
+        fi
+
+        # Install the .pkg with the choices plist
+        /usr/sbin/installer -applyChoiceChangesXML "${temp_pkg_dir}/choices.plist" -pkg "${temp_pkg_dir}/${pkg}" -target "/"
+        exit_check $? "Failed to apply choices to the installer."
+
+        echo "*****  Install %NAME% Process:  COMPLETE  *****"
+        exit 0
+      file_mode: "0755"
+      file_path: "%RECIPE_CACHE_DIR%/Scripts/postinstall"
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        id: com.stata.pkg.installer
+        pkgname: "%NAME%-%version%"
+        pkgroot: "%RECIPE_CACHE_DIR%/pkgroot"
+        pkgtype: flat
+        scripts: Scripts
+        version: "%version%"
+  - Processor: com.github.mlbz521.SharedProcessors/RenamePath
+    Arguments:
+      source_path: "%RECIPE_CACHE_DIR%/%NAME%-%version%.pkg"
+      new_name: "%RECIPE_CACHE_DIR%/%NAME% %EDITION% (Universal)-%version%.pkg"
+  - Processor: PathDeleter
+    Arguments:
+      path_list: 
+      - "%RECIPE_CACHE_DIR%/extractedfile"
+      - "%RECIPE_CACHE_DIR%/pkgroot"
+      - "%RECIPE_CACHE_DIR%/Scripts"

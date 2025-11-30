@@ -1,0 +1,81 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Blackmagic Desktop Video/Blackmagic Desktop Video.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:30:17 UTC
+
+Description: "Downloads the latest version of Black Magic Desktop Video and imports it into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: com.github.dataJAR-recipes.munki.Blackmagic Desktop Video
+Input:
+  DERIVE_MIN_OS: YES
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: BlackmagicDesktopVideo
+  pkginfo:
+    catalogs:
+    - testing
+    description: Blackmagic Desktop Video includes everything you need to set up your DeckLink, Multibridge, UltraStudio, Intensity and H.264 Pro Recorder for any task in your facility.
+    developer: Blackmagic Design Inc
+    display_name: Blackmagic Desktop Video
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.dataJAR-recipes.download.Blackmagic Desktop Video
+Process:
+- Processor: Copier
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/%NAME%/%NAME%-%version%.pkg'
+    source_path: '%RECIPE_CACHE_DIR%/%NAME%/Blackmagic_Desktop_Video_%version%.dmg/Install Desktop Video %version%.pkg'
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpacked'
+    flat_pkg_path: '%RECIPE_CACHE_DIR%/%NAME%/%NAME%-%version%.pkg'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/DesktopVideo.pkg/Payload'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/DesktopVideoAssets.pkg/Payload'
+    purge_destination: false
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/DesktopVideoUninstaller.pkg/Payload'
+    purge_destination: false
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/DiskSpeedTest.pkg/Payload'
+    purge_destination: false
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/MediaExpress.pkg/Payload'
+    purge_destination: false
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/payload'
+    installs_item_paths:
+    - /Applications/Blackmagic Desktop Video/Desktop Video Setup.app
+    - /Applications/Blackmagic Desktop Video/LiveKey.app
+    - /Applications/Blackmagic Desktop Video/Uninstall Desktop Video.app
+    - /Applications/Blackmagic Disk Speed Test.app
+    - /Applications/Blackmagic Media Express.app
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%/%NAME%-%version%.pkg'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+  Arguments:
+    mode: '777'
+    resource_path: '%RECIPE_CACHE_DIR%/payload'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpacked'
+    - '%RECIPE_CACHE_DIR%/payload'
+    - '%RECIPE_CACHE_DIR%/%NAME%'

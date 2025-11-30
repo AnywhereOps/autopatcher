@@ -1,0 +1,29 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Adobe/AdobeCreativeCloudInstallerUniversal.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:25:37 UTC
+
+Description: Download the latest version of the Adobe Creative Cloud Universal Installer and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.AdobeCreativeCloudInstallerUniversal
+Input:
+  NAME: Adobe Creative Cloud
+  VENDOR: Adobe
+  NAMEWITHOUTSPACES: CreativeCloudInstaller
+  MUNKI_CATEGORY: Creative Cloud
+  MUNKI_DEVELOPER: Adobe Systems Inc.
+  MUNKI_REPO_SUBDIR: apps/adobe
+  pkginfo:
+    catalogs:
+    - testing
+    developer: '%MUNKI_DEVELOPER%'
+    category: '%MUNKI_CATEGORY%'
+    description: "Adobe Creative Cloud gives you the world's best creative apps and services so you can make anything you can imagine, whereever you're inspired. "
+    display_name: '%NAME%'
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 2.0.0
+ParentRecipe: com.github.rtrouton.pkg.AdobeCreativeCloudInstallerUniversal
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%VENDOR%%NAMEWITHOUTSPACES%-Universal-%version%.pkg'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

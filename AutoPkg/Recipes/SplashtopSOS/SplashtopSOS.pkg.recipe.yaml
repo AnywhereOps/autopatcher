@@ -1,0 +1,13 @@
+# Downloaded from https://github.com/autopkg/peetinc-recipes/blob/6ad7836570feb23d45b5ea150db2773fca2674a8/SplashtopSOS/SplashtopSOS.pkg.recipe
+# Commit: 6ad7836570feb23d45b5ea150db2773fca2674a8
+# Downloaded at: 2025-11-27 22:33:10 UTC
+
+Comment: Created with Recipe Robot v2.2.0 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Splashtop SOS and creates a package.
+Identifier: com.github.peetinc.pkg.SplashtopSOS
+Input:
+  NAME: SplashtopSOS
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.peetinc.download.SplashtopSOS
+Process:
+- Processor: AppPkgCreator

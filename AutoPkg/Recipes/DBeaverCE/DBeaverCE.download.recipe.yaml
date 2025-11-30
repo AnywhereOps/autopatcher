@@ -1,0 +1,17 @@
+# Downloaded from https://github.com/autopkg/peshay-recipes/blob/dcbcd986ccd675a3a0b5362a97be857abad0151d/DBeaverCE/DBeaverCE.download.recipe
+# Commit: dcbcd986ccd675a3a0b5362a97be857abad0151d
+# Downloaded at: 2025-11-27 22:26:19 UTC
+
+Description: Downloads latest version of DBeaver Community Edition.
+Identifier: com.github.peshay.download.DBeaverCE
+Input:
+  NAME: DBeaverCE
+  os: ''
+MinimumVersion: 0.6.1
+Process:
+- Processor: GitHubReleasesInfoProvider
+  Arguments:
+    github_repo: dbeaver/dbeaver
+    asset_regex: (dbeaver-ce-[0-9]+.[0-9]+.[0-9]+[-_]+%os%.[^"]*)
+- Processor: URLDownloader
+- Processor: EndOfCheckPhase

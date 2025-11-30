@@ -1,0 +1,124 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/AdobeCreativeCloud/AdobeCreativeCloudInstallerUniversal.pkg.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:25:40 UTC
+
+Description: Downloads the latest version of Adobe's Creative Cloud Installer and builds an installer package which installs the correct Creative Cloud for your Mac's processor.
+Identifier: com.github.rtrouton.pkg.AdobeCreativeCloudInstallerUniversal
+Input:
+  NAME: Creative Cloud Installer
+  VENDOR: Adobe
+  SOFTWARETITLE: Creative Cloud Installer
+  NAMEWITHOUTSPACES: CreativeCloudInstaller
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.download.AdobeCreativeCloudInstallerUniversal
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/Intel_Package/pkgroot'
+    pkgdirs: {}
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Intel_Package/Scripts'
+- Processor: XMLReader
+  Arguments:
+    xml_path: '%RECIPE_CACHE_DIR%/Intel/ApplicationInfo.xml'
+    elements:
+    - xpath: version
+      text: version
+- Processor: FileFinder
+  Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/downloads/intel/*.dmg'
+- Processor: Copier
+  Arguments:
+    source_path: '%found_filename%'
+    destination_path: '%RECIPE_CACHE_DIR%/Intel_Package/Scripts/%VENDOR%%NAMEWITHOUTSPACES%-%version%.dmg'
+    overwrite: true
+- Processor: FileCreator
+  Arguments:
+    file_path: '%RECIPE_CACHE_DIR%/Intel_Package/Scripts/postinstall'
+    file_mode: '0755'
+    file_content: "#!/bin/bash\n\t\t\t\t\n# Determine working directory\ninstallDir=$(dirname $0)\ndmg=(\"${installDir}\"/*\\.dmg)\n\n# Mount the disk image to /Volumes\nmountResult=$(/usr/bin/hdiutil attach \"${dmg}\" -nobrowse -noverify -noautoopen)\nmountPoint=$(/bin/echo \"${mountResult}\" | /usr/bin/grep Volumes | /usr/bin/awk '{print substr($0, index($0,$3))}')\n\n# Install the software\n\"${mountPoint}/Install.app/Contents/MacOS/Install\" --mode=silent\n\n# Get the exit code so we can fail properly\nexitcode=$?\n\n# Unmount the disk image from /Volumes\n/usr/bin/hdiutil detach \"${mountPoint}\"\n\n# Exit according to whether the install succeeded or not\nexit \"${exitcode}\"\n"
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgroot: '%RECIPE_CACHE_DIR%/Intel_Package/pkgroot'
+      pkgname: '%VENDOR%%NAMEWITHOUTSPACES%-Intel-%version%'
+      pkgtype: flat
+      id: com.adobe.AdobeCreativeCloudInstallerIntel.pkg
+      version: '%version%'
+      scripts: Intel_Package/Scripts
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/AppleSilicon_Package/pkgroot'
+    pkgdirs: {}
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/AppleSilicon_Package/Scripts'
+- Processor: XMLReader
+  Arguments:
+    xml_path: '%RECIPE_CACHE_DIR%/AppleSilicon/ApplicationInfo.xml'
+    elements:
+    - xpath: version
+      text: version
+- Processor: FileFinder
+  Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/downloads/applesilicon/*.dmg'
+- Processor: Copier
+  Arguments:
+    source_path: '%found_filename%'
+    destination_path: '%RECIPE_CACHE_DIR%/AppleSilicon_Package/Scripts/%VENDOR%%NAMEWITHOUTSPACES%-%version%.dmg'
+    overwrite: true
+- Processor: FileCreator
+  Arguments:
+    file_path: '%RECIPE_CACHE_DIR%/AppleSilicon_Package/Scripts/postinstall'
+    file_mode: '0755'
+    file_content: "#!/bin/bash\n\t\t\t\t\n# Determine working directory\ninstallDir=$(dirname $0)\ndmg=(\"${installDir}\"/*\\.dmg)\n\n# Mount the disk image to /Volumes\nmountResult=$(/usr/bin/hdiutil attach \"${dmg}\" -nobrowse -noverify -noautoopen)\nmountPoint=$(/bin/echo \"${mountResult}\" | /usr/bin/grep Volumes | /usr/bin/awk '{print substr($0, index($0,$3))}')\n\n# Install the software\n\"${mountPoint}/Install.app/Contents/MacOS/Install\" --mode=silent\n\n# Get the exit code so we can fail properly\nexitcode=$?\n\n# Unmount the disk image from /Volumes\n/usr/bin/hdiutil detach \"${mountPoint}\"\n\n# Exit according to whether the install succeeded or not\nexit \"${exitcode}\"\n"
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgroot: '%RECIPE_CACHE_DIR%/AppleSilicon_Package/pkgroot'
+      pkgname: '%VENDOR%%NAMEWITHOUTSPACES%-AppleSilicon-%version%'
+      pkgtype: flat
+      id: com.adobe.AdobeCreativeCloudInstallerAppleSilicon.pkg
+      version: '%version%'
+      scripts: AppleSilicon_Package/Scripts
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/Universal/Scripts'
+    pkgdirs: {}
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/Universal/pkgroot'
+    pkgdirs: {}
+- Processor: FileMover
+  Arguments:
+    source: '%RECIPE_CACHE_DIR%/%VENDOR%%NAMEWITHOUTSPACES%-AppleSilicon-%version%.pkg'
+    target: '%RECIPE_CACHE_DIR%/Universal/Scripts/%VENDOR%%NAMEWITHOUTSPACES%-AppleSilicon-%version%.pkg'
+    overwrite: false
+- Processor: FileMover
+  Arguments:
+    source: '%RECIPE_CACHE_DIR%/%VENDOR%%NAMEWITHOUTSPACES%-Intel-%version%.pkg'
+    target: '%RECIPE_CACHE_DIR%/Universal/Scripts/%VENDOR%%NAMEWITHOUTSPACES%-Intel-%version%.pkg'
+    overwrite: false
+- Processor: FileCreator
+  Arguments:
+    file_path: '%RECIPE_CACHE_DIR%/Universal/Scripts/preinstall'
+    file_mode: '0755'
+    file_content: "#!/bin/bash\n\n# Determine working directory\n\ninstallDir=$(dirname $0)\n\n# Identify installer package names\n\nIntel_package=\"%VENDOR%%NAMEWITHOUTSPACES%-Intel-%version%.pkg\"\nApple_Silicon_package=\"%VENDOR%%NAMEWITHOUTSPACES%-AppleSilicon-%version%.pkg\"\n\n# Determine if this Mac has an Intel or Apple Silicon processor\n\nprocessor=$(/usr/sbin/sysctl -n machdep.cpu.brand_string | grep -o \"Intel\")\n\nif [[ -n \"$processor\" ]]; then\n\n/usr/sbin/installer -pkg \"$Intel_package\" -target \"$3\"\n\nelse\n\n/usr/sbin/installer -pkg \"$Apple_Silicon_package\" -target \"$3\"\n\nfi\n\nexit 0"
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%VENDOR%%NAMEWITHOUTSPACES%-Universal-%version%'
+      version: '%version%'
+      id: com.adobe.AdobeCreativeCloudInstallerUniversal
+      scripts: '%RECIPE_CACHE_DIR%/Universal/Scripts'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/AppleSilicon'
+    - '%RECIPE_CACHE_DIR%/AppleSilicon_Package'
+    - '%RECIPE_CACHE_DIR%/Intel'
+    - '%RECIPE_CACHE_DIR%/Intel_Package'
+    - '%RECIPE_CACHE_DIR%/Universal'

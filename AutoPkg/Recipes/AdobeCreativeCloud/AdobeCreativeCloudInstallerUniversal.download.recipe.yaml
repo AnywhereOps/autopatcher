@@ -1,0 +1,74 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/AdobeCreativeCloud/AdobeCreativeCloudInstallerUniversal.download.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:25:39 UTC
+
+Description: "Downloads the latest version of Adobe's Creative Cloud Desktop App Installer.\n\tSet the ARCHITECTURE override to \"osx10\" to download the Intel or \"macarm64\" for Apple Silicon."
+Identifier: com.github.rtrouton.download.AdobeCreativeCloudInstallerUniversal
+Input:
+  NAME: Creative Cloud Installer
+  VENDOR: Adobe
+  SOFTWARETITLE: Creative Cloud Installer
+  NAMEWITHOUTSPACES: CreativeCloudInstaller
+  SEARCH_URL: https://helpx.adobe.com/download-install/apps/download-install-apps/creative-cloud-apps/download-creative-cloud-desktop-app-using-direct-links.html
+  INTEL_SEARCH_PATTERN: (?P<url>http.*?://ccmdl.adobe.com/AdobeProducts/StandaloneBuilds/ACCC/ESD/.*?/%INTEL_ARCHITECTURE%/ACCC.*?.dmg)
+  APPLE_SILICON_SEARCH_PATTERN: (?P<url>http.*?://ccmdl.adobe.com/AdobeProducts/StandaloneBuilds/ACCC/ESD/.*?/%APPLE_SILICON_ARCHITECTURE%/ACCC.*?.dmg)
+  INTEL_ARCHITECTURE: osx10
+  APPLE_SILICON_ARCHITECTURE: macarm64
+MinimumVersion: 1.0.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    re_pattern: '%INTEL_SEARCH_PATTERN%'
+- Processor: URLDownloader
+  Arguments:
+    url: '%url%'
+    download_dir: '%RECIPE_CACHE_DIR%/downloads/intel'
+- Processor: EndOfCheckPhase
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/Intel'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Install.app'
+    requirement: identifier "com.adobe.cc.Install" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = JQ525L2MZD
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/packages/ApplicationInfo.xml'
+    destination_path: '%RECIPE_CACHE_DIR%/Intel/ApplicationInfo.xml'
+    overwrite: true
+- Processor: XMLReader
+  Arguments:
+    xml_path: '%RECIPE_CACHE_DIR%/Intel/ApplicationInfo.xml'
+    elements:
+    - xpath: version
+      text: version
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    re_pattern: '%APPLE_SILICON_SEARCH_PATTERN%'
+- Processor: URLDownloader
+  Arguments:
+    url: '%url%'
+    download_dir: '%RECIPE_CACHE_DIR%/downloads/applesilicon'
+- Processor: EndOfCheckPhase
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs: {}
+    pkgroot: '%RECIPE_CACHE_DIR%/AppleSilicon'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Install.app'
+    requirement: identifier "com.adobe.cc.Install" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = JQ525L2MZD
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/packages/ApplicationInfo.xml'
+    destination_path: '%RECIPE_CACHE_DIR%/AppleSilicon/ApplicationInfo.xml'
+    overwrite: true
+- Processor: XMLReader
+  Arguments:
+    xml_path: '%RECIPE_CACHE_DIR%/AppleSilicon/ApplicationInfo.xml'
+    elements:
+    - xpath: version
+      text: version

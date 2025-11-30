@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/its-unibas-recipes/blob/c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c/JetBrains/IntellijUltimate-Intel.munki.recipe
+# Commit: c5bd8a6d2cafa6e81e67f6aec19d2a11dd77de2c
+# Downloaded at: 2025-11-27 22:28:51 UTC
+
+Identifier: com.github.its-unibas.munki.IntellijUltimate-Intel
+Input:
+  CODESIGNATUREAPPNAME: IntelliJ IDEA.app
+  CODESIGNATUREREQUIREMENT: identifier "com.jetbrains.intellij" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"
+  MUNKI_REPO_SUBDIR: apps/JetBrains/Intellij/x86_64
+  NAME: IntellijUltimate
+  arch: intel
+  edition: U
+  pkginfo:
+    catalogs:
+    - testing
+    description: Lightweight IDE for Java SE, Groovy and Scala development.
+    display_name: Intellij Ultimate Edition
+    name: '%NAME%'
+    supported_architectures:
+    - x86_64
+    unattended_install: true
+ParentRecipe: com.github.its-unibas.munki.Intellij
+Process: []

@@ -1,0 +1,15 @@
+# Downloaded from https://github.com/autopkg/blackthroat-recipes/blob/553de847ae0637b40824192de99c4cd09e8c42ae/8bit Solutions LLC/Bitwarden.install.recipe
+# Commit: 553de847ae0637b40824192de99c4cd09e8c42ae
+# Downloaded at: 2025-11-27 22:31:05 UTC
+
+Comment: Created with Recipe Robot v1.0.5 (https://github.com/homebysix/recipe-robot)
+Description: Installs the latest version of Bitwarden.
+Identifier: com.github.blackthroat.install.Bitwarden
+Input:
+  NAME: Bitwarden
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.blackthroat.download.Bitwarden
+Process:
+- Processor: Installer
+  Arguments:
+    pkg_path: '%pathname%'

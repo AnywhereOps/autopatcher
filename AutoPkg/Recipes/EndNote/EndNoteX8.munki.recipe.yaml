@@ -1,0 +1,26 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/EndNote/EndNoteX8.munki.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:33:04 UTC
+
+Description: Downloads latest Endnote X8 installer and imports it into munki.
+Identifier: com.github.rtrouton.munki.EndNoteX8
+Input:
+  DEFAULT_CATALOG: testing
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: EndNoteX8
+  pkginfo:
+    catalogs:
+    - '%DEFAULT_CATALOG%'
+    category: Reference
+    description: Bibliographic management app.
+    developer: Thomson Reuters
+    display_name: EndNote X8
+    minimum_os_version: 10.10.0
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.6.1
+ParentRecipe: com.github.rtrouton.pkg.EndNoteX8
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

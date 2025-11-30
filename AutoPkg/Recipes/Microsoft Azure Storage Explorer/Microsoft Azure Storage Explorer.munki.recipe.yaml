@@ -1,0 +1,54 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Microsoft Azure Storage Explorer/Microsoft Azure Storage Explorer.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:28:15 UTC
+
+Description: "Downloads the latest version of Microsoft Azure Storage Explorer and imports into Munki.\n\nFor Intel use: \"x86_64\" in the SUPPORTED_ARCH variable\nFor Apple Silicon use: \"arm64\" in the SUPPORTED_ARCH variable"
+Identifier: com.github.dataJAR-recipes.munki.MicrosoftAzureStorageExplorer
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: Microsoft Azure Storage Explorer
+  SUPPORTED_ARCH: arm64
+  pkginfo:
+    catalogs:
+    - testing
+    description: Upload, download, and manage Azure blobs, files, queues, and tables, as well as Azure Cosmos DB and Azure Data Lake Storage entities. Easily access virtual machine disks, and work with either Azure Resource Manager or classic storage accounts. Manage and configure cross-origin resource sharing rules.
+    display_name: MicrosoftAzureStorageExplorer
+    name: '%NAME%'
+    supported_architectures:
+    - '%SUPPORTED_ARCH%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '1.1'
+ParentRecipe: com.github.dataJAR-recipes.download.MicrosoftAzureStorageExplorer
+Process:
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/Applications/Microsoft Azure Storage Explorer.app/Contents/Info.plist'
+    plist_version_key: CFBundleVersion
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/'
+    installs_item_paths:
+    - /Applications/Microsoft Azure Storage Explorer.app
+    version_comparison_key: CFBundleVersion
+- Processor: MunkiPkginfoMerger
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/Applications'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%dmg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: com.github.grahampugh.recipes.commonprocessors/ChangeModeOwner
+  Arguments:
+    mode: '777'
+    resource_path: '%RECIPE_CACHE_DIR%/Applications'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Applications'

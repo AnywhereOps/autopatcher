@@ -1,0 +1,12 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/MicrosoftDefender/MicrosoftDefender.install.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:28:24 UTC
+
+Description: Downloads the latest version of the Microsoft Defender installer package and installs it.
+Identifier: com.github.rtrouton.install.microsoftdefender
+Input:
+  NAME: Microsoft Defender
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.pkg.microsoftdefender
+Process:
+- Processor: Installer

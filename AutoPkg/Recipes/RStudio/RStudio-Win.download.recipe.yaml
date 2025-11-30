@@ -1,0 +1,22 @@
+# Downloaded from https://github.com/autopkg/hansen-m-recipes/blob/de17d7db2537ffa00c27281a392f37fe599efdca/RStudio/RStudio-Win.download.recipe
+# Commit: de17d7db2537ffa00c27281a392f37fe599efdca
+# Downloaded at: 2025-11-27 22:28:57 UTC
+
+Description: Downloads the latest RStudio installer for Windows.
+Identifier: com.github.hansen-m.download.RStudio-Win
+Input:
+  NAME: RStudio
+  SEARCH_URL: https://www.rstudio.com/products/rstudio/download/
+  SEARCH_PATTERN: (?P<exe>RStudio-(?P<version>([0-9.]+){1,3}?.*).exe)
+  DOWNLOAD_MIRROR: https://download1.rstudio.org/electron/windows
+MinimumVersion: 0.5.1
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    re_pattern: '%SEARCH_PATTERN%'
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_MIRROR%/%exe%'
+    filename: '%NAME%.exe'
+- Processor: EndOfCheckPhase

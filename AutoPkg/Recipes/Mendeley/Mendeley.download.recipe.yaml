@@ -1,0 +1,23 @@
+# Downloaded from https://github.com/autopkg/hansen-m-recipes/blob/de17d7db2537ffa00c27281a392f37fe599efdca/Mendeley/Mendeley.download.recipe
+# Commit: de17d7db2537ffa00c27281a392f37fe599efdca
+# Downloaded at: 2025-11-27 20:29:05 UTC
+
+Description: Downloads the latest version of Mendeley Desktop.
+Identifier: com.github.hansen-m.download.Mendeley
+Input:
+  NAME: Mendeley
+  DOWNLOAD_URL: https://www.mendeley.com/client/get/2/
+  USER_AGENT: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_3) AppleWebKit/536.28.10 (KHTML, like Gecko) Version/6.0.3 Safari/536.28.10
+MinimumVersion: 0.4.0
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOAD_URL%'
+    request_headers:
+      user-agent: '%USER_AGENT%'
+    filename: '%NAME%.dmg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%/Mendeley Desktop.app'
+    requirement: identifier "com.mendeley.desktop" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = A43FW9RYK2

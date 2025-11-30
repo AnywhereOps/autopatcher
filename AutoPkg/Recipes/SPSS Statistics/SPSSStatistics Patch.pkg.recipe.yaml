@@ -1,0 +1,65 @@
+# Downloaded from https://github.com/autopkg/MLBZ521-recipes/blob/8b7738eed4c2f8b6b32a897907ee3420fa0c74ef/SPSS Statistics/SPSSStatistics Patch.pkg.recipe
+# Commit: 8b7738eed4c2f8b6b32a897907ee3420fa0c74ef
+# Downloaded at: 2025-11-27 22:31:10 UTC
+
+Description: "Downloads and packages the latest or a specified verison of a SPSS Statistics Patch from a local file share.\n\nTwo override variables are available to support the installation of SPSS:\n\t* INSTALL_JDK_CLI\n\t\t* A JDK is required to install SPSS silently; if one is not installed, you can provide a command \n\t\t\tline command to acquire one through any method that is support in your environemnt\n\t* INSTALL_PROPERTIES\n\t\t* As the name suggests, this the \"installer.properties\" that allows you to customize the install\n\t\t\tof SPSS.  The available parameters are included; customize for your environment.\n\nDo note that the postinstall script that \"handles the upgrade\" search the /Applications folder for the version of \nSPSS being upgraded and will inject the path into the install.properties file so it does not need to be specifed\nin the INSTALL_PROPERTIES override variable below, which is described above.\n\t"
+Identifier: com.github.mlbz521.pkg.SPSSStatisticsPatch
+Input:
+  NAME: SPSS Statistics Patch
+  INSTALL_JDK_CLI: /usr/local/bin/jamf policy -event "Amazon_Corretto_JDK" -forceNoRecon
+  INSTALL_PROPERTIES: "INSTALLER_UI=silent\n#USER_INSTALL_DIR=/Applications/SPSS Statistics #MAJOR_VERSION#/\nLICENSE_ACCEPTED=true\n#AUTHCODE=\nInstallPython=1\n#LSHOST=\nCOMMUTE_MAX_LIFE=7\n#PROXYHOST=\n#PROXYPORT=\n#PROXYUSER=\n#PROXYPASS="
+ParentRecipe: com.github.mlbz521.download.SPSSStatisticsLegacy
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs: {}
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/scripts'
+    pkgdirs: {}
+- Processor: FileFinder
+  Arguments:
+    pattern: '%found_filename%/*.bin'
+- Processor: FileFinder
+  Arguments:
+    pattern: '%cached_path%/*.dmg'
+- Processor: Copier
+  Arguments:
+    source_path: '%found_filename%/%dmg_found_filename%'
+    destination_path: '%RECIPE_CACHE_DIR%/scripts/%dmg_found_filename%'
+    overwrite: true
+- Processor: com.github.mlbz521.SharedProcessors/FileMode
+  Arguments:
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/scripts/%dmg_found_filename%'
+- Processor: com.github.mlbz521.SharedProcessors/InputVariableTextSubstituter
+  Arguments:
+    original_string: '%INSTALL_PROPERTIES%'
+    string_to_replace: '#MAJOR_VERSION#'
+    variable_to_use: found_major_version
+    return_variable: INSTALL_PROPERTIES
+- Processor: FileCreator
+  Arguments:
+    file_content: '%INSTALL_PROPERTIES%'
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/scripts/installer.properties'
+- Processor: FileCreator
+  Arguments:
+    file_content: "#!/bin/bash\n\n###################################################################################################\n# Script Name:  update_SPSS.sh\n# By:  Zack Thompson / Created:  11/22//2017\n# Version:  1.7.0 / Updated:  1/12/2019 / By:  ZT\n#\n# Description:  This script grabs the current location of the SPSSStatistics.app and injects it into the installer.properties file and then will upgrade an SPSS Installation.\n#\n###################################################################################################\n\necho \"*****  Upgrade SPSS process:  START  *****\"\n\n##################################################\n# Define Variables\n\n# Set working directory\npkgDir=$( /usr/bin/dirname \"${0}\" )\n# Get the filename of the .bin file\ninstallBin=$( /bin/ls \"${pkgDir}\" | /usr/bin/grep .bin )\n# Version that's being updated\nversion=\"%version%\"\nmajorVersion=\"%found_major_version%\"\n# Get the location of SPSSStatistics.app\nappPath=$( /usr/bin/find -E /Applications -iregex \".*[${majorVersion}].*[/](SPSS) ?(Statistics) ?(${majorVersion})?[.]app\" -type d -prune )\n# Get the App Bundle name\nappName=$( echo \"${appPath}\" | /usr/bin/awk -F \"/\" '{print $NF}' )\n# Get only the install path\ninstallPath=$( echo \"${appPath}\" | /usr/bin/awk -F \"/${appName}\" '{print $1}' )\n# Get the current SPSS version\ncurrentVersion=$( /usr/bin/defaults read \"${appPath}/Contents/Info.plist\" CFBundleShortVersionString )\n\n##################################################\n# Bits staged...\n\nif [[ -z \"${appPath}\" ]]; then\n\techo \"A previous version SPSS was not found in the expected location!\"\n\techo \"*****  Upgrade SPSS process:  FAILED  *****\"\n\texit 1\nfi\n\necho \"Checking for a JDK...\"\nif [[ -z $( /usr/bin/find \"/Library/Java/JavaVirtualMachines\" -iname \"*.jdk\" -type d ) ]]; then\n\t# Install prerequisite:  Java JDK\n\techo \"Installing prerequisite Java JDK...\"\n\t%INSTALL_JDK_CLI%\nelse\n\techo \"JDK exists...continuing...\"\nfi\n\necho \"Upgrading SPSS Version:  ${currentVersion} at path:  ${appPath}\"\n\n# Inject the location to the installer.properties file\nLANG=C /usr/bin/sed -Ei '' 's,(#)?USER_INSTALL_DIR=.*,'\"USER_INSTALL_DIR=${installPath}\"',' \"${pkgDir}/installer.properties\"\n\n# Make sure the Patch.bin file is executable\n/bin/chmod +x \"${pkgDir}/${installBin}\"\n\n# Silent upgrade using information in the installer.properties file\necho \"Upgrading SPSS...\"\nexitStatus=$( \"${pkgDir}/${installBin}\" -f \"${pkgDir}/installer.properties\" )\nexitCode=$?\n\n# For exit code 208:  https://www.ibm.com/support/pages/exit-code-208-install-spss-22-mac\nif [[ $exitCode != 0 && $exitCode != 208 ]]; then\n\techo \"ERROR:  Upgrade failed!\"\n\techo \"Exit Code:  ${exitCode}\"\n\techo \"Exit Status:  ${exitStatus}\"\n\techo \"*****  Upgrade SPSS process:  FAILED  *****\"\n\texit 2\n# This is no longer supported on macOS Ventura and breaks the application bundle.\n# elif [[ $( /usr/bin/defaults read \"${appPath}/Contents/Info.plist\" CFBundleShortVersionString ) != \"${version}\" ]]; then\n# \techo \"Injecting the proper version string into SPSS's Info.plist\"\n# \t# Inject the proper version into the Info.plist file -- this may not be required for every version; specifically for v24.0.0.2, it was needed\n# \t/usr/bin/sed -Ei '' 's/'\"${majorVersion}.0.0.[0-9]\"'/'\"${version}\"'/g' \"${appPath}/Contents/Info.plist\"\nfi\n\n# Setting permissions to resolve issues seen in:  https://www-01.ibm.com/support/docview.wss?uid=swg21966637\necho \"Setting permissions on SPSS ${majorVersion} files...\"\n/usr/sbin/chown -R root:admin \"${installPath}\"\n\necho \"Upgrade complete!\"\necho \"*****  Upgrade SPSS process:  COMPLETE  *****\"\nexit 0"
+    file_mode: '0755'
+    file_path: '%RECIPE_CACHE_DIR%/scripts/postinstall'
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      pkgname: '%NAME%-%version%'
+      pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+      version: '%version%'
+      id: com.ibm.spssstatistics
+      options: purge_ds_store
+      scripts: Scripts
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/pkgroot'
+    - '%RECIPE_CACHE_DIR%/scripts'

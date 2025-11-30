@@ -1,0 +1,53 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Microsoft Defender/Microsoft Defender.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:28:22 UTC
+
+Description: Downloads the latest version of Microsoft Defender and imports it into Munki.
+Identifier: com.github.dataJAR-recipes.munki.MicrosoftDefender
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: MicrosoftDefender
+  pkginfo:
+    blocking_applications:
+    - Microsoft Auto Update
+    - Microsoft Defender
+    catalogs:
+    - testing
+    description: Microsoft Defender Advanced Threat Protection is a platform designed to help enterprise networks prevent, detect, investigate, and respond to advanced threats.
+    developer: Microsoft
+    display_name: Microsoft Defender
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.rtrouton.pkg.microsoftdefender
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    flat_pkg_path: '%pkg_path%'
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+- Processor: PkgRootCreator
+  Arguments:
+    pkgroot: '%RECIPE_CACHE_DIR%/pkgroot'
+    pkgdirs:
+      Applications: '0755'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/pkgroot/Applications'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/wdav-pkg.pkg/Payload'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/pkgroot'
+    installs_item_paths:
+    - /Applications/Microsoft Defender.app
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pkg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Microsoft_Defender_%version%.pkg'
+    - '%RECIPE_CACHE_DIR%/pkgroot'
+    - '%RECIPE_CACHE_DIR%/unpack'

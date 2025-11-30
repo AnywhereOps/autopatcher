@@ -1,0 +1,50 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/SQLDeveloper/SQLDeveloper.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:28:42 UTC
+
+Description: "Downloads the latest version of SQLDeveloper and imports it into Munki.\n\nFor Intel use: \"x86_64\" in the SUPPORTED_ARCH variable\nFor Apple Silicon use: \"arm64\" in the SUPPORTED_ARCH variable"
+Identifier: com.github.dataJAR-recipes.munki.SQLDeveloper
+Input:
+  SUPPORTED_ARCH: arm64
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: SQLDeveloper
+  pkginfo:
+    catalogs:
+    - testing
+    developer: Oracle
+    description: "Oracle SQLDeveloper is a free, integrated development environment that simplifies the development and management of Oracle Database in both traditional and Cloud deployments.\n\nSQLDeveloper offers complete end-to-end development of your PL/SQL applications, a worksheet for running queries and scripts, a DBA console for managing the database, a reports interface, a complete data modeling solution, and a migration platform for moving your 3rd party databases to Oracle."
+    display_name: SQLDeveloper
+    name: '%NAME%'
+    supported_architectures:
+    - '%SUPPORTED_ARCH%'
+    uninstall_method: uninstall_script
+    uninstall_script: "#!/bin/bash\n\nif [ -d \"/Applications/SQLDeveloper.app\" ]; then\n    rm -rf \"/Applications/SQLDeveloper.app\"\n\n    if [ ! -d \"/Applications/SQLDeveloper.app\" ]; then\n        echo \"Successfully removed SQLDeveloper.app\"\n        exit 0\n    else\n        echo \"Error: Failed to remove SQLDeveloper.app\"\n        exit 1\n    fi\nelse\n    echo \"SQLDeveloper.app not found in /Applications\"\n    exit 0\nfi"
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '1.1'
+ParentRecipe: com.github.dataJAR-recipes.download.SQLDeveloper
+Process:
+- Processor: SQLDeveloperVersioner
+  Arguments:
+    app_path: '%RECIPE_CACHE_DIR%/Applications/SQLDeveloper.app'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+      installcheck_script: "#!/bin/bash\n\n# Compares installed version using /Applications/SQLDeveloper.app/Contents/Resources/sqldeveloper/sqldeveloper/bin/version.properties\n\n# Version we're checking against\nAPPLICATION_VERSION=\"%version%\"\n\nINSTALL_DIR=\"/Applications/SQLDeveloper.app\"\nVERSION_FILE=\"$INSTALL_DIR/Contents/Resources/sqldeveloper/sqldeveloper/bin/version.properties\"\n\n# Function for formatted output\nlog() {\n    echo \"SQLDeveloper_Check: $1\" 1>&2\n}\n\n# Function to extract version from properties file\nget_version() {\n    local prop_file=\"$1\"\n    if [[ -f \"$prop_file\" ]]; then\n        # Extract VER_FULL value from properties file\n        ver=$(grep \"^VER_FULL=\" \"$prop_file\" | cut -d'=' -f2 | tr -d '[:space:]')\n        echo \"$ver\"\n    else\n        echo \"\"\n    fi\n}\n\nlog \"Starting version check...\"\nlog \"Application version to install: $APPLICATION_VERSION\"\nlog \"Checking installation at: $INSTALL_DIR\"\n\n# Check if SQLDeveloper is installed\nif [[ ! -d \"$INSTALL_DIR\" ]]; then\n    log \"SQLDeveloper is not installed\"\n    log \"Exit code 0: Installation should proceed\"\n    exit 0\nfi\n\nlog \"SQLDeveloper installation found\"\nlog \"Checking for version file: $VERSION_FILE\"\n\n# Check if version.properties exists\nif [[ ! -f \"$VERSION_FILE\" ]]; then\n    log \"Version file not found\"\n    log \"Exit code 0: Installation should proceed\"\n    exit 0\nfi\n\nlog \"Version file found, extracting version information...\"\n\n# Get installed version\nINSTALLED_VERSION=$(get_version \"$VERSION_FILE\")\n\nif [[ -z \"$INSTALLED_VERSION\" ]]; then\n    log \"Could not determine installed version\"\n    log \"Exit code 0: Installation should proceed\"\n    exit 0\nfi\n\nlog \"Installed version: $INSTALLED_VERSION\"\nlog \"Comparing versions...\"\n\n# Compare versions\nif [[ \"$INSTALLED_VERSION\" != \"$APPLICATION_VERSION\" ]]; then\n    log \"Versions do not match\"\n    log \"Exit code 0: Installation should proceed\"\n    exit 0\nelse\n    log \"Versions match\"\n    log \"Exit code 1: Installation not needed\"\n    exit 1\nfi"
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/Applications'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Applications'

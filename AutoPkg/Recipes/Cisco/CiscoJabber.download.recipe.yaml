@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Cisco/CiscoJabber.download.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:29:47 UTC
+
+Description: Downloads the latest verison of Cisco Jabber
+Identifier: com.github.joshua-d-miller.download.ciscojabber
+Input:
+  NAME: Cisco Jabber
+  SEARCH_URL: https://www.webex.com/downloads/jabber.html
+MinimumVersion: 2.0.0
+Process:
+- Processor: URLTextSearcher
+  Arguments:
+    url: '%SEARCH_URL%'
+    re_pattern: (?P<url>https:\/\/binaries\.webex\.com\/jabberclientmac\/[\d]+\/Install_Cisco-Jabber-Mac\.pkg)
+- Processor: URLDownloader
+  Arguments:
+    url: '%url%'
+    filename: '%NAME%.pkg'
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Cisco (DE8Y96K9QP)'
+    - Developer ID Certification Authority
+    - Apple Root CA
+- Processor: EndOfCheckPhase

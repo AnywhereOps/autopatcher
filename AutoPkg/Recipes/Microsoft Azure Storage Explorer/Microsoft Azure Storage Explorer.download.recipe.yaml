@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Microsoft Azure Storage Explorer/Microsoft Azure Storage Explorer.download.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:28:15 UTC
+
+Description: "Downloads the latest version of Microsoft Azure Storage Explorer.\n\nFor x86_64 use \"2216184\" in PRODUCTID variable.\nFor arm64 use \"2279415\" in PRODUCTID variable."
+Identifier: com.github.dataJAR-recipes.download.MicrosoftAzureStorageExplorer
+MinimumVersion: '1.1'
+Input:
+  NAME: Microsoft Azure Storage Explorer
+  PRODUCTID: '2279415'
+  DOWNLOADURL: https://go.microsoft.com/fwlink/?linkid=%PRODUCTID%
+Process:
+- Processor: URLDownloader
+  Arguments:
+    url: '%DOWNLOADURL%'
+    filename: '%NAME%.zip'
+- Processor: EndOfCheckPhase
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%pathname%'
+    destination_path: '%RECIPE_CACHE_DIR%/Applications'
+    purge_destination: true
+    archive_format: zip
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/Applications/Microsoft Azure Storage Explorer.app'
+    requirement: identifier "com.microsoft.StorageExplorer" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = UBF8T346G9

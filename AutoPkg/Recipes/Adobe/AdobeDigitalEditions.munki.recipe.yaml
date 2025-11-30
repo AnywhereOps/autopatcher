@@ -1,0 +1,49 @@
+# Downloaded from https://github.com/autopkg/joshua-d-miller-recipes/blob/8a1767feebc676e376cc661d05f092c654217ce1/Adobe/AdobeDigitalEditions.munki.recipe
+# Commit: 8a1767feebc676e376cc661d05f092c654217ce1
+# Downloaded at: 2025-11-27 22:25:37 UTC
+
+Description: Download the latest version of Adobe Digital Editions and imports it into Munki.
+Identifier: com.github.joshua-d-miller.autopkg.munki.AdobeDigitalEditions
+Input:
+  MUNKI_REPO_SUBDIR: apps/adobe
+  NAME: Adobe Digital Editions
+  pkginfo:
+    blocking_applications:
+    - Adobe Digital Editions 4.5.app
+    catalogs:
+    - testing
+    category: Reference
+    developer: Adobe Systems Inc.
+    display_name: Adobe Digital Editions
+    description: Adobe Digital Editions software offers an engaging way to view and manage eBooks and other digital publications. Use it to download and purchase digital content, which can be read both online and offline. Transfer copy-protected eBooks from your personal computer to other computers or devices. Organize your eBooks into a custom library and annotate pages. Digital Editions also supports industry-standard eBook formats, including PDF/A and EPUB.
+    minimum_os_version: '10.7'
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.2.9
+ParentRecipe: com.github.hansen-m.download.AdobeDigitalEditions
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack/'
+    flat_pkg_path: '%pathname%/Digital Editions 4.5 Installer.pkg'
+    purge_destination: 'true'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload/Applications'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/build.pkg/Payload'
+    purge_destination: 'true'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%/payload/'
+    installs_item_paths:
+    - /Applications/Adobe Digital Editions 4.5.app
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/payload'
+    - '%RECIPE_CACHE_DIR%/unpack'

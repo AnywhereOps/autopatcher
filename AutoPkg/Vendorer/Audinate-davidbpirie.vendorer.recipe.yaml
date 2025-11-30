@@ -1,0 +1,17 @@
+Description: Obtain upstream Audinate recipe from autopkg/davidbpirie-recipes
+
+Identifier: com.github.anywhereops.vendorer.Audinate
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/davidbpirie-recipes
+      folder_path: Audinate
+      commit_sha: 0404d81709772dd628f207f4eb9da35fbfcdc529
+      destination_path: Audinate
+      recipe_type: download
+      required_license: Apache-2.0

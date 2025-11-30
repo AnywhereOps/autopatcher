@@ -1,0 +1,11 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/Blender/Blender.install.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:29:42 UTC
+
+Description: Installs the current release version of Blender.
+Identifier: io.github.hjuutilainen.install.Blender
+Input: {}
+MinimumVersion: 0.4.2
+ParentRecipe: io.github.hjuutilainen.pkg.Blender
+Process:
+- Processor: Installer

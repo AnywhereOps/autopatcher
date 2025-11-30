@@ -1,0 +1,39 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/Sublime HQ/Sublime Merge.munki.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:29:27 UTC
+
+Comment: Created with Recipe Robot v1.1.3 (https://github.com/homebysix/recipe-robot)
+Description: Downloads the latest version of Sublime Merge and imports it into Munki.
+Identifier: com.github.homebysix.munki.SublimeMerge
+Input:
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: Sublime Merge
+  pkginfo:
+    catalogs:
+    - testing
+    description: Fast Git client from the makers of Sublime Text.
+    developer: Sublime HQ
+    display_name: Sublime Merge
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.homebysix.download.SublimeMerge
+Process:
+- Processor: DmgCreator
+  Arguments:
+    dmg_path: '%RECIPE_CACHE_DIR%/%NAME%.dmg'
+    dmg_root: '%RECIPE_CACHE_DIR%/%NAME%'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%dmg_path%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+    version_comparison_key: CFBundleVersion
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/%NAME%/'

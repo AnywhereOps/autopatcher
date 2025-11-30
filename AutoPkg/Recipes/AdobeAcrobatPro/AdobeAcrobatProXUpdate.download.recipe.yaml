@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/AdobeAcrobatPro/AdobeAcrobatProXUpdate.download.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:25:30 UTC
+
+Description: "Downloads updates for Adobe Acrobat Pro X or XI. MAJOR_VERSION can be '10', '11', corresponding to Pro X,\n    Pro XI, etc. You can override this recipe multiple times for different values of MAJOR_VERSION.\n\nVERSION can be a specific update version, ie. '10.1.6', or the\ndefault, 'latest'."
+Identifier: com.github.autopkg.download.AdobeAcrobatProXUpdate
+Input:
+  MAJOR_VERSION: '10'
+  NAME: AdobeAcrobatProX_Update
+  TARGET_OS: '10.9'
+  VERSION: latest
+MinimumVersion: '1.4'
+Process:
+- Processor: AdobeAcrobatProUpdateInfoProvider
+  Arguments:
+    major_version: '%MAJOR_VERSION%'
+    target_os: '%TARGET_OS%'
+    version: '%VERSION%'
+- Processor: URLDownloader
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Adobe Systems, Inc. (JQ525L2MZD)'
+    - Developer ID Certification Authority
+    - Apple Root CA

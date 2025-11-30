@@ -1,0 +1,29 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/Dropbox/Dropbox.munki.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:30:28 UTC
+
+Description: "Downloads the current release version of Dropbox and imports into Munki.\n\nPostinstall script extracts the DropboxHelperInstaller and sets the setuid\nbit so that it can perform its setup tasks as root without asking for admin\nprivileges.\n\nDropbox will attempt to update periodically, and if it does not have permission to\noverwrite the bundle at /Applications/Dropbox.app, it will instead download\nthe updated version to ~/Library/Application Support/Dropbox, and run this version\nas long as it is more recent than the copy in /Applications.\n\nThis recipe uses blocking_applications to prevent the installation only if Dropbox\nfrom /Applications is running. If an updated version from the user's home directory\nis running, Munki can update the version in /Applications without requiring the user\nto quit Dropbox."
+Identifier: com.github.autopkg.munki.dropbox
+Input:
+  MUNKI_REPO_SUBDIR: apps/Dropbox
+  NAME: Dropbox
+  pkginfo:
+    catalogs:
+    - testing
+    description: Dropbox is a free service that lets you bring all your photos, docs, and videos anywhere. This means that any file you save to your Dropbox will automatically save to all your computers, phones and even the Dropbox website.
+    display_name: Dropbox
+    name: '%NAME%'
+    postinstall_script: "#!/bin/sh\n# based on Ruby postinstall script by Riley Shott:\n# https://groups.google.com/group/munki-dev/browse_thread/thread/a2813e7f62535f13/63d127534541f863\n# modifications:\n# - always extract the helper tool with each install instead of skipping if it exists\n# - remove xattr com.apple.quarantine removal, as Munki will have already done this upon\n#   installation; normal autopkg runs also won't quarantine the download to begin with\n\nHELPER_SRC_PATH=/Applications/Dropbox.app/Contents/Resources/DropboxHelperInstaller.tgz\nHELPER_DST_DIR=/Library/DropboxHelperTools\nHELPER_DST_PATH=\"$HELPER_DST_DIR/DropboxHelperInstaller\"\n\nif [ -e \"$HELPER_SRC_PATH\" ]; then\n  [ -d \"$HELPER_DST_DIR\" ] || mkdir \"$HELPER_DST_DIR\"\n  /usr/bin/tar -C \"$HELPER_DST_DIR\" -xz -f \"$HELPER_SRC_PATH\"\n  /usr/sbin/chown root:wheel \"$HELPER_DST_PATH\" \"$HELPER_DST_DIR\"\n  /bin/chmod 04511 \"$HELPER_DST_PATH\"\nelse\n  echo \"Expected $HELPER_SRC_PATH, but it was not present in the Dropbox dmg.\"\n  exit 1\nfi\n"
+    unattended_install: true
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.autopkg.download.dropbox
+Process:
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      blocking_applications:
+      - /Applications/Dropbox.app/Contents/MacOS/Dropbox
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

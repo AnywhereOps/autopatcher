@@ -1,0 +1,59 @@
+# Downloaded from https://github.com/autopkg/rtrouton-recipes/blob/90eb2447addd20cddc99e28709d274c79cc9fe55/EndNote/EndNote20.munki.recipe
+# Commit: 90eb2447addd20cddc99e28709d274c79cc9fe55
+# Downloaded at: 2025-11-27 22:33:03 UTC
+
+Description: "Downloads latest Endnote 20 installer and imports it into munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: com.github.rtrouton.munki.EndNote20
+Input:
+  DERIVE_MIN_OS: YES
+  DEFAULT_CATALOG: testing
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: EndNote 20
+  pkginfo:
+    catalogs:
+    - '%DEFAULT_CATALOG%'
+    category: Reference
+    description: Bibliographic management app.
+    developer: Thomson Reuters
+    display_name: EndNote 20
+    name: '%NAME%'
+    unattended_install: true
+    blocking_applications:
+    - Microsoft Word
+    - EndNote 20
+    postinstall_script: "#!/bin/zsh\nDIR=\"EndNote CWYW Word 16.bundle\"\nPATH_SRC=\"/Applications/EndNote 20/Cite While You Write/$DIR\"\nPATH_DEST=\"/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/\"\n\n[[ -d \"$PATH_DEST\" ]] || mkdir -p \"$PATH_DEST\"\nif [ -d \"$PATH_SRC\" ]\nthen\n    echo \"Copying $DIR to $PATH_DEST\"\n    cp -r \"$PATH_SRC\" \"$PATH_DEST\"\nelse\n    echo \"Error: Directory $PATH_SRC does not exists.\"\nfi\n\t\t\t"
+    postuninstall_script: "#!/bin/zsh\nDIR=\"EndNote CWYW Word 16.bundle\"\nPATH_DEST=\"/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/$DIR\"\n\nif [ -d \"$PATH_DEST\" ]\nthen\n    echo \"Removing $PATH_DEST\"\n    rm -r \"$PATH_DEST\"\nfi\n\t\t\t"
+    preinstall_script: "#!/bin/zsh\nendnote_bundle_2008=\"/Applications/Microsoft Office 2008/Office/Startup/Word/EndNote CWYW Word 2008.bundle\"\nendnote_bundle_2011=\"/Applications/Microsoft Office 2011/Office/Startup/Word/EndNote CWYW Word 2011.bundle\"\nendnote_bundle_2016=\"/Library/Application Support/Microsoft/Office365/User Content.localized/Startup.localized/Word/EndNote CWYW Word 2016.bundle\"\n\nbundles=(\"$endnote_bundle_2008\" \"$endnote_bundle_2011\" \"$endnote_bundle_2016\")\n\nfor i in $bundles; do\n  if [ -d \"$i\" ]\n  then\n    echo \"Removing old CWYW bundle $i\"\n    rm -r \"$i\"\n  else\n    echo \"$i is not installed\"\n    echo \"Proceeding with installation\"\n  fi\ndone\n\t\t\t"
+MinimumVersion: '2.7'
+ParentRecipe: com.github.rtrouton.pkg.EndNote20
+Process:
+- Processor: Copier
+  Arguments:
+    source_path: '%pathname%/Install EndNote 20.app/Contents/Resources/EndNote.zip'
+    destination_path: '%RECIPE_CACHE_DIR%/EndNote.zip'
+    purge_destination: true
+- Processor: Unarchiver
+  Arguments:
+    archive_path: '%RECIPE_CACHE_DIR%/EndNote.zip'
+    destination_path: '%RECIPE_CACHE_DIR%/Applications'
+    purge_destination: true
+- Processor: FileMover
+  Arguments:
+    source: '%RECIPE_CACHE_DIR%/Applications/EndNote'
+    target: '%RECIPE_CACHE_DIR%/Applications/EndNote 20'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    faux_root: '%RECIPE_CACHE_DIR%'
+    installs_item_paths:
+    - /Applications/EndNote 20/EndNote 20.app
+    version_comparison_key: CFBundleShortVersionString
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/Applications'
+    - '%RECIPE_CACHE_DIR%/EndNote.zip'

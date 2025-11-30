@@ -1,0 +1,17 @@
+Description: Obtain upstream Beyond Compare 5 recipe from autopkg/dataJAR-recipes
+
+Identifier: com.github.anywhereops.vendorer.BeyondCompare5
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/dataJAR-recipes
+      folder_path: Beyond Compare 5
+      commit_sha: b215938ed2a542b52fb1ff552649b6b99ffe155b
+      destination_path: Beyond Compare 5
+      recipe_type: munki
+      required_license: Apache-2.0

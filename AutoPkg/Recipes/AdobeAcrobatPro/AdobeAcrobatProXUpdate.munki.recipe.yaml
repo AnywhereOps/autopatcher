@@ -1,0 +1,30 @@
+# Downloaded from https://github.com/autopkg/recipes/blob/4aa2d9380d7f8ba54af95915c8c47a73fcf88acf/AdobeAcrobatPro/AdobeAcrobatProXUpdate.munki.recipe
+# Commit: 4aa2d9380d7f8ba54af95915c8c47a73fcf88acf
+# Downloaded at: 2025-11-27 22:25:30 UTC
+
+Description: "Downloads updates for Adobe Acrobat Pro X or XI and imports them \ninto Munki. It will also set the appropriate 'requires' item for the \nprevious update in the Munki pkginfo, if applicable. Historically, \nquarterly scheduled updates have been cumulative for Pro X/XI, and\nout-of-cycle updates have not.\n\nThe name(s) in update_for in the pkginfo should be set to the name\nof your base Adobe Acrobat Pro X or XI installer item in your Munki repo.\n\nMAJOR_VERSION can be '10', '11', corresponding to Pro X, Pro XI, \netc. You can override this recipe multiple times for different\nvalues of MAJOR_VERSION.\n\nVERSION can be a specific update version, ie. '10.1.6', or the \ndefault, 'latest'."
+Identifier: com.github.autopkg.munki.AdobeAcrobatProXUpdate
+Input:
+  MAJOR_VERSION: '10'
+  MUNKI_REPO_SUBDIR: apps/AcrobatPro
+  NAME: AdobeAcrobatProX_Update
+  VERSION: latest
+  pkginfo:
+    blocking_applications:
+    - Adobe Acrobat Pro.app
+    catalogs:
+    - testing
+    description: ''
+    display_name: Adobe Acrobat Pro Update
+    name: '%NAME%'
+    unattended_install: true
+    update_for:
+    - AdobeAcrobatProX
+MinimumVersion: 0.2.0
+ParentRecipe: com.github.autopkg.download.AdobeAcrobatProXUpdate
+Process:
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

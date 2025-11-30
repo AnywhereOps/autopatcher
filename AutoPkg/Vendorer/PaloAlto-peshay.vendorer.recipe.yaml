@@ -1,0 +1,16 @@
+Description: Obtain upstream PaloAlto recipe from autopkg/peshay-recipes
+
+Identifier: com.github.anywhereops.vendorer.PaloAlto
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/peshay-recipes
+      folder_path: PaloAlto
+      commit_sha: dcbcd986ccd675a3a0b5362a97be857abad0151d
+      destination_path: PaloAlto
+      recipe_type: munki

@@ -1,0 +1,33 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/GIMP/GIMP.munki.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:30:38 UTC
+
+Description: "Downloads the latest version of GIMP from gimp.org and imports into Munki.\n\nThis recipe supports two architecture values:\n\t- x86_64\n\t- arm64"
+Identifier: io.github.hjuutilainen.munki.GIMP
+Input:
+  NAME: GIMP
+  ARCH: x86_64
+  MUNKI_REPO_SUBDIR: apps/GIMP
+  MUNKI_CATEGORY: Image Manipulation
+  pkginfo:
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: GIMP is the GNU Image Manipulation Program. It is a freely distributed piece of software for such tasks as photo retouching, image composition and image authoring. It works on many operating systems, in many languages.
+    developer: The GIMP Team
+    display_name: GIMP
+    name: '%NAME%'
+    unattended_install: true
+    unattended_uninstall: true
+    supported_architectures:
+    - '%ARCH%'
+MinimumVersion: 1.0.4
+ParentRecipe: io.github.hjuutilainen.download.GIMP
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+    additional_makepkginfo_options:
+    - --destinationitemname
+    - '%NAME%.app'

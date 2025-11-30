@@ -1,0 +1,32 @@
+# Downloaded from https://github.com/autopkg/aws-recipes/blob/78a69905e70ea3f34e5ca19495c17a8c4ad93af0/Corretto/AmazonCorrettoJDK.munki.recipe
+# Commit: 78a69905e70ea3f34e5ca19495c17a8c4ad93af0
+# Downloaded at: 2025-11-27 22:25:45 UTC
+
+Description: Downloads the latest version of Amazon Corretto JDK and imports it into Munki. Requires ARCH (x64 [Intel], or aarch64 [Apple Silicon]) and MAJOR_VERSION (8,11,17,18). Will also specify the supported_architecture for Munki
+Identifier: com.amazon.aws.munki.amazoncorretto
+Input:
+  NAME: Corretto%MAJOR_VERSION%
+  MAJOR_VERSION: '8'
+  ARCH: x64
+  MUNKI_REPO_SUBDIR: jdk
+  pkginfo:
+    catalogs:
+    - testing
+    description: Amazon Corretto is a no-cost, multiplatform, production-ready distribution of the Open Java Development Kit (OpenJDK).
+    display_name: Amazon Corretto %MAJOR_VERSION%
+    minimum_os_version: '10.9'
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: '2.0'
+ParentRecipe: com.amazon.aws.download.amazoncorretto
+Process:
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+      supported_architectures:
+      - '%supported_architectures%'
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

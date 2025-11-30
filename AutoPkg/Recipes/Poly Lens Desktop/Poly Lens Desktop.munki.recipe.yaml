@@ -1,0 +1,69 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Poly Lens Desktop/Poly Lens Desktop.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:27:52 UTC
+
+Comment: There is currently only an arm64 version provided by the developer
+Description: "Downloads the latest version of Poly Lens Desktop and imports it into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it.\n\nFor a successful install, there needs to be a logged in user. To achieve this an installcheck_script is used."
+Identifier: com.github.dataJAR-recipes.munki.Poly Lens Desktop
+Input:
+  DERIVE_MIN_OS: YES
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: PolyLensDesktop
+  pkginfo:
+    catalogs:
+    - testing
+    description: "Control at your fingertips\n\nA single app for customizing your personal devices to how you work, whether that\u2019s in the home or office."
+    developer: Polycom
+    display_name: Poly Lens Desktop
+    name: '%NAME%'
+    supported_architectures:
+    - arm64
+    uninstall_method: uninstall_script
+    uninstall_script: "#!/bin/sh\n\n# Script for uninstalling Poly Lens Desktop\n\n# Function to check if we're at the login window\nis_at_login_window() {\n    # Check if we can get a console user\n    local console_user\n    console_user=$(/usr/bin/stat -f%Su /dev/console)\n    [ \"$console_user\" = \"root\" ] || [ -z \"$console_user\" ]\n}\n\nHELPERS=\"LegacyHostApp LensControlService\"\n\nif is_at_login_window; then\n    echo \"Running in login window context\"\n    # At login window - just remove the files\n    for helper in $HELPERS; do\n        laplist=\"/Library/LaunchAgents/com.poly.${helper}.plist\"\n        if [ -r \"$laplist\" ]; then\n            echo \"Removing $laplist\"\n            sudo rm \"$laplist\"\n        fi\n    done\nelse\n    echo \"Running in user context\"\n    # Get the logged in user information\n    LOGGED_IN_USER=$(/usr/bin/stat -f%Su /dev/console)\n    LOGGED_IN_UID=$(/usr/bin/id -u \"$LOGGED_IN_USER\")\n\n    # Unload LaunchAgents as the logged-in user\n    for helper in $HELPERS; do\n        laplist=\"/Library/LaunchAgents/com.poly.${helper}.plist\"\n        if [ -r \"$laplist\" ]; then\n            echo \"Unloading $laplist for user $LOGGED_IN_USER\"\n            /bin/launchctl asuser \"$LOGGED_IN_UID\" /bin/launchctl unload \"$laplist\"\n            sudo rm \"$laplist\"\n        fi\n    done\nfi\n\necho \"Terminating any running Lens Desktop app instances\"\nif is_at_login_window; then\n    # At login window - simple kill\n    pkill -f \"/Applications/Lens Desktop.app/\" || true\n    sleep 3\n    pkill -9 -f \"/Applications/Lens Desktop.app/\" || true\nelse\n    # Kill processes as the logged-in user\n    /bin/launchctl asuser \"$LOGGED_IN_UID\" pkill -f \"/Applications/Lens Desktop.app/\" || true\n    sleep 3\n    /bin/launchctl asuser \"$LOGGED_IN_UID\" pkill -9 -f \"/Applications/Lens Desktop.app/\" || true\nfi\n\nif [ -d \"/Applications/Lens Desktop.app\" ]; then\n    echo \"Removing Poly Lens Desktop app\"\n    sudo rm -rf \"/Applications/Lens Desktop.app\"\nfi\n\necho \"Removing old data and logs\"\nif [ -d \"/Library/Application Support/Poly\" ]; then\n    echo \"Removing Poly Lens Desktop system data (registry)\"\n    sudo rm -rf \"/Library/Application Support/Poly\"\nfi\n\necho \"Done\""
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.rtrouton.download.polylens
+Process:
+- Processor: FileFinder
+  Arguments:
+    pattern: '%pathname%/*.pkg'
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpacked'
+    flat_pkg_path: '%pathname%/%found_basename%'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/payload'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpacked/LensDesktop.pkg/Payload'
+    purge_destination: true
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+    faux_root: '%RECIPE_CACHE_DIR%/payload'
+    installs_item_paths:
+    - /Applications/Lens Desktop.app
+- Processor: MunkiPkginfoMerger
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/payload/Applications/Lens Desktop.app/Contents/Info.plist'
+    plist_version_key: CFBundleVersion
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      installcheck_script: "#!/bin/zsh\n\n# Copyright 2025, Jamf Software, LLC.\n\n#\n# DESCRIPTION\n#\n# Exits with exit code 1 if:\n# - No one is logged in\n# - Info.plist exists and app version is newer than or equal to installation version\n# - Error occurs while parsing Info.plist\n#\n# Exits with exit code 0 if:\n# - Info.plist doesn't exist\n# - Info.plist exists and app version is older than installation version\n\n# Function to compare version strings using sort -V\ncompare_versions() {\n    local version1=\"$1\"\n    local version2=\"$2\"\n\n    # Use sort -V to compare versions\n    local sorted_first=$(printf '%s\\n%s\\n' \"$version1\" \"$version2\" | sort -V | head -n1)\n\n    if [[ \"$sorted_first\" == \"$version1\" ]] && [[ \"$version1\" != \"$version2\" ]]; then\n        # version1 is strictly less than version2\n        return 0\n    else\n        # version1 is greater than or equal to version2\n        return 1\n    fi\n}\n\n# Function to check if user is logged in\nuser_logged_in() {\n    # Get the console user using scutil\n    local console_user=$(scutil <<< \"show State:/Users/ConsoleUser\" | awk '/Name :/ { print $3 }')\n\n    # Check if someone is logged in and it's not loginwindow\n    if [[ -n \"$console_user\" && \"$console_user\" != \"loginwindow\" ]]; then\n        return 0  # User is logged in\n    else\n        return 1  # No user logged in\n    fi\n}\n\n# Function to get installed version from Info.plist\nget_installed_version() {\n    local info_plist_path=\"$1\"\n\n    if [[ ! -f \"$info_plist_path\" ]]; then\n        return 1\n    fi\n\n    # Get version from info.plist using plutil\n    local installed_version=$(plutil -extract CFBundleVersion raw \"$info_plist_path\" 2>/dev/null)\n\n    if [[ -n \"$installed_version\" ]]; then\n        echo \"$installed_version\"\n        return 0\n    else\n        echo \"Encountered an error when trying to parse $info_plist_path...\"\n        return 1\n    fi\n}\n\n# Function to determine if app should be installed\nshould_install() {\n    local app_path=\"$1\"\n    local app_version=\"$2\"\n    local info_plist_path=\"$3\"\n\n    local installed_version\n    if installed_version=$(get_installed_version \"$info_plist_path\"); then\n        echo \"$app_path version $installed_version, installed...\"\n\n        if compare_versions \"$installed_version\" \"$app_version\"; then\n            echo \"Older version of $app_path located, proceeding with installation...\"\n            return 0  # Should install\n        else\n            echo \"Newer or the same version of $app_path located, cancelling installation...\"\n            return 1  # Should not install\n        fi\n    else\n        return 0  # Should install (error getting version or doesn't exist)\n    fi\n}\n\n# Main script variables\napp_path=\"/Applications/Lens Desktop.app/\"\napp_version=\"%version%\"\ninfo_plist_path=\"$app_path/Contents/Info.plist\"\n\n# Check if user is logged in\nif ! user_logged_in; then\n    exit 1\nfi\n\n# Check if installation should proceed\nif should_install \"$app_path\" \"$app_version\" \"$info_plist_path\"; then\n    exit 0  # Proceed with installation\nelse\n    exit 1  # Do not install\nfi"
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    version_comparison_key: CFBundleVersion
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpacked'
+    - '%RECIPE_CACHE_DIR%/payload'

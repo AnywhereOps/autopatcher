@@ -1,0 +1,39 @@
+# Downloaded from https://github.com/autopkg/grahampugh-recipes/blob/efb3512b57ba07bdf23c9f7f800236911a81b295/DellDisplayAndPeripheralManager/DellDisplayAndPeripheralManager.pkg.recipe.yaml
+# Commit: efb3512b57ba07bdf23c9f7f800236911a81b295
+# Downloaded at: 2025-11-27 22:33:00 UTC
+
+Description: Downloads the latest version of the Dell Display and Peripheral Manager and creates a package.
+Identifier: com.github.grahampugh.recipes.pkg.DellDisplayAndPeripheralManager
+ParentRecipe: com.github.grahampugh.recipes.download.DellDisplayAndPeripheralManager
+MinimumVersion: "2.3"
+
+Input:
+  NAME: Dell Display and Peripheral Manager
+
+Process:
+  - Processor: FlatPkgUnpacker
+    Arguments:
+      flat_pkg_path: "%found_filename%"
+      destination_path: "%RECIPE_CACHE_DIR%/unpack"
+      purge_destination: true
+
+  - Processor: PkgPayloadUnpacker
+    Arguments:
+      pkg_payload_path: "%RECIPE_CACHE_DIR%/unpack/DDPM.pkg/Payload"
+      destination_path: "%RECIPE_CACHE_DIR%/payload"
+
+  - Processor: Versioner
+    Arguments:
+      input_plist_path: "%RECIPE_CACHE_DIR%/payload/Applications/DDPM/DDPM.app/Contents/Info.plist"
+
+  - Processor: PkgCopier
+    Arguments:
+      pkg_path: "%RECIPE_CACHE_DIR%/DellDisplayAndPeripheralManager-%version%.pkg"
+      source_pkg: "%found_filename%"
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+        - "%RECIPE_CACHE_DIR%/unpack"
+        - "%RECIPE_CACHE_DIR%/payload"
+        - "%RECIPE_CACHE_DIR%/unzip"

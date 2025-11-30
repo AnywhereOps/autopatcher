@@ -1,0 +1,47 @@
+# Downloaded from https://github.com/autopkg/moofit-recipes/blob/984f1b980c6a7ecc26402693543b0f1f9100b529/Barco/MirrorOp.download.recipe
+# Commit: 984f1b980c6a7ecc26402693543b0f1f9100b529
+# Downloaded at: 2025-11-27 22:32:55 UTC
+
+Description: Downloads the latest MirrorOp Mac Sender.
+Identifier: com.github.moofit-recipes.download.MirrorOp
+Input:
+  NAME: MirrorOp
+MinimumVersion: 0.2.9
+Process:
+- Processor: com.github.smithjw.processors/FriendlyPathDeleter
+  Arguments:
+    fail_deleter_silently: true
+    path_list: '%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg'
+- Processor: URLTextSearcher
+  Arguments:
+    curl_opts:
+    - --cookie-jar
+    - '%RECIPE_CACHE_DIR%/cookies.txt'
+    - --cookie
+    - '%RECIPE_CACHE_DIR%/cookies.txt'
+    request_headers:
+      user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15
+      Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+      Sec-Fetch-Site: none
+      Sec-Fetch-Dest: document
+      Accept-Language: en-GB,en;q=0.9
+      Priority: u=0, i
+      Accept-Encoding: gzip, deflate, br
+      Sec-Fetch-Mode: navigate
+    re_pattern: downloadUrl\":\"(.*)\",
+    result_output_var_name: match
+    url: https://www.barco.com/bin/barco/tde/downloadUrl.json?fileNumber=R33050100&tdeType=3
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%.dmg'
+    url: '%match%'
+    curl_opts:
+    - --cookie
+    - '%RECIPE_CACHE_DIR%/cookies.txt'
+    request_headers:
+      user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.4 Safari/605.1.15
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%RECIPE_CACHE_DIR%/downloads/%NAME%.dmg/MirrorOp.app'
+    requirement: identifier "com.MirrorOp.Vitali" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = UWHQ4AWKZ8

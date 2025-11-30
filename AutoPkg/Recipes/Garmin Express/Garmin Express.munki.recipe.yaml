@@ -1,0 +1,63 @@
+# Downloaded from https://github.com/autopkg/dataJAR-recipes/blob/b215938ed2a542b52fb1ff552649b6b99ffe155b/Garmin Express/Garmin Express.munki.recipe
+# Commit: b215938ed2a542b52fb1ff552649b6b99ffe155b
+# Downloaded at: 2025-11-27 22:30:33 UTC
+
+Description: "Downloads the latest version of Garmin Express and imports it into Munki.\n\nSet the DERIVE_MIN_OS variable to a non-empty string to set the minimum_os_version via MunkiInstallsItemsCreator. This requires a minimum AutoPkg version of 2.7 please update if you're not already running it."
+Identifier: com.github.dataJAR-recipes.munki.Garmin Express
+Input:
+  DERIVE_MIN_OS: YES
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  NAME: GarminExpress
+  pkginfo:
+    blocking_applications:
+    - Garmin Express.app
+    - Garmin Express Service.app
+    - crashreporter.app
+    - ApplicationUpdater.app
+    catalogs:
+    - testing
+    description: "Easily update maps and software, sync with Garmin Connect\u2122 and register your device."
+    developer: Garmin International
+    display_name: Garmin Express
+    name: '%NAME%'
+    uninstall_method: uninstall_script
+    uninstall_script: "#!/bin/sh\n\n# Uninstall script for Garmin Express\n# Based on:\n# - https://support.garmin.com/en-GB/?faq=6nBhfHhXik18XrRU6BfULA\n\n# Remove application\nif [ -d \"/Applications/Garmin Express.app\" ]; then\n    echo \"Removing Garimn Express.app...\"\n    rm -rf \"/Applications/Garmin Express.app\"\nfi\n\n# Remove package receipt\necho \"Removing pkg receipt...\"\npkgutil --forget com.garmin.renu.client\n\nexit"
+    unattended_install: true
+    unattended_uninstall: true
+MinimumVersion: '2.7'
+ParentRecipe: com.github.andredb90.download.GarminExpress
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/unpack'
+    flat_pkg_path: '%pathname%/Install Garmin Express.pkg'
+    purge_destination: true
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/Applications/Garmin Express.app'
+    pkg_payload_path: '%RECIPE_CACHE_DIR%/unpack/temp.pkg/Payload'
+    purge_destination: true
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/Applications/Garmin Express.app/Contents/Info.plist'
+- Processor: MunkiPkginfoMerger
+  Arguments:
+    additional_pkginfo:
+      version: '%version%'
+- Processor: MunkiInstallsItemsCreator
+  Arguments:
+    derive_minimum_os_version: '%DERIVE_MIN_OS%'
+    faux_root: '%RECIPE_CACHE_DIR%'
+    installs_item_paths:
+    - /Applications/Garmin Express.app
+- Processor: MunkiPkginfoMerger
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'
+    version_comparison_key: CFBundleShortVersionString
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/unpack'
+    - '%RECIPE_CACHE_DIR%/Applications'

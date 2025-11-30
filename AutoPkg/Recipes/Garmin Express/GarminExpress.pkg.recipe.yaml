@@ -1,0 +1,35 @@
+# Downloaded from https://github.com/autopkg/andredb90-recipes/blob/b086f2d096ab3b53a4c2f5db7c6ec60ba3437ab5/Garmin Express/GarminExpress.pkg.recipe
+# Commit: b086f2d096ab3b53a4c2f5db7c6ec60ba3437ab5
+# Downloaded at: 2025-11-27 22:30:34 UTC
+
+Description: Downloads the latest version of Garmin Express and creates a package.
+Identifier: com.github.andredb90.pkg.GarminExpress
+Input:
+  NAME: Garmin Express
+MinimumVersion: 1.0.0
+ParentRecipe: com.github.andredb90.download.GarminExpress
+Process:
+- Processor: FlatPkgUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/unpack'
+    flat_pkg_path: '%pathname%/Install Garmin Express.pkg'
+- Processor: FileFinder
+  Arguments:
+    pattern: '%RECIPE_CACHE_DIR%/downloads/unpack/*.pkg'
+- Processor: PkgPayloadUnpacker
+  Arguments:
+    destination_path: '%RECIPE_CACHE_DIR%/downloads/payload'
+    pkg_payload_path: '%found_filename%/Payload'
+- Processor: Versioner
+  Arguments:
+    input_plist_path: '%RECIPE_CACHE_DIR%/downloads/payload/Contents/Info.plist'
+    plist_version_key: CFBundleShortVersionString
+- Processor: PkgCopier
+  Arguments:
+    source_pkg: '%pathname%/Install Garmin Express.pkg'
+    pkg_path: '%RECIPE_CACHE_DIR%/%NAME%_%version%.pkg'
+- Processor: PathDeleter
+  Arguments:
+    path_list:
+    - '%RECIPE_CACHE_DIR%/downloads/unpack'
+    - '%RECIPE_CACHE_DIR%/downloads/payload'

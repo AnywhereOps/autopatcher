@@ -1,0 +1,27 @@
+# Downloaded from https://github.com/autopkg/hjuutilainen-recipes/blob/8d90cc0aa349ce751f86654504fea964ee2c3f12/Blender/Blender.munki.recipe
+# Commit: 8d90cc0aa349ce751f86654504fea964ee2c3f12
+# Downloaded at: 2025-11-27 22:29:42 UTC
+
+Description: Downloads the current release version of Blender and imports into Munki.
+Identifier: io.github.hjuutilainen.munki.Blender
+Input:
+  NAME: Blender
+  MUNKI_REPO_SUBDIR: apps/%NAME%
+  MUNKI_CATEGORY: Graphics & Rendering
+  pkginfo:
+    catalogs:
+    - testing
+    category: '%MUNKI_CATEGORY%'
+    description: Blender is the open source, cross platform suite of tools for 3D creation.
+    developer: The Blender Foundation
+    display_name: Blender
+    name: '%NAME%'
+    unattended_install: true
+MinimumVersion: 0.4.2
+ParentRecipe: io.github.hjuutilainen.download.Blender
+Process:
+- Processor: MunkiImporter
+  Arguments:
+    pkg_path: '%pathname%'
+    munkiimport_appname: Blender.app
+    repo_subdirectory: '%MUNKI_REPO_SUBDIR%'

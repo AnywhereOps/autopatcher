@@ -1,0 +1,29 @@
+# Downloaded from https://github.com/autopkg/vmiller-recipes/blob/417cadde43e565a7223ce2ae4ad9a9a89e4b3ac1/PowerShell/PowerShell.download.recipe
+# Commit: 417cadde43e565a7223ce2ae4ad9a9a89e4b3ac1
+# Downloaded at: 2025-11-27 22:28:46 UTC
+
+Comment: Created with Recipe Robot v1.0 (https://github.com/homebysix/recipe-robot)
+Description: "Downloads the latest version of PowerShell.\nSet MAJOR_VERSION to the major version you wish to search for, i.e. 7.2, 7.3, 7.4\nARCH can be one of 'arm64' or 'x64'"
+Identifier: com.github.vmiller.download.PowerShell
+Input:
+  GITHUB_REPO: PowerShell/PowerShell
+  NAME: PowerShell
+  MAJOR_VERSION: '7.4'
+  ARCH: x64
+MinimumVersion: 0.5.0
+Process:
+- Processor: GitHubReleasesInfoProvider
+  Arguments:
+    github_repo: '%GITHUB_REPO%'
+    asset_regex: powershell-%MAJOR_VERSION%[0-9\.]+-osx-%ARCH%.pkg
+- Processor: URLDownloader
+  Arguments:
+    filename: '%NAME%-%ARCH%-%version%.pkg'
+- Processor: EndOfCheckPhase
+- Processor: CodeSignatureVerifier
+  Arguments:
+    input_path: '%pathname%'
+    expected_authority_names:
+    - 'Developer ID Installer: Microsoft Corporation (UBF8T346G9)'
+    - Developer ID Certification Authority
+    - Apple Root CA

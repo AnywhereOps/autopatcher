@@ -1,0 +1,38 @@
+# Downloaded from https://github.com/autopkg/homebysix-recipes/blob/26f97759822c6c90b8f458f35b82ff9496785c71/Vivaldi/Vivaldi.pkg.recipe
+# Commit: 26f97759822c6c90b8f458f35b82ff9496785c71
+# Downloaded at: 2025-11-27 22:33:15 UTC
+
+Description: Downloads the latest version of Vivaldi and makes a pkg of it.
+Identifier: com.github.homebysix.pkg.Vivaldi
+Input:
+  NAME: Vivaldi
+MinimumVersion: 0.2.5
+ParentRecipe: com.github.homebysix.download.Vivaldi
+Process:
+- Processor: PkgRootCreator
+  Arguments:
+    pkgdirs:
+      Applications: '0775'
+    pkgroot: '%RECIPE_CACHE_DIR%/%NAME%'
+- Processor: Copier
+  Arguments:
+    destination_path: '%pkgroot%/Applications/Vivaldi.app'
+    overwrite: true
+    source_path: '%pathname%/Vivaldi.app'
+- Processor: PlistReader
+  Arguments:
+    info_path: '%pkgroot%/Applications/Vivaldi.app'
+    plist_keys:
+      CFBundleIdentifier: bundleid
+      CFBundleName: app_name
+      CFBundleShortVersionString: version
+- Processor: PkgCreator
+  Arguments:
+    pkg_request:
+      chown:
+      - group: admin
+        path: Applications
+        user: root
+      id: '%bundleid%'
+      pkgdir: '%RECIPE_CACHE_DIR%'
+      pkgname: '%NAME%-%version%'

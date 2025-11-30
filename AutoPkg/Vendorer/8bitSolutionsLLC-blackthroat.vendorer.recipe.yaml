@@ -1,0 +1,16 @@
+Description: Obtain upstream 8bit Solutions LLC recipe from autopkg/blackthroat-recipes
+
+Identifier: com.github.anywhereops.vendorer.8bitSolutionsLLC
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/blackthroat-recipes
+      folder_path: 8bit Solutions LLC
+      commit_sha: 553de847ae0637b40824192de99c4cd09e8c42ae
+      destination_path: 8bit Solutions LLC
+      recipe_type: munki

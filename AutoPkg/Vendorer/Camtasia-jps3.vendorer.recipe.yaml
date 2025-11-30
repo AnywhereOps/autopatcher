@@ -1,0 +1,16 @@
+Description: Obtain upstream Camtasia recipe from autopkg/jps3-recipes
+
+Identifier: com.github.anywhereops.vendorer.Camtasia
+
+MinimumVersion: '2.3'
+
+Input: {}
+
+Process:
+  - Processor: AutopkgVendorer
+    Arguments:
+      github_repo: autopkg/jps3-recipes
+      folder_path: Camtasia
+      commit_sha: a2dc2f004beee8fce0effd29e01c11365516dc50
+      destination_path: Camtasia
+      recipe_type: munki
