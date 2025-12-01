@@ -56,11 +56,8 @@ jobs:
             metadata_cache.json
           key: cache-${{ hashFiles('uv.lock') }}
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@1e862dfacbd1d6d858c55d9b792c756523627244 #7.1.4
-        with:
-          version: "latest"
-          enable-cache: true
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
 
       - name: Configure Git
         run: |
