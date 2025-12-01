@@ -28,21 +28,14 @@ __all__ = ["MD5Checksum"]
 
 class MD5Checksum(Processor):
     """Calculate a message-digest fingerprint (checksum) for a file"""
+
     description = __doc__
     input_variables = {
-        "pathname": {
-            "required": True,
-            "description": "Path of the file to calculate MD5 checksum on."
-        },
-        "md5checksum": {
-            "required": False,
-            "description": "A MD5 checksum to verify pathname."
-        },
+        "pathname": {"required": True, "description": "Path of the file to calculate MD5 checksum on."},
+        "md5checksum": {"required": False, "description": "A MD5 checksum to verify pathname."},
     }
     output_variables = {
-        "md5checksum": {
-            "description": "MD5 checksum calculated from pathname."
-        },
+        "md5checksum": {"description": "MD5 checksum calculated from pathname."},
     }
 
     def md5(self, file_name):
@@ -54,13 +47,14 @@ class MD5Checksum(Processor):
 
     def main(self):
         md5checksum = self.md5(self.env["pathname"])
-        self.output("{md5checksum}".format(md5checksum=md5checksum), 1)
-        if self.env.get('md5checksum'):
-            if not self.env['md5checksum'] == md5checksum:
+        self.output(f"{md5checksum}", 1)
+        if self.env.get("md5checksum"):
+            if not self.env["md5checksum"] == md5checksum:
                 raise ProcessorError("MD5 Checksum verification failed.")
             else:
                 self.output("MD5 Checksum Matches", 1)
         self.env["md5checksum"] = md5checksum
+
 
 if __name__ == "__main__":
     PROCESSOR = MD5Checksum()

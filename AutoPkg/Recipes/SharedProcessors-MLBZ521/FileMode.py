@@ -24,7 +24,6 @@ import os
 
 from autopkglib import Processor, ProcessorError
 
-
 __all__ = ["FileMode"]
 
 
@@ -39,13 +38,9 @@ class FileMode(Processor):
             "required": True,
             "description": "Path to the file.",
         },
-        "file_mode": {
-            "required": True,
-            "description": "Numeric mode for file in octal format."
-        }
+        "file_mode": {"required": True, "description": "Numeric mode for file in octal format."},
     }
     output_variables = {}
-
 
     def main(self):
 

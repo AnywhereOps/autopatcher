@@ -23,6 +23,7 @@ See that file for full credits.
 import os.path
 import subprocess
 from pathlib import Path
+
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 
@@ -95,9 +96,7 @@ class VersionRegexGenerator(Processor):
         if not version:
             raise ProcessorError("No version found!")
 
-        path_to_match_version_number_or_higher_script = self.env.get(
-            "path_to_match_version_number_or_higher_script"
-        )
+        path_to_match_version_number_or_higher_script = self.env.get("path_to_match_version_number_or_higher_script")
         # handle files with no path
         if "/" not in path_to_match_version_number_or_higher_script:
             path_to_match_version_number_or_higher_script = self.get_path_to_file(
@@ -132,10 +131,7 @@ class VersionRegexGenerator(Processor):
             if i == 4:
                 self.env["version_regex_5"] = regex_line
             if i > 4:
-                self.output(
-                    "Warning: More than 5 regex lines generated, "
-                    "only the first five will be used."
-                )
+                self.output("Warning: More than 5 regex lines generated, only the first five will be used.")
 
 
 if __name__ == "__main__":

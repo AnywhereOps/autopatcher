@@ -19,7 +19,7 @@
 # limitations under the License.
 """Finds the proper file name for a download."""
 
-from autopkglib import Processor, ProcessorError, URLGetter
+from autopkglib import URLGetter
 
 try:
     from urllib.parse import unquote  # For Python 3
@@ -40,7 +40,9 @@ class RemoteFilenameFinder(URLGetter):
         },
     }
     output_variables = {
-        "filename": {"description": "The retrieved remote filename.",},
+        "filename": {
+            "description": "The retrieved remote filename.",
+        },
     }
 
     def remote_filename(self, url):
@@ -48,12 +50,17 @@ class RemoteFilenameFinder(URLGetter):
 
         # Build the curl command
         curl_cmd = self.prepare_curl_cmd()
-        curl_cmd.extend(['--silent',
-                         '--location',
-                         '--head',
-                         '--write-out', '%{url_effective}',
-                         '--url', url,
-                         '--output', '/dev/null'])
+        curl_cmd.extend([
+            "--silent",
+            "--location",
+            "--head",
+            "--write-out",
+            "%{url_effective}",
+            "--url",
+            url,
+            "--output",
+            "/dev/null",
+        ])
 
         # Use the output of curl to determine the filename
         file_url = self.download_with_curl(curl_cmd)
@@ -67,8 +74,7 @@ class RemoteFilenameFinder(URLGetter):
 
         # Decode any special characters in the filename, like %20 to a space.
         filename = unquote(filename)
-        self.output("Found filename '{}' at '{}'".format(filename, file_url),
-                    verbose_level=2)
+        self.output(f"Found filename '{filename}' at '{file_url}'", verbose_level=2)
 
         return filename
 

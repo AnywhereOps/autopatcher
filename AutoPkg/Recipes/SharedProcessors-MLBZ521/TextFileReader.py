@@ -26,13 +26,12 @@ import re
 from autopkglib import ProcessorError
 from autopkglib.DmgMounter import DmgMounter
 
-
 __all__ = ["TextFileReader"]
 
 
 class TextFileReader(DmgMounter):
-    """This processor reads a text file and looks for a regex pattern and 
-    returns the rest of the line that matched the pattern.  Source path 
+    """This processor reads a text file and looks for a regex pattern and
+    returns the rest of the line that matched the pattern.  Source path
     can be a .dmg which will be mounted.
     """
 
@@ -41,36 +40,27 @@ class TextFileReader(DmgMounter):
         "source_path": {
             "required": True,
             "description": "Path to the text file that needs to be read.  "
-            "Can point to a path inside a .dmg which will be mounted."
+            "Can point to a path inside a .dmg which will be mounted.",
         },
-        "pattern": {
-            "required": True,
-            "description": "The regex pattern to look for and return."
-        }
+        "pattern": {"required": True, "description": "The regex pattern to look for and return."},
     }
-    output_variables = {
-        "match": {
-            "description": "Returns the rest of the line that matched the pattern."
-        }
-    }
-
+    output_variables = {"match": {"description": "Returns the rest of the line that matched the pattern."}}
 
     def main(self):
 
         # Define variables
         source_path = os.path.normpath(self.env["source_path"])
         # file_to_open = self.env.get('file_to_open')
-        pattern = self.env.get('pattern')
+        pattern = self.env.get("pattern")
 
         # Check to see if the source_path is a dmg
         (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(source_path)
 
         self.output(
-            f"Parsed dmg results: dmg_path: {dmg_path}, dmg: {dmg}, dmg_source_path: {dmg_source_path}",
-            verbose_level=2)
+            f"Parsed dmg results: dmg_path: {dmg_path}, dmg: {dmg}, dmg_source_path: {dmg_source_path}", verbose_level=2
+        )
 
         if dmg:
-
             try:
                 mount_point = self.mount(dmg_path)
                 source_path = os.path.join(mount_point, dmg_source_path)
@@ -80,7 +70,7 @@ class TextFileReader(DmgMounter):
 
         # Wrap in a try/finally so if a dmg is mounted, it will always be unmounted
         try:
-            with open(source_path, 'r') as file:
+            with open(source_path) as file:
                 contents = file.read()
 
         except Exception as error:
@@ -91,9 +81,8 @@ class TextFileReader(DmgMounter):
                 self.unmount(dmg_path)
 
         try:
-
             # Look for a match
-            line = re.search(f'{pattern}.*', contents)
+            line = re.search(f"{pattern}.*", contents)
             match = re.split(pattern, line.group())[1]
 
             self.env["match"] = match

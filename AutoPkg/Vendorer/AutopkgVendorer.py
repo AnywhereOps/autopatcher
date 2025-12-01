@@ -1,13 +1,9 @@
-from __future__ import absolute_import
-
-import os
-import tempfile
-from datetime import datetime, timezone
-import sys
-from io import BytesIO
-import typing
-from collections import OrderedDict
 import enum
+import os
+import sys
+import tempfile
+from collections import OrderedDict
+from datetime import datetime, timezone
 from plistlib import dumps as plist_dumps
 from urllib.parse import quote
 
@@ -15,12 +11,14 @@ lib_path = os.path.join(os.path.dirname(__file__), "lib")
 if lib_path not in sys.path:
     sys.path.insert(0, lib_path)
 
-from plist_yaml_plist.plist_yaml import plist_yaml_from_dict
-from autopkglib import Processor, ProcessorError
-from autopkglib.github import GitHubSession
 from plistlib import loads as plist_loads
 
+from autopkglib import Processor, ProcessorError
+from autopkglib.github import GitHubSession
+from plist_yaml_plist.plist_yaml import plist_yaml_from_dict
+
 __all__ = ["AutopkgVendorer"]
+
 
 class AutopkgVendorer(Processor):
     description = __doc__
@@ -47,6 +45,7 @@ class AutopkgVendorer(Processor):
             "required": False,
         },
     }
+
     def move_keys_to_top(self, d: dict, first_keys: list[str]) -> OrderedDict:
         """Reorder dictionary `d` so that keys in `first_keys` appear first, in that order."""
         od = OrderedDict()
@@ -65,12 +64,12 @@ class AutopkgVendorer(Processor):
 
         try:
             session.download_with_curl(curl_cmd)
-            with open(temp_file, "r", encoding="utf-8") as f:
+            with open(temp_file, encoding="utf-8") as f:
                 return f.read()
         except Exception as e:
             raise ProcessorError(f"Failed to download {path} at {commit_sha}: {e}")
 
-    def license_type(self, session, repo: str, commit_sha: str) -> typing.Optional[str]:
+    def license_type(self, session, repo: str, commit_sha: str) -> str | None:
         endpoint = f"/repos/{repo}/license"
         query = f"ref={commit_sha}"
         response_json, status = session.call_api(endpoint, query=query)
@@ -98,15 +97,25 @@ class AutopkgVendorer(Processor):
         if style == self.CommentStyle.XML:
             lines = content.splitlines(keepends=True)
             if len(lines) >= 3:
-                return ''.join(lines[:3]) + header + ''.join(lines[3:])
+                return "".join(lines[:3]) + header + "".join(lines[3:])
         return header + content
 
     def is_license_file(self, item_name):
         return item_name.lower() == "license"
 
-    def process_file(self, session, repo, item_path: str, item_name: str, commit_sha: str, dest_path: str, convert_to_yaml: bool = False, opinionated_ordering: bool = True):
+    def process_file(
+        self,
+        session,
+        repo,
+        item_path: str,
+        item_name: str,
+        commit_sha: str,
+        dest_path: str,
+        convert_to_yaml: bool = False,
+        opinionated_ordering: bool = True,
+    ):
         # Only process text-based files
-        text_extensions = ('.md', '.py', '.yaml', '.recipe')
+        text_extensions = (".md", ".py", ".yaml", ".recipe")
         if not item_name.endswith(text_extensions):
             self.output(f"Skipping non-text file: {item_path}")
             return
@@ -114,19 +123,19 @@ class AutopkgVendorer(Processor):
         file_contents = self.download_text_file(session, repo, item_path, commit_sha)
         self.output(f"Downloaded: {item_path} → {dest_path}")
 
-        if item_name.endswith(('.recipe')):
+        if item_name.endswith(".recipe"):
             plist_data = plist_loads(file_contents.encode("utf-8"))
             plist_data = dict(plist_data)
 
             # Remove trust info as it's not relevant for vendored recipes
-            if 'ParentRecipeTrustInfo' in plist_data:
-                del plist_data['ParentRecipeTrustInfo']
+            if "ParentRecipeTrustInfo" in plist_data:
+                del plist_data["ParentRecipeTrustInfo"]
                 self.output(f"Removed ParentRecipeTrustInfo from: {item_path}")
 
             if opinionated_ordering:
-                for step_index, step in enumerate(plist_data.get('Process', [])):
-                    reordered_step = self.move_keys_to_top(step, ['Processor', 'Arguments'])
-                    plist_data['Process'][step_index] = reordered_step
+                for step_index, step in enumerate(plist_data.get("Process", [])):
+                    reordered_step = self.move_keys_to_top(step, ["Processor", "Arguments"])
+                    plist_data["Process"][step_index] = reordered_step
 
                 self.output(f"Reordered recipe: {item_path}")
 
@@ -148,7 +157,17 @@ class AutopkgVendorer(Processor):
         with open(dest_path, "w", encoding="utf-8") as f:
             f.write(full_contents)
 
-    def vendor_path(self, session, repo: str, path: str, commit_sha: str, dest_base, rel_base="", convert_to_yaml=False, opinionated_ordering=True):
+    def vendor_path(
+        self,
+        session,
+        repo: str,
+        path: str,
+        commit_sha: str,
+        dest_base,
+        rel_base="",
+        convert_to_yaml=False,
+        opinionated_ordering=True,
+    ):
         endpoint = f"/repos/{repo}/contents/{quote(path, safe='/')}"
         query = f"ref={commit_sha}"
 
@@ -170,7 +189,16 @@ class AutopkgVendorer(Processor):
             if item_type == "dir":
                 self.vendor_path(session, repo, item_path, commit_sha, dest_base, rel_path, convert_to_yaml)
             elif item_type == "file":
-                self.process_file(session, repo, item_path, item_name, commit_sha, dest_path, convert_to_yaml, opinionated_ordering=opinionated_ordering)
+                self.process_file(
+                    session,
+                    repo,
+                    item_path,
+                    item_name,
+                    commit_sha,
+                    dest_path,
+                    convert_to_yaml,
+                    opinionated_ordering=opinionated_ordering,
+                )
                 vendorer_paths.append(dest_path)
             else:
                 self.output(f"Skipping unknown type '{item_type}' at {item_path}")
@@ -187,14 +215,15 @@ class AutopkgVendorer(Processor):
         required_license = self.env.get("required_license", None)
         opinionated_ordering = self.env.get("opinionated_ordering", True)
 
-
         os.makedirs(destination_path, exist_ok=True)
         gh_session = GitHubSession(github_token)
 
         if required_license:
             found_license = self.license_type(gh_session, repo, commit_sha)
             if not found_license == required_license:
-                raise ProcessorError(f"Input variable license_type ({required_license}) does not match the found license ({found_license}).")
+                raise ProcessorError(
+                    f"Input variable license_type ({required_license}) does not match the found license ({found_license})."
+                )
 
         vendored_paths = self.vendor_path(
             session=gh_session,
@@ -214,8 +243,9 @@ class AutopkgVendorer(Processor):
             "report_fields": ["Vendored Recipes"],
             "data": {
                 "Vendored Recipes": "\n".join(vendored_paths),
-            }
+            },
         }
+
 
 if __name__ == "__main__":
     processor = AutopkgVendorer()

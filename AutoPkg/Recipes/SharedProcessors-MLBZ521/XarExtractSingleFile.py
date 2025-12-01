@@ -26,44 +26,33 @@
 import os.path
 import shlex
 import subprocess
-
 from fnmatch import fnmatch
 from glob import glob
 
 from autopkglib import ProcessorError
 from autopkglib.DmgMounter import DmgMounter
 
-
 __all__ = ["XarExtractSingleFile"]
 
 
 class XarExtractSingleFile(DmgMounter):
-    """Extracts a single file from an archive using xar.  Archive path 
+    """Extracts a single file from an archive using xar.  Archive path
     can be within a .dmg which will be mounted."""
 
     description = __doc__
     input_variables = {
         "archive_path": {
             "required": True,
-            "description": ("Path to archive. Can point to an archive "
-            "inside a .dmg which will be mounted.  This path may also contain basic globbing "
-            "characters such as the wildcard '*', but only the first result will be returned.")
+            "description": (
+                "Path to archive. Can point to an archive "
+                "inside a .dmg which will be mounted.  This path may also contain basic globbing "
+                "characters such as the wildcard '*', but only the first result will be returned."
+            ),
         },
-        "extract_file_path": {
-            "required": False,
-            "description": "Path to extract the file to."
-            "Default:  extractedfile"
-        },
-        "file_to_extract": {
-            "required": True,
-            "description": "File to extract out of the archive."
-        }
+        "extract_file_path": {"required": False, "description": "Path to extract the file to.Default:  extractedfile"},
+        "file_to_extract": {"required": True, "description": "File to extract out of the archive."},
     }
-    output_variables = {
-        "extracted_file": {
-            "description": "The file that was extracted from the archive."
-        }
-    }
+    output_variables = {"extracted_file": {"description": "The file that was extracted from the archive."}}
 
     def runUtility(self, command):
         """A helper function for subprocess.
@@ -79,24 +68,22 @@ class XarExtractSingleFile(DmgMounter):
 
         command = shlex.split(command)
 
-        process = subprocess.Popen( 
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False )
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         (stdout, stderr) = process.communicate()
 
         return {
             "stdout": (stdout).strip(),
             "stderr": (stderr).strip() if stderr != None else None,
             "status": process.returncode,
-            "success": True if process.returncode == 0 else False
+            "success": True if process.returncode == 0 else False,
         }
-
 
     def main(self):
 
         # Define variables
         archive_path = os.path.normpath(self.env["archive_path"])
-        extract_file_path = self.env.get("extract_file_path", 
-            os.path.join(self.env.get("RECIPE_CACHE_DIR"), "extractedfile")
+        extract_file_path = self.env.get(
+            "extract_file_path", os.path.join(self.env.get("RECIPE_CACHE_DIR"), "extractedfile")
         )
         file_to_extract = self.env["file_to_extract"]
 
@@ -104,11 +91,9 @@ class XarExtractSingleFile(DmgMounter):
         (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(archive_path)
 
         if dmg:
-
             self.output(
-                f"Parsed dmg results: dmg_path: {dmg_path}, "
-                f"dmg: {dmg}, dmg_source_path: {dmg_source_path}",
-                verbose_level=2
+                f"Parsed dmg results: dmg_path: {dmg_path}, dmg: {dmg}, dmg_source_path: {dmg_source_path}",
+                verbose_level=2,
             )
 
             try:
@@ -130,16 +115,12 @@ class XarExtractSingleFile(DmgMounter):
                 matched_archive_path = matches[0]
 
                 if len(matches) > 1:
-                    self.output(
-                        f"WARNING:  Multiple paths match 'archive_path' glob '{archive_path}':")
+                    self.output(f"WARNING:  Multiple paths match 'archive_path' glob '{archive_path}':")
                     for match in matches:
                         self.output(f"  - {match}")
 
                 if [c for c in "*?[]!" if c in archive_path]:
-                    self.output(
-                        f"Using path '{matched_archive_path}' matched from "
-                        f"globbed '{archive_path}'."
-                    )
+                    self.output(f"Using path '{matched_archive_path}' matched from globbed '{archive_path}'.")
 
             except Exception as error:
                 raise ProcessorError("Failed matching path with glob.") from error
@@ -148,7 +129,6 @@ class XarExtractSingleFile(DmgMounter):
 
         # Wrap in a try/finally so if a dmg is mounted, it will always be unmounted
         try:
-
             # Get a list of files in the archive
             cmd_list_files = f"/usr/bin/xar -tf '{matched_archive_path}'"
             results_list_files = self.runUtility(cmd_list_files)
@@ -167,16 +147,16 @@ class XarExtractSingleFile(DmgMounter):
                 try:
                     os.mkdir(extract_file_path)
                 except OSError as error:
-                    raise ProcessorError(
-                        f"Can't create {extract_file_path}:  {error.strerror}") from error
+                    raise ProcessorError(f"Can't create {extract_file_path}:  {error.strerror}") from error
 
             # Find a match in the list of files
-            match = [ item for item in list_of_files if fnmatch(item, file_to_extract) ]
+            match = [item for item in list_of_files if fnmatch(item, file_to_extract)]
 
             # Ensure there was only one match
             if len(match) != 1:
-                raise ProcessorError("Multiple matches found in the archive.  "
-                    "Only one file is supported to be extracted.")
+                raise ProcessorError(
+                    "Multiple matches found in the archive.  Only one file is supported to be extracted."
+                )
 
             match = match[0]
 
@@ -186,7 +166,8 @@ class XarExtractSingleFile(DmgMounter):
             if not results_list_files["success"]:
                 raise ProcessorError(
                     f"Failed to extract the archive:  {matched_archive_path}"
-                    f"-- due to error:  {results_list_files['stderr']}")
+                    f"-- due to error:  {results_list_files['stderr']}"
+                )
 
             # Path to the extract file
             extracted_file = os.path.join(extract_file_path, match)

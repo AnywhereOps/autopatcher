@@ -19,13 +19,11 @@
 # limitations under the License.
 """See docstring for JSSRecipeReceiptChecker class"""
 
-from __future__ import absolute_import
 import plistlib
-
 from glob import iglob
-from os.path import expanduser, getmtime, exists
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
+from os.path import exists, expanduser, getmtime
 
+from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["JSSRecipeReceiptChecker"]
 
@@ -46,8 +44,7 @@ class JSSRecipeReceiptChecker(Processor):
         },
         "RECIPE_NAME": {
             "description": (
-                "If the recipe name does not match the NAME variable, "
-                "this value can be used to override NAME."
+                "If the recipe name does not match the NAME variable, this value can be used to override NAME."
             ),
             "required": False,
         },
@@ -71,10 +68,8 @@ class JSSRecipeReceiptChecker(Processor):
 
     def get_latest_receipt(self, cache_dir, name, receipt_number):
         """name of receipt with the highest version number"""
-        self.output(
-            "Checking for receipts in folder {}/local.jss.{}".format(cache_dir, name)
-        )
-        files = list(iglob("{}/local.jss.{}/receipts/*.plist".format(cache_dir, name)))
+        self.output(f"Checking for receipts in folder {cache_dir}/local.jss.{name}")
+        files = list(iglob(f"{cache_dir}/local.jss.{name}/receipts/*.plist"))
         files.sort(key=lambda x: getmtime(x), reverse=True)
         return files[receipt_number]
 
@@ -92,10 +87,10 @@ class JSSRecipeReceiptChecker(Processor):
         while not version_found:
             try:
                 receipt = self.get_latest_receipt(cache_dir, name, receipt_number)
-            except IOError:
+            except OSError:
                 raise ProcessorError("No receipt found!")
 
-            self.output("Receipt: {}".format(receipt))
+            self.output(f"Receipt: {receipt}")
 
             plist = plistlib.readPlist(receipt)
             i = 0
@@ -104,60 +99,51 @@ class JSSRecipeReceiptChecker(Processor):
                     processor = plist[i]["Processor"]
                     if processor == "ch.ethz.id.check.itshop/ITShopUpdateChecker":
                         license_key = plist[i]["Output"]["license_key"]
-                    if (
-                        processor
-                        == "com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator"
-                    ):
+                    if processor == "com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator":
                         version_regex = plist[i]["Output"]["version_regex"]
                     if processor == "JSSImporter":
                         version = plist[i]["Input"]["version"]
                         if plist[i]["Input"]["pkg_path"] != "":
                             pkg_path = plist[i]["Input"]["pkg_path"]
                         category = plist[i]["Input"]["category"]
-                        self_service_description = plist[i]["Input"][
-                            "self_service_description"
-                        ]
+                        self_service_description = plist[i]["Input"]["self_service_description"]
                         version_found = True
                         break
                 except KeyError:
-                    self.output("No JSSImporter process in: {}".format(receipt))
+                    self.output(f"No JSSImporter process in: {receipt}")
                 i = i + 1
 
             # make sure all the values were obtained from the receipt
             try:
                 self.env["version"] = version
-                self.output("Version: {}".format(version))
+                self.output(f"Version: {version}")
                 if pkg_path:
                     self.env["pkg_path"] = pkg_path
                 else:
                     self.env["pkg_path"] = ""
-                self.output("Package: {}".format(pkg_path))
+                self.output(f"Package: {pkg_path}")
                 self.env["CATEGORY"] = category
-                self.output("Category: {}".format(category))
+                self.output(f"Category: {category}")
                 self.env["SELF_SERVICE_DESCRIPTION"] = self_service_description
-                self.output(
-                    "Self Service Description: {}".format(self_service_description)
-                )
+                self.output(f"Self Service Description: {self_service_description}")
                 try:
                     self.env["license_key"] = license_key
-                    self.output("License Key: {}".format(license_key))
+                    self.output(f"License Key: {license_key}")
                 except UnboundLocalError:
                     self.env["license_key"] = ""
                 try:
                     self.env["version_regex"] = version_regex
-                    self.output("Version Regex: {}".format(version_regex))
+                    self.output(f"Version Regex: {version_regex}")
                 except UnboundLocalError:
-                    self.output(
-                        "No version_regex found in receipt - reverting to version"
-                    )
-                    self.env["version_regex"] = "^{}$".format(version)
+                    self.output("No version_regex found in receipt - reverting to version")
+                    self.env["version_regex"] = f"^{version}$"
             except UnboundLocalError:
                 self.output("No version found in receipt")
                 receipt_number = receipt_number + 1
 
         # make sure the package actually exists
         if not exists(pkg_path):
-            raise ProcessorError("Package does not exist: {}".format(pkg_path))
+            raise ProcessorError(f"Package does not exist: {pkg_path}")
         # end
 
 

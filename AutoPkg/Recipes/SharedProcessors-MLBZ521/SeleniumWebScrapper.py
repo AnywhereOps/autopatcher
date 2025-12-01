@@ -24,14 +24,12 @@ import sys
 from autopkglib import Processor, ProcessorError
 
 if not os.path.exists("/Library/AutoPkg/Selenium"):
-    raise ProcessorError("Selenium is required for this recipe!  "
-        "Please review my Shared Processors README.")
+    raise ProcessorError("Selenium is required for this recipe!  Please review my Shared Processors README.")
 
 sys.path.insert(0, "/Library/AutoPkg/Selenium")
 
 import selenium
 from selenium import webdriver
-
 
 __all__ = ["SeleniumWebScrapper"]
 
@@ -47,25 +45,21 @@ class WebEngine(Processor):
             "description": (
                 "The web driver engine to use.  Only Chrome is supported at this time, "
                 "but support for additional web drivers can be added.",
-                "Default:  Chrome"
-            )
+                "Default:  Chrome",
+            ),
         },
         "web_driver_path": {
             "required": False,
-            "description": (
-                "The path to the web driver.  _If_ it is not in your system $PATH.",
-                "Default:  $PATH"
-            )
+            "description": ("The path to the web driver.  _If_ it is not in your system $PATH.", "Default:  $PATH"),
         },
         "web_driver_binary_location": {
             "required": False,
             "description": (
                 "The path to the browser's binary.  Defaults to using Google Chrome for Testing.",
-                "Default:  /Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
-            )
-        }
+                "Default:  /Applications/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+            ),
+        },
     }
-
 
     def __init__(self, engine, binary, parent=None, path=None, headless=True):
         self.binary = binary
@@ -74,7 +68,6 @@ class WebEngine(Processor):
         self.path = path
         self.parent = parent
 
-
     def __enter__(self):
         """Creates a Web Engine instance to interact with."""
 
@@ -82,15 +75,16 @@ class WebEngine(Processor):
         self.parent.output(f"Using Web Driver:  {self.engine}", verbose_level=3)
 
         try:
-
             if self.engine == "Chrome":
                 options = webdriver.ChromeOptions()
                 options.add_argument("window-size=1920,1080")
                 options.add_argument("start-maximized")
-                options.add_argument("user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36")
+                options.add_argument(
+                    "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
+                )
 
                 if self.headless:
-                    self.parent.output(f"Enabling Headless Mode...", verbose_level=3)
+                    self.parent.output("Enabling Headless Mode...", verbose_level=3)
                     options.add_argument("headless")
 
                 if self.parent.env.get("tmp_dl_dir"):
@@ -98,8 +92,8 @@ class WebEngine(Processor):
                         "prefs",
                         {
                             "download.default_directory": self.parent.env.get("tmp_dl_dir"),
-                            "download.prompt_for_download": False
-                        }
+                            "download.prompt_for_download": False,
+                        },
                     )
 
                 if self.path and float(selenium.__version__.rsplit(".", 1)[0]) < 4.10:
@@ -121,15 +115,12 @@ class WebEngine(Processor):
 
         return self.web_engine
 
-
     def __exit__(self, exc_type, exc_value, exc_traceback):
         """Closes the web engine instance."""
         self.web_engine.close
 
-
     def str2bool(self, value):
         return str(value).lower() in {"true", "t", "yes", "1"}
-
 
     def main(self):
         pass

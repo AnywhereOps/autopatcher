@@ -18,12 +18,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-""" Emit Xcode Build Number to disk """
+"""Emit Xcode Build Number to disk"""
 
 import os.path
 
 from autopkglib import Processor
-
 
 __all__ = ["XcodeBuildNumberEmitter"]
 
@@ -34,27 +33,14 @@ class XcodeBuildNumberEmitter(Processor):
     description = __doc__
     input_variables = {
         "dont_skip": {
-            "description": (
-                "If this evaluates as truthy, do not skip this step."
-            ),
+            "description": ("If this evaluates as truthy, do not skip this step."),
             "default": False,
-            "required": False
+            "required": False,
         },
-        "build_version": {
-            "description": "The build version number for this Xcode Release",
-            "required": True
-        },
-        "output_filepath": {
-            "description": "Path to which xcode build number is emitted.",
-            "required": True
-        }
+        "build_version": {"description": "The build version number for this Xcode Release", "required": True},
+        "output_filepath": {"description": "Path to which xcode build number is emitted.", "required": True},
     }
-    output_variables = {
-        "derived_filename": {
-            "description": "The derived filename to emit."
-        }
-    }
-
+    output_variables = {"derived_filename": {"description": "The derived filename to emit."}}
 
     def main(self):
         """Main."""
@@ -67,9 +53,7 @@ class XcodeBuildNumberEmitter(Processor):
 
         with open(destination, "w") as f:
             f.write(build_number)
-        self.output(
-            f"Xcode build number ({build_number}) written to disk at {destination}"
-        )
+        self.output(f"Xcode build number ({build_number}) written to disk at {destination}")
 
 
 if __name__ == "__main__":

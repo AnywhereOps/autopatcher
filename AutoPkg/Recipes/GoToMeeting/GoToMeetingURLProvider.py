@@ -55,8 +55,7 @@ class GoToMeetingURLProvider(URLGetter):
     input_variables = {
         "base_url": {
             "required": False,
-            "description": "URL for the GoToMeeting "
-            f"releases JSON feed. Default is {BASE_URL}.",
+            "description": f"URL for the GoToMeeting releases JSON feed. Default is {BASE_URL}.",
         }
     }
     output_variables = {
@@ -93,10 +92,7 @@ class GoToMeetingURLProvider(URLGetter):
         max_build = max(jsondata["activeBuilds"], key=lambda x: int(x["buildNumber"]))
         g2m_url = max_build.get("macDownloadUrl")
         if not g2m_url:
-            raise ProcessorError(
-                "No download URL for the latest release "
-                "found in the base_url JSON feed."
-            )
+            raise ProcessorError("No download URL for the latest release found in the base_url JSON feed.")
         url_parts = g2m_url.split("/")
         url_parts[-1] = "GoToMeeting.dmg"
         g2m_url = "/".join(url_parts)

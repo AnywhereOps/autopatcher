@@ -23,7 +23,6 @@ import subprocess
 
 from autopkglib import Processor  # pylint: disable=import-error
 
-
 __all__ = ["LargeFileSplitter"]
 
 

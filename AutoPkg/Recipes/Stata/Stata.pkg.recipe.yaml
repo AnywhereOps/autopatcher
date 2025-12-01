@@ -134,7 +134,7 @@ Process:
       new_name: "%RECIPE_CACHE_DIR%/%NAME% %EDITION% (Universal)-%version%.pkg"
   - Processor: PathDeleter
     Arguments:
-      path_list: 
+      path_list:
       - "%RECIPE_CACHE_DIR%/extractedfile"
       - "%RECIPE_CACHE_DIR%/pkgroot"
       - "%RECIPE_CACHE_DIR%/Scripts"

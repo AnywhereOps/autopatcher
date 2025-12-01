@@ -12,13 +12,12 @@
 # Retreives the version of a .msi file using the lessmsi utility via Wine.
 # Requires installation of Wine, and availablility of 'wine' in PATH
 
-from __future__ import absolute_import
 
 import os
 import subprocess
 import sys
 
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor
 
 __all__ = ["MSIVersionProvider"]
 
@@ -32,10 +31,7 @@ class MSIVersionProvider(Processor):
         },
     }
     output_variables = {
-        "version": {
-            "description":
-                "Version number of %msi_path%.'"
-        },
+        "version": {"description": "Version number of %msi_path%.'"},
     }
 
     __doc__ = description
@@ -43,11 +39,10 @@ class MSIVersionProvider(Processor):
     def main(self):
         self.output("This processor is depreciated and should not be used. Switch to MSIInfoVersionProvider")
         sys.exit(1)
-        LESSMSI = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                            'lessmsi/lessmsi.exe')
+        LESSMSI = os.path.join(os.path.dirname(os.path.abspath(__file__)), "lessmsi/lessmsi.exe")
 
-        msi_path = self.env.get('msi_path', self.env.get('pathname'))
-        verbosity = self.env.get('verbose', 0)
+        msi_path = self.env.get("msi_path", self.env.get("pathname"))
+        verbosity = self.env.get("verbose", 0)
 
         if subprocess.call(["type", "wine"], stdout=subprocess.PIPE, stderr=subprocess.PIPE) != 0:
             self.output("wine executable not found.")
@@ -58,20 +53,21 @@ class MSIVersionProvider(Processor):
             sys.exit(1)
 
         self.output("Evauluating: %s" % msi_path)
-        cmd = ['wine', LESSMSI, 'v', msi_path]
+        cmd = ["wine", LESSMSI, "v", msi_path]
 
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
 
         if verbosity > 1:
             if stderr:
-                self.output('Wine Errors: %s' % stderr)
+                self.output("Wine Errors: %s" % stderr)
 
-        version = stdout.strip(' \t\n\r')
+        version = stdout.strip(" \t\n\r")
 
-        self.env['version'] = version.encode('ascii', 'ignore')
-        self.output("Found version: %s" % (self.env['version']))
+        self.env["version"] = version.encode("ascii", "ignore")
+        self.output("Found version: %s" % (self.env["version"]))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     processor = MSIVersionProvider()
     processor.execute_shell()

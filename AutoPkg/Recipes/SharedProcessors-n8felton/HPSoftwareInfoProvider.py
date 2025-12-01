@@ -20,11 +20,10 @@
 """Information provider for HP software downloads."""
 
 import json
+from urllib.parse import quote, urlparse
 
 from autopkglib import ProcessorError, URLGetter
 from pkg_resources import packaging
-from urllib.parse import urlparse, quote
-
 
 __all__ = ["HPSoftwareInfoProvider"]
 
@@ -70,10 +69,7 @@ class HPSoftwareInfoProvider(URLGetter):
         "OPERATING_SYSTEM": {
             "required": True,
             "default": "macOS 12.0",
-            "description": (
-                "Full name of the OS you want to search for, "
-                "e.g. macOS 12.0. Default is macOS 12.0"
-            ),
+            "description": ("Full name of the OS you want to search for, e.g. macOS 12.0. Default is macOS 12.0"),
         },
         "LANG_CODE": {
             "required": False,

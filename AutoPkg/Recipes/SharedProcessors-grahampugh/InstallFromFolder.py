@@ -64,9 +64,7 @@ class InstallFromFolder(DmgMounter):
     }
     output_variables = {
         "install_result": {"description": "Result of install request."},
-        "install_app_summary_result": {
-            "description": "Description of interesting results."
-        },
+        "install_app_summary_result": {"description": "Description of interesting results."},
     }
 
     def install(self):
@@ -105,10 +103,7 @@ class InstallFromFolder(DmgMounter):
             self.env["install_result"] = result
             if result == "DONE":
                 self.env["install_app_summary_result"] = {
-                    "summary_text": (
-                        "Items from the following source directories "
-                        "were successfully installed:"
-                    ),
+                    "summary_text": ("Items from the following source directories were successfully installed:"),
                     "data": {"source_directory": self.env["source_directory"]},
                 }
         except Exception as e:

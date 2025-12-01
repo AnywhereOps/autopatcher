@@ -15,11 +15,11 @@ jobs:
       MUNKI_URL: "https://github.com/munki/munki/releases/download/v5.6.3/munkitools-5.6.3.4401.pkg"
       AUTOPKG_DIR: "${{ github.workspace }}/AutoPkg"
       MUNKI_REPO: "andrew-kemp-dahlberg/munki/munki_repo"
-      
+
     permissions:
       contents: write
       pull-requests: write
-      
+
     steps:
       - name: Set Munki repo vars
         run: |
@@ -97,8 +97,8 @@ jobs:
           MUNKI_GIT_DIR: ${{ github.workspace }}/${{ env.MUNKI_CLONE_DIR }}
         run: |
           uv run scripts/autopkg_tools.py
-      
-      
+
+
       # - name: Configure AWS credentials
       #   if: always()
       #   uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 #5.1.1

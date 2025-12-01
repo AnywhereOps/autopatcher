@@ -28,21 +28,14 @@ __all__ = ["SHA1Checksum"]
 
 class SHA1Checksum(Processor):
     """Calculate a message-digest fingerprint (checksum) for a file"""
+
     description = __doc__
     input_variables = {
-        "pathname": {
-            "required": True,
-            "description": "Path of the file to calculate SHA1 checksum on."
-        },
-        "sha1checksum": {
-            "required": False,
-            "description": "A SHA1 checksum to verify pathname."
-        },
+        "pathname": {"required": True, "description": "Path of the file to calculate SHA1 checksum on."},
+        "sha1checksum": {"required": False, "description": "A SHA1 checksum to verify pathname."},
     }
     output_variables = {
-        "sha1checksum": {
-            "description": "SHA1 checksum calculated from pathname."
-        },
+        "sha1checksum": {"description": "SHA1 checksum calculated from pathname."},
     }
 
     def sha1(self, file_name):
@@ -54,13 +47,14 @@ class SHA1Checksum(Processor):
 
     def main(self):
         sha1checksum = self.sha1(self.env["pathname"])
-        self.output("{sha1checksum}".format(sha1checksum=sha1checksum), 1)
-        if self.env.get('sha1checksum'):
-            if not self.env['sha1checksum'] == sha1checksum:
+        self.output(f"{sha1checksum}", 1)
+        if self.env.get("sha1checksum"):
+            if not self.env["sha1checksum"] == sha1checksum:
                 raise ProcessorError("SHA1 Checksum verification failed.")
             else:
                 self.output("SHA1 Checksum Matches", 1)
         self.env["sha1checksum"] = sha1checksum
+
 
 if __name__ == "__main__":
     PROCESSOR = SHA1Checksum()

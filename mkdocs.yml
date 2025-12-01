@@ -15,7 +15,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: ["src/autopatcher"]
+          paths: ["scripts"]
 theme:
   name: material
   feature:

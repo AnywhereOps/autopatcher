@@ -13,12 +13,11 @@
 # Requires installation of msitools, and availablility of 'msiinfo'
 # Run: brew install msitools - https://wiki.gnome.org/msitools
 
-from __future__ import absolute_import
 
 import os
+import platform
 import subprocess
 import sys
-import platform
 
 from autopkglib import Processor, ProcessorError
 
@@ -38,10 +37,7 @@ class MSIInfoVersionProvider(Processor):
         },
     }
     output_variables = {
-        "version": {
-            "description":
-                "Version number of %msi_path%.'"
-        },
+        "version": {"description": "Version number of %msi_path%.'"},
     }
 
     __doc__ = description
@@ -49,22 +45,22 @@ class MSIInfoVersionProvider(Processor):
     def main(self):
 
         # Set default path to msiinfo
-        if 'arm' in platform.processor():
+        if "arm" in platform.processor():
             msiinfo_default_path = os.path.abspath("/opt/homebrew/bin/msiinfo")
         else:
             msiinfo_default_path = os.path.abspath("/usr/local/bin/msiinfo")
 
         # Set MSIINFO variable to input variable or default path
-        MSIINFO = self.env.get('msiinfo_path', msiinfo_default_path)
+        MSIINFO = self.env.get("msiinfo_path", msiinfo_default_path)
 
         # Set msi_path from input
-        msi_path = self.env.get('msi_path')
-        verbosity = self.env.get('verbose', 0)
+        msi_path = self.env.get("msi_path")
+        verbosity = self.env.get("verbose", 0)
 
         if subprocess.call(["type", MSIINFO], stdout=subprocess.PIPE, stderr=subprocess.PIPE) != 0:
             self.output("msiinfo executable not found at %s" % MSIINFO)
             raise ProcessorError(
-                f"MSIInfoVersionProvider: msiinfo executable not found. Need to install using `brew install msitools`"
+                "MSIInfoVersionProvider: msiinfo executable not found. Need to install using `brew install msitools`"
             )
             sys.exit(1)
 
@@ -73,7 +69,7 @@ class MSIInfoVersionProvider(Processor):
             sys.exit(1)
 
         self.output("Evauluating: %s" % msi_path)
-        cmd = [MSIINFO, 'export', msi_path, 'Property']
+        cmd = [MSIINFO, "export", msi_path, "Property"]
         # self.output(" ".join(cmd))
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = proc.communicate()
@@ -85,12 +81,13 @@ class MSIInfoVersionProvider(Processor):
                 version = line.split("\t")[1].strip("\r")
         if verbosity > 1:
             if stderr:
-                self.output('msiinfo Errors: %s' % stderr)
+                self.output("msiinfo Errors: %s" % stderr)
         if version == "":
             self.output("Could not find version in msi file. Please open a bug.")
-        self.env['version'] = version
-        self.output("Found version: %s" % (self.env['version']))
+        self.env["version"] = version
+        self.output("Found version: %s" % (self.env["version"]))
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     processor = MSIInfoVersionProvider()
     processor.execute_shell()

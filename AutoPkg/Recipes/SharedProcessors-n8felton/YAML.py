@@ -20,8 +20,7 @@
 """Generic processor to parse YAML into usable autopkg variables."""
 
 import yaml
-
-from autopkglib import Processor, ProcessorError, URLGetter
+from autopkglib import URLGetter
 
 __all__ = ["YAML"]
 

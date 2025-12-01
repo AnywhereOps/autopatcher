@@ -22,13 +22,11 @@ import plistlib
 
 from autopkglib import Processor, ProcessorError
 
-
 __all__ = ["JVMVersioner"]
 
 
 class JVMVersioner(Processor):
-    """This processor finds the Java Virtual Machine version in a JDK package.
-    """
+    """This processor finds the Java Virtual Machine version in a JDK package."""
 
     description = __doc__
     input_variables = {
@@ -37,12 +35,7 @@ class JVMVersioner(Processor):
             "description": "The plist file that will be searched.",
         }
     }
-    output_variables = {
-        "jvm_version": {
-            "description": "Returns the JVM version found."
-        }
-    }
-
+    output_variables = {"jvm_version": {"description": "Returns the JVM version found."}}
 
     def main(self):
 
@@ -56,7 +49,7 @@ class JVMVersioner(Processor):
             raise ProcessorError("Unable to load the specified plist file.") from error
 
         # Get the latest version.
-        jvm_version=plist_contents.get("JavaVM").get("JVMVersion")
+        jvm_version = plist_contents.get("JavaVM").get("JVMVersion")
 
         if jvm_version:
             # self.env["jvm_version"] = jvm_version

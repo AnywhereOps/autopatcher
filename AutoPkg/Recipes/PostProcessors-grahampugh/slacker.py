@@ -18,11 +18,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import, print_function
 
 import requests
-
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
+from autopkglib import Processor  # pylint: disable=import-error
 
 # Set the webhook_url to the one provided by Slack when you create the webhook at https://my.slack.com/services/new/incoming-webhook/
 
@@ -78,7 +76,7 @@ class Slacker(Processor):
             self.output(f"Package: {jss_uploaded_package}")
             if jss_uploaded_package:
                 slack_text = (
-                    f"*New Item added to JSS:*\n"
+                    "*New Item added to JSS:*\n"
                     "URL: {JSS_URL}\n"
                     "Title: *{prod_name}*\n"
                     "Version: *{jss_policy_version}*\n"
@@ -89,7 +87,7 @@ class Slacker(Processor):
                 )
             else:
                 slack_text = (
-                    f"*New Item added to JSS:*\n"
+                    "*New Item added to JSS:*\n"
                     "URL: {JSS_URL}\n"
                     "Title: *{prod_name}*\n"
                     "Version: *{jss_policy_version}*\n"
@@ -104,8 +102,7 @@ class Slacker(Processor):
             response = requests.post(webhook_url, json=slack_data)
             if response.status_code != 200:
                 raise ValueError(
-                    f"Request to slack returned an error {response.status_code}, "
-                    "the response is:\n{response.text}"
+                    f"Request to slack returned an error {response.status_code}, the response is:\n{{response.text}}"
                 )
 
 
