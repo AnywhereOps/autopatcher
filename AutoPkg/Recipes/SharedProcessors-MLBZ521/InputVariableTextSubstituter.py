@@ -22,71 +22,58 @@ import re
 
 from autopkglib import Processor, ProcessorError
 
-
 __all__ = ["InputVariableTextSubstituter"]
 
 
 class InputVariableTextSubstituter(Processor):
-    """This processor substitutes character(s) in a string with either 
+    """This processor substitutes character(s) in a string with either
     another string or the value of a set autopkg variable and then returns
     the modified string as a supplied variable.
 
-    I wrote it to be able to substitute values into an input variable for 
-    when you want to use, for example the version in an input variable, 
-    but the version variable has not been set yet, not until the (child) 
-    recipe runs.  However, it can be used to substitute strings in any 
+    I wrote it to be able to substitute values into an input variable for
+    when you want to use, for example the version in an input variable,
+    but the version variable has not been set yet, not until the (child)
+    recipe runs.  However, it can be used to substitute strings in any
     other strings.
     """
 
     description = __doc__
     input_variables = {
-        "original_string": {
-            "required": True,
-            "description": "The original string that needs to be edited."
-        },
+        "original_string": {"required": True, "description": "The original string that needs to be edited."},
         "string_to_replace": {
             "required": True,
-            "description": "The old character(s) to be replaced in the "
-                           "original string."
+            "description": "The old character(s) to be replaced in the original string.",
         },
         "replacement_string": {
             "required": False,
-            "description": "The new character(s) that will replace the "
-                           "old string."
+            "description": "The new character(s) that will replace the old string.",
         },
         "variable_to_use": {
             "required": False,
             "description": "Instead of replacing strings with strings, "
-                            "replace the original string with the value "
-                            "of an autopkg variable."
+            "replace the original string with the value "
+            "of an autopkg variable.",
         },
         "return_variable": {
             "required": True,
-            "description": ("The name of the variable to assign the "
-                            "result of the modified string too.")
+            "description": ("The name of the variable to assign the result of the modified string too."),
         },
         "append_space": {
             "required": False,
-            "type":  "Boolean",
-            "default":  False,
-            "description": ("Append a space before the replacement string or "
-                            "variable.  Default is False")
-        }
+            "type": "Boolean",
+            "default": False,
+            "description": ("Append a space before the replacement string or variable.  Default is False"),
+        },
     }
     output_variables = {
-        "return_variable": {
-            "description": "The name variable that was set."
-        },
-        "return_variable_value": {
-            "description": "The variable value that was set."
-        }
+        "return_variable": {"description": "The name variable that was set."},
+        "return_variable_value": {"description": "The variable value that was set."},
     }
-
 
     def main(self):
 
         if self.env.get("replacement_string") and self.env.get("variable_to_use"):
-              raise ProcessorError("Both of the input variables 'replacement_string' or 'variable_to_use' were set!")
+            raise ProcessorError("Both of the input variables 'replacement_string' or 'variable_to_use' were set!")
 
         elif self.env.get("replacement_string"):
             replacement = self.env.get("replacement_string")
@@ -111,7 +98,7 @@ class InputVariableTextSubstituter(Processor):
         self.output(f"{return_variable}: {self.env[return_variable]}")
 
         # For back to back runs of this processor...
-        for variable in ( "replacement_string", "variable_to_use", "append_space" ):
+        for variable in ("replacement_string", "variable_to_use", "append_space"):
             self.env[variable] = ""
 
 

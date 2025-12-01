@@ -22,9 +22,9 @@ limitations under the License.
 See docstring for SMBUnmounter class
 """
 
-from __future__ import absolute_import
 import os.path
 import subprocess
+
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["SMBUnmounter"]
@@ -34,7 +34,10 @@ class SMBUnmounter(Processor):
     """Unmounts an SMB share. Requires a mount point to be passed through from SMBMounter"""
 
     input_variables = {
-        "mount_point": {"description": "Mount Point.", "required": True,},
+        "mount_point": {
+            "description": "Mount Point.",
+            "required": True,
+        },
     }
 
     output_variables = {}

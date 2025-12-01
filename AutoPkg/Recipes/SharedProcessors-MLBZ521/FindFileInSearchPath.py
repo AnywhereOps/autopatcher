@@ -23,10 +23,9 @@
 # limitations under the License.
 
 import os
-
 from collections import OrderedDict
-from autopkglib import Processor, ProcessorError
 
+from autopkglib import Processor, ProcessorError
 
 __all__ = ["FindFileInSearchPath"]
 
@@ -47,7 +46,7 @@ class FindFileInSearchPath(Processor):
     support using recipe overrides. It allows users to avoid having
     to copy templates, icons, etc, to the override directory.
 
-    *** Additional functionality added to support storing files in a sub 
+    *** Additional functionality added to support storing files in a sub
     directory of the recipes parent directory. ***
 
     Args:
@@ -62,21 +61,13 @@ class FindFileInSearchPath(Processor):
 
     description = __doc__
     input_variables = {
-        "find_file": {
-            "required": True,
-            "description": "The name of the file to find in the search_paths."
-        }
+        "find_file": {"required": True, "description": "The name of the file to find in the search_paths."}
     }
-    output_variables = {
-        "path_to_found_file": {
-            "description": "Full path to the file."
-        }
-    }
-
+    output_variables = {"path_to_found_file": {"description": "Full path to the file."}}
 
     def main(self):
 
-        find_file = self.env.get('find_file')
+        find_file = self.env.get("find_file")
         sub_directory = False
 
         # Ensure input is expanded.
@@ -97,7 +88,7 @@ class FindFileInSearchPath(Processor):
         for parent in parent_recipe_dirs:
             unique_parent_dirs[parent] = parent
 
-        search_dirs = ([os.path.dirname(path)] + list(unique_parent_dirs))
+        search_dirs = [os.path.dirname(path)] + list(unique_parent_dirs)
         tested = []
         final_path = ""
 

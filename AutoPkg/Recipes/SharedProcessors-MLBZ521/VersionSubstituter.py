@@ -21,8 +21,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from autopkglib import Processor, ProcessorError
-
+from autopkglib import Processor
 
 __all__ = ["VersionSubstituter"]
 
@@ -35,32 +34,18 @@ class VersionSubstituter(Processor):
 
     description = __doc__
     input_variables = {
-        "version": {
-            "required": True,
-            "description": "The version string that needs to be edited."
-        },
+        "version": {"required": True, "description": "The version string that needs to be edited."},
         "old": {
             "required": False,
-            "description": "The old character(s) to be replaced in the "
-                           "version string. (Defaults to a dash.)"
+            "description": "The old character(s) to be replaced in the version string. (Defaults to a dash.)",
         },
-        "new": {
-            "required": True,
-            "description": "The new character(s) that will replace the "
-                           "old version string."
-        },
+        "new": {"required": True, "description": "The new character(s) that will replace the old version string."},
         "index": {
             "required": False,
-            "description": "The the max number of occurrences to replace "
-                           "the old character(s). (Defaults to 1.)"
-        }
+            "description": "The the max number of occurrences to replace the old character(s). (Defaults to 1.)",
+        },
     }
-    output_variables = {
-        "version": {
-            "description": "The cleaned up version string."
-        }
-    }
-
+    output_variables = {"version": {"description": "The cleaned up version string."}}
 
     def main(self):
 

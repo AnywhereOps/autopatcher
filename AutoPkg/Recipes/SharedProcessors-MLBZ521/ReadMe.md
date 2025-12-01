@@ -49,7 +49,7 @@ Input Variables:
     * description:  The OS version to search against
     * required:  False
     * default:  'MACOS_12' (i.e. Monterey)
-    * options:  
+    * options:
       * macOS Monterey v12.0:  MACOS_12
       * macOS Big Sur v11.0:  MACOS_11_0
       * macOS Catalina v10.15:  MACOS_10_15
@@ -205,7 +205,7 @@ Used in:
   * com.github.mlbz521.jss.Mathematica
   * com.github.mlbz521.jss.Matlab
   * com.github.mlbz521.jss.MatlabUpdate
-  * com.github.mlbz521.jss.SPSSStatistics 
+  * com.github.mlbz521.jss.SPSSStatistics
   * com.github.mlbz521.pkg.SPSSStatisticsLegacy
   * com.github.mlbz521.pkg.SPSSStatisticsPatch
 
@@ -222,7 +222,7 @@ Used in:
 
 This was designed for applications that are behind a login or not available via normal internet "acquisitional" methods.
 
-This processor allows you to simply drop the vendor provided "media", in the format they provide, into a specifically named directory and the processor will be able to determine which version of the content to "download," even if multiple versions are available.  
+This processor allows you to simply drop the vendor provided "media", in the format they provide, into a specifically named directory and the processor will be able to determine which version of the content to "download," even if multiple versions are available.
 
 The processor originally expected the vendor content to be organized in sub-directories like `<Software Title>-<version>`, however, this is no longer required and the media can be stored in the root of the specified directory, but the naming convention **must** match or problems will occur.
 
@@ -255,9 +255,9 @@ Numerous input variable are available to support as many types of scenarios as I
     * description:  String that will further limit matching the search
     * required:  False
   * version_separator
-    * description:  Character used to separate the "Software Title Name" from the "Version" 
+    * description:  Character used to separate the "Software Title Name" from the "Version"
       * For example:  CrowdStrike Falcon-5.27.10803.0'
-        * The hyphen would be the separator character 
+        * The hyphen would be the separator character
     * default:  `-`
     * required:  False
   * max_depth

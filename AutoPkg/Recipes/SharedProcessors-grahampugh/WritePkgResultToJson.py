@@ -19,11 +19,10 @@
 # limitations under the License.
 """See docstring for LastRecipeRunResult class"""
 
-import os.path
 import json
+import os.path
 
 from autopkglib import Processor  # pylint: disable=import-error
-
 
 __all__ = ["WritePkgResultToJson"]
 
@@ -87,9 +86,9 @@ class WritePkgResultToJson(Processor):
     def get_latest_recipe_run_info(self, output_file):
         """get information from the output files of a LastRecipeRunResult processor"""
         try:
-            with open(output_file, "r") as fp:
+            with open(output_file) as fp:
                 data = json.load(fp)
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             data = {}
         return data
 
@@ -107,15 +106,15 @@ class WritePkgResultToJson(Processor):
         pkg_metadata_updated = self.env.get("pkg_metadata_updated")
 
         if pkg_path:
-            self.output("Package path: {}".format(pkg_path))
+            self.output(f"Package path: {pkg_path}")
         if pkg_name:
-            self.output("Package name: {}".format(pkg_name))
+            self.output(f"Package name: {pkg_name}")
         if version:
-            self.output("Version: {}".format(version))
+            self.output(f"Version: {version}")
         if license_key:
-            self.output("License Key: {}".format(license_key))
+            self.output(f"License Key: {license_key}")
         if category:
-            self.output("Pkg Category: {}".format(category))
+            self.output(f"Pkg Category: {category}")
 
         if not output_file_path:
             output_file_path = self.env.get("RECIPE_CACHE_DIR")

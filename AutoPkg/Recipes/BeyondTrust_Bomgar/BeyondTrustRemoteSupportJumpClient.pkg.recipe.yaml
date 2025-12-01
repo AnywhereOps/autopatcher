@@ -19,7 +19,7 @@ Description: |
   Optionally, you can override:
     * JUMP_CLIENT_PLATFORM (Processor supports this, but this recipe obviously does not)
     * JUMP_CLIENT_CONFIG
-      * An example config is provided, but if it's not provided, the minimum will be used which 
+      * An example config is provided, but if it's not provided, the minimum will be used which
         will generated a Jump Client Key using the default values.
 
 Identifier: com.github.mlbz521.pkg.BeyondTrustRemoteSupportJumpClient

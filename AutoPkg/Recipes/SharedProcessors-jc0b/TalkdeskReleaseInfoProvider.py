@@ -5,28 +5,18 @@
 #!/usr/local/autopkg/python
 
 import requests
-
-from autopkglib import APLooseVersion, Processor, ProcessorError
+from autopkglib import Processor, ProcessorError
 
 __all__ = ["TalkdeskReleaseInfoProvider"]
 
-TALKDESK_BUCKET="https://td-infra-prd-us-east-1-s3-atlaselectron.s3.amazonaws.com"
+TALKDESK_BUCKET = "https://td-infra-prd-us-east-1-s3-atlaselectron.s3.amazonaws.com"
+
 
 class TalkdeskReleaseInfoProvider(Processor):
-    description = (
-        "Gets the download URL and version for the latest version of Talkdesk from their installer bucket."
-    )
+    description = "Gets the download URL and version for the latest version of Talkdesk from their installer bucket."
     output_variables = {
-        "url": {
-            "description": (
-                "The URL for the latest release."
-            )
-        },
-        "version": {
-            "description": (
-                "Version info for the latest release."
-            )
-        }
+        "url": {"description": ("The URL for the latest release.")},
+        "version": {"description": ("Version info for the latest release.")},
     }
 
     __doc__ = description
@@ -41,10 +31,12 @@ class TalkdeskReleaseInfoProvider(Processor):
         for version in release_versions:
             for target in version["targets"]:
                 if target["os"] == "Mac":
-                    self.output(f'Found version {version["version"]}!')
+                    self.output(f"Found version {version['version']}!")
                     return version["version"]
 
-        raise ProcessorError(f"No macOS version of Talkdesk was found in {TALKDESK_BUCKET}/talkdesk-latest-metadata.json.")
+        raise ProcessorError(
+            f"No macOS version of Talkdesk was found in {TALKDESK_BUCKET}/talkdesk-latest-metadata.json."
+        )
 
     def main(self):
         # Get our list of releases

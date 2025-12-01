@@ -31,13 +31,13 @@ processor will attempt to install it using the following command:
 /usr/local/autopkg/python -m pip install --upgrade Pillow
 """
 
-import binascii
-import plistlib
 import base64
+import binascii
 import io
 import os
-
+import plistlib
 from pathlib import Path
+
 from autopkglib import ProcessorError  # pylint: disable=import-error
 from autopkglib.DmgMounter import DmgMounter  # pylint: disable=import-error
 
@@ -48,9 +48,7 @@ except (ImportError, ModuleNotFoundError):
     import sys
 
     print("Pillow library not found. Installing...")
-    subprocess.run(
-        [sys.executable, "-m", "pip", "install", "--upgrade", "Pillow"], check=True
-    )
+    subprocess.run([sys.executable, "-m", "pip", "install", "--upgrade", "Pillow"], check=True)
     from PIL import Image
 
 __all__ = ["IconGenerator"]
@@ -67,15 +65,11 @@ class IconGenerator(DmgMounter):
     Generate icons from an icns file
     """
 
-    description = (
-        "Extracts an app icon and saves it to disk. Optionally creates "
-        "composite images."
-    )
+    description = "Extracts an app icon and saves it to disk. Optionally creates composite images."
     input_variables = {
         "source_icon": {
             "required": False,
-            "description": "The input path of the icon. This can be supplied "
-            "as an alternative to the app path",
+            "description": "The input path of the icon. This can be supplied as an alternative to the app path",
         },
         "source_app": {
             "required": False,
@@ -142,20 +136,15 @@ class IconGenerator(DmgMounter):
         },
     }
     output_variables = {
-        "app_icon_path": {
-            "description": "The path on disk to the plain, uncomposited app icon."
-        },
+        "app_icon_path": {"description": "The path on disk to the plain, uncomposited app icon."},
         "install_icon_path": {
-            "description": "The path on disk to the 'install' composited icon "
-            "variation, if requested."
+            "description": "The path on disk to the 'install' composited icon variation, if requested."
         },
         "update_icon_path": {
-            "description": "The path on disk to the 'update' composited icon "
-            "variation, if requested."
+            "description": "The path on disk to the 'update' composited icon variation, if requested."
         },
         "uninstall_icon_path": {
-            "description": "The path on disk to the 'uninstall' composited icon "
-            "variation, if requested."
+            "description": "The path on disk to the 'uninstall' composited icon variation, if requested."
         },
     }
     description = __doc__
@@ -184,10 +173,7 @@ class IconGenerator(DmgMounter):
             matched_filepath = ""
             for d in self.env["RECIPE_OVERRIDE_DIRS"]:
                 override_dir_path = Path(os.path.expanduser(d))
-                if (
-                    override_dir_path == recipe_dir_path
-                    or override_dir_path in recipe_dir_path.parents
-                ):
+                if override_dir_path == recipe_dir_path or override_dir_path in recipe_dir_path.parents:
                     self.output(f"Matching dir: {override_dir_path}", verbose_level=3)
                     matched_override_dir = override_dir_path
                 for path in Path(os.path.expanduser(d)).rglob(filename):
@@ -208,10 +194,7 @@ class IconGenerator(DmgMounter):
             matched_filepath = ""
             for d in self.env["RECIPE_SEARCH_DIRS"]:
                 search_dir_path = Path(os.path.expanduser(d))
-                if (
-                    search_dir_path == recipe_dir_path
-                    or search_dir_path in recipe_dir_path.parents
-                ):
+                if search_dir_path == recipe_dir_path or search_dir_path in recipe_dir_path.parents:
                     # matching search dir, look for file in here
                     self.output(f"Matching dir: {search_dir_path}", verbose_level=3)
                     for path in Path(os.path.expanduser(d)).rglob(filename):
@@ -232,10 +215,7 @@ class IconGenerator(DmgMounter):
                 parent_dir_path = Path(os.path.expanduser(parent_dir))
                 for d in self.env["RECIPE_SEARCH_DIRS"]:
                     search_dir_path = Path(os.path.expanduser(d))
-                    if (
-                        search_dir_path == parent_dir_path
-                        or search_dir_path in parent_dir_path.parents
-                    ):
+                    if search_dir_path == parent_dir_path or search_dir_path in parent_dir_path.parents:
                         # matching parent dir, look for file in here
                         self.output(f"Matching dir: {search_dir_path}", verbose_level=3)
                         for path in Path(os.path.expanduser(d)).rglob(filename):
@@ -307,9 +287,7 @@ class IconGenerator(DmgMounter):
             icon = Image.open(input_path)
             try:
                 icon.info.get("sizes")
-                if (128, 128, 2) in icon.info.get("sizes"):
-                    icon.size = (256, 256)
-                elif (256, 256) in icon.info.get("sizes"):
+                if (128, 128, 2) in icon.info.get("sizes") or (256, 256) in icon.info.get("sizes"):
                     icon.size = (256, 256)
                 else:
                     self.output("Resizing icon to 256px.")
@@ -322,21 +300,13 @@ class IconGenerator(DmgMounter):
             icon.save(output_path, format="png")
             return output_path
         except FileNotFoundError as fnferror:
-            raise ProcessorError(
-                f"Unable to open the source icon at path {input_path}."
-            ) from fnferror
+            raise ProcessorError(f"Unable to open the source icon at path {input_path}.") from fnferror
         except PermissionError as perror:
-            raise ProcessorError(
-                f"Unable to save app icon to {output_path} due to permissions."
-            ) from perror
-        except IOError as ioerror:
-            raise ProcessorError(
-                f"Unable to save app icon to path {output_path}."
-            ) from ioerror
+            raise ProcessorError(f"Unable to save app icon to {output_path} due to permissions.") from perror
+        except OSError as ioerror:
+            raise ProcessorError(f"Unable to save app icon to path {output_path}.") from ioerror
         except ValueError as verror:
-            raise ProcessorError(
-                f"Unable to open a 256px representation of the icon at {input_path}."
-            ) from verror
+            raise ProcessorError(f"Unable to open a 256px representation of the icon at {input_path}.") from verror
 
     def composite_icon(self, icon_path: str, foreground: str, output_path: str) -> str:
         """Creates a composite icon at `output_path` where `foreground` is
@@ -361,17 +331,13 @@ class IconGenerator(DmgMounter):
         # Reset invalid position input to the default of "br" and output a
         # Processor message
         if position not in ["ul", "ur", "br", "bl"]:
-            self.output(
-                f"Reset invalid composite_position input '{position}' to the default value 'br'."
-            )
+            self.output(f"Reset invalid composite_position input '{position}' to the default value 'br'.")
             position = "br"
         padding = self.env.get("composite_padding", 10)
         # Reset invalid padding input to the default value '10' and output a
         # Processor message
         if not isinstance(padding, int) and padding >= 0:
-            self.output(
-                f"Reset invalid composite_padding input '{padding}' to the default value '10'."
-            )
+            self.output(f"Reset invalid composite_padding input '{padding}' to the default value '10'.")
             padding = 10
 
         # If the passed `foreground` doesn't appear to be a local path, but is a
@@ -393,9 +359,7 @@ class IconGenerator(DmgMounter):
         #   4. PRs accepted for improvements :)
         try:
             bg.info.get("sizes")
-            if (128, 128, 2) in bg.info.get("sizes"):
-                bg.size = (256, 256)
-            elif (256, 256) in bg.info.get("sizes"):
+            if (128, 128, 2) in bg.info.get("sizes") or (256, 256) in bg.info.get("sizes"):
                 bg.size = (256, 256)
             else:
                 self.output("Resizing background image to 256px.")
@@ -430,7 +394,7 @@ class IconGenerator(DmgMounter):
         composite.paste(fg, coords, fg)
         try:
             composite.save(output_path, format="png")
-        except IOError as ioerror:
+        except OSError as ioerror:
             raise ProcessorError(f"Unable to save output to {output_path}") from ioerror
 
         # Close the images
@@ -457,9 +421,7 @@ class IconGenerator(DmgMounter):
         dmg = ""
 
         if source_icon:
-            if source_icon.lower().endswith(".icns") or source_icon.lower().endswith(
-                ".png"
-            ):
+            if source_icon.lower().endswith(".icns") or source_icon.lower().endswith(".png"):
                 app_icon_path = self.get_path_to_file(source_icon)
                 # icon_path = source_icon
             else:
@@ -481,9 +443,7 @@ class IconGenerator(DmgMounter):
             # Extract the app icon to the destination path
             app_icon_path = self.get_app_icon_path(app_path)
             if not app_icon_path:
-                raise ProcessorError(
-                    f"Unable to determine app icon path for app at {app_path}."
-                )
+                raise ProcessorError(f"Unable to determine app icon path for app at {app_path}.")
         else:
             # no icon provided
             raise ProcessorError("Unable to determine icon path.")
@@ -494,34 +454,22 @@ class IconGenerator(DmgMounter):
         # Create an 'install' version if requested
         if self.env.get("composite_install_path"):
             install_path = self.env.get("composite_install_path")
-            install_template = self.env.get(
-                "composite_install_template", DEFAULT_ICON_INSTALL
-            )
-            install_icon = self.composite_icon(
-                app_icon_path, install_template, install_path
-            )
+            install_template = self.env.get("composite_install_template", DEFAULT_ICON_INSTALL)
+            install_icon = self.composite_icon(app_icon_path, install_template, install_path)
             self.env["install_icon_path"] = install_icon
 
         # Create an 'uninstall' version if requested
         if self.env.get("composite_uninstall_path"):
             uninstall_path = self.env.get("composite_uninstall_path")
-            uninstall_template = self.env.get(
-                "composite_uninstall_template", DEFAULT_ICON_UNINSTALL
-            )
-            uninstall_icon = self.composite_icon(
-                app_icon_path, uninstall_template, uninstall_path
-            )
+            uninstall_template = self.env.get("composite_uninstall_template", DEFAULT_ICON_UNINSTALL)
+            uninstall_icon = self.composite_icon(app_icon_path, uninstall_template, uninstall_path)
             self.env["uninstall_icon_path"] = uninstall_icon
 
         # Create an 'update' version if requested
         if self.env.get("composite_update_path"):
             update_path = self.env.get("composite_update_path")
-            update_template = self.env.get(
-                "composite_update_template", DEFAULT_ICON_UPDATE
-            )
-            update_icon = self.composite_icon(
-                app_icon_path, update_template, update_path
-            )
+            update_template = self.env.get("composite_update_template", DEFAULT_ICON_UPDATE)
+            update_icon = self.composite_icon(app_icon_path, update_template, update_path)
             self.env["update_icon_path"] = update_icon
 
         # If we mounted a dmg, unmount it

@@ -20,8 +20,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from autopkglib import Processor, ProcessorError
-
+from autopkglib import Processor
 
 __all__ = ["StringRightSplitter"]
 
@@ -32,38 +31,28 @@ class StringRightSplitter(Processor):
 
     The processor will verify that the occurrence and index input variables
     are integers and if not, set them as integers.
-    
+
     This was done since most people use key/string pairs and not key/integers.
     """
 
     description = __doc__
     input_variables = {
-        "string_to_split": {
-            "required": True,
-            "description": "The version string that needs splitting."
-        },
+        "string_to_split": {"required": True, "description": "The version string that needs splitting."},
         "split_on": {
             "required": False,
-            "description": "The character(s) to use for splitting the string."
-            "(Defaults to a space.)"
+            "description": "The character(s) to use for splitting the string.(Defaults to a space.)",
         },
         "occurrence": {
             "required": False,
-            "description": "The occurrence, from the right, to split on."
-            "returned. (Defaults to 1.)"
+            "description": "The occurrence, from the right, to split on.returned. (Defaults to 1.)",
         },
         "index": {
             "required": False,
-            "description": "The desired index to return from the split string."
-            "(Defaults to 0.)"
+            "description": "The desired index to return from the split string.(Defaults to 0.)",
         },
-        "return_variable": {
-            "required": True,
-            "description": "The desired variable name to assign the value to."
-        }
+        "return_variable": {"required": True, "description": "The desired variable name to assign the value to."},
     }
     output_variables = {}
-
 
     def main(self):
 

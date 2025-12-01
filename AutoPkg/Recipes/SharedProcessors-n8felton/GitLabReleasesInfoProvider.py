@@ -19,7 +19,6 @@
 # limitations under the License.
 """Shared processor to allow recipes to download releases from GitLab instances."""
 
-import certifi
 import json
 import os
 import re
@@ -27,6 +26,7 @@ import ssl
 from pprint import pformat
 from urllib.request import Request, urlopen
 
+import certifi
 from autopkglib import Processor, ProcessorError, get_autopkg_version
 
 __all__ = ["GitLabReleasesInfoProvider"]
@@ -55,16 +55,12 @@ class GitLabReleasesInfoProvider(Processor):
             "required": False,
             "default": "gitlab.com",
             "description": (
-                "If your organization has an internal GitLab instance "
-                "set this value to your internal GitLab URL."
+                "If your organization has an internal GitLab instance set this value to your internal GitLab URL."
             ),
         },
         "GITLAB_PROJECT_ID": {
             "required": True,
-            "description": (
-                "The ID or URL-encoded path of the project."
-                "e.g. `123` or `autopkg%2Frecipes`"
-            ),
+            "description": ("The ID or URL-encoded path of the project.e.g. `123` or `autopkg%2Frecipes`"),
         },
         "PRIVATE_TOKEN": {
             "required": False,
@@ -77,19 +73,9 @@ class GitLabReleasesInfoProvider(Processor):
         },
     }
     output_variables = {
-        "direct_asset_url": {
-            "description": (
-                "direct_asset_url matching the `link_regex` and/or `latest` inputs."
-            )
-        },
-        "url": {
-            "description": ("url matching the `link_regex` and/or `latest` inputs.")
-        },
-        "version": {
-            "description": (
-                "Version based on the release tag_name. (Strips `v` prefix)"
-            )
-        },
+        "direct_asset_url": {"description": ("direct_asset_url matching the `link_regex` and/or `latest` inputs.")},
+        "url": {"description": ("url matching the `link_regex` and/or `latest` inputs.")},
+        "version": {"description": ("Version based on the release tag_name. (Strips `v` prefix)")},
     }
 
     def ssl_context_certifi(self):
@@ -150,9 +136,7 @@ class GitLabReleasesInfoProvider(Processor):
         if PRIVATE_TOKEN:
             self.env["PRIVATE_TOKEN"] = PRIVATE_TOKEN
         releases = self.get_releases(latest=self.env.get("latest"))
-        release, link = self.get_release_link(
-            releases, regex=self.env.get("link_regex")
-        )
+        release, link = self.get_release_link(releases, regex=self.env.get("link_regex"))
         self.env["url"] = link.get("url")
         self.env["direct_asset_url"] = link.get("direct_asset_url")
 

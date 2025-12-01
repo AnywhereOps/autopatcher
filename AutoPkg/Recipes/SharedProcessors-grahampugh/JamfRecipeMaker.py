@@ -23,35 +23,32 @@ import os.path
 import subprocess
 import sys
 from collections import OrderedDict
-from plistlib import load as load_plist
 from plistlib import dumps as write_plist
+from plistlib import load as load_plist
+
 from autopkglib import Processor  # pylint: disable=import-error
 
 try:
     from ruamel import yaml
-    from ruamel.yaml import dump
-    from ruamel.yaml import add_representer
+    from ruamel.yaml import add_representer, dump
     from ruamel.yaml.nodes import MappingNode
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "ensurepip"])
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
-    subprocess.check_call(
-        [
-            sys.executable,
-            "-m",
-            "pip",
-            "install",
-            "-U",
-            "pip",
-            "importlib-metadata",
-            "setuptools",
-            "wheel",
-            "ruamel.yaml",
-        ]
-    )
+    subprocess.check_call([
+        sys.executable,
+        "-m",
+        "pip",
+        "install",
+        "-U",
+        "pip",
+        "importlib-metadata",
+        "setuptools",
+        "wheel",
+        "ruamel.yaml",
+    ])
     from ruamel import yaml
-    from ruamel.yaml import dump
-    from ruamel.yaml import add_representer
+    from ruamel.yaml import add_representer, dump
     from ruamel.yaml.nodes import MappingNode
 
 
@@ -104,9 +101,7 @@ class JamfRecipeMaker(Processor):
             "default": "Applications",
         },
         "SELF_SERVICE_DESCRIPTION": {
-            "description": (
-                "The Self Service Description in Jamf Pro - requires running against a jss recipe."
-            ),
+            "description": ("The Self Service Description in Jamf Pro - requires running against a jss recipe."),
             "required": False,
             "default": "",
         },
@@ -122,8 +117,7 @@ class JamfRecipeMaker(Processor):
         },
         "make_policy": {
             "description": (
-                "Add StopProcessingIf, JamfComputerGroupUploader, and "
-                "JamfPolicyUploader processes if true."
+                "Add StopProcessingIf, JamfComputerGroupUploader, and JamfPolicyUploader processes if true."
             ),
             "required": False,
             "default": False,
@@ -225,10 +219,10 @@ class JamfRecipeMaker(Processor):
             if "\\n" in line:
                 spaces = len(line) - len(line.lstrip()) + 2
                 space = " "
-                line = line.replace(': "', ": |\n{}".format(space * spaces))
+                line = line.replace(': "', f": |\n{space * spaces}")
                 line = line.replace("\\t", "    ")
                 line = line.replace('\\n"', "")
-                line = line.replace("\\n", "\n{}".format(space * spaces))
+                line = line.replace("\\n", f"\n{space * spaces}")
                 line = line.replace('\\"', '"')
                 if line[-1] == '"':
                     line[:-1]
@@ -271,42 +265,32 @@ class JamfRecipeMaker(Processor):
         # and if we're running an override
         run_recipe_identifier = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
         parent_recipe = ""
-        if ".jss." in self.env.get("RECIPE_CACHE_DIR") or "local." in self.env.get(
-            "RECIPE_CACHE_DIR"
-        ):
+        if ".jss." in self.env.get("RECIPE_CACHE_DIR") or "local." in self.env.get("RECIPE_CACHE_DIR"):
             for recipe in self.env.get("PARENT_RECIPES"):
                 if ".pkg.recipe" in recipe:
                     # is the parent recipe a yaml or plist recipe?
                     try:
                         if ".yaml" in recipe:
                             self.output("Parent is a YAML recipe", verbose_level=2)
-                            with open(recipe, "r") as in_file:
+                            with open(recipe) as in_file:
                                 parent_recipe_data = yaml.safe_load(in_file)
                         else:
                             self.output("Parent is a PLIST recipe", verbose_level=2)
                             with open(recipe, "rb") as in_file:
                                 parent_recipe_data = load_plist(in_file)
-                        parent_recipe = os.path.basename(
-                            parent_recipe_data["Identifier"]
-                        )
-                    except IOError:
+                        parent_recipe = os.path.basename(parent_recipe_data["Identifier"])
+                    except OSError:
                         self.output(
-                            (
-                                "WARNING: could not find parent recipe identifier. "
-                                f'Defaulting to {self.env.get("RECIPE_CACHE_DIR")} '
-                                "which may need editing."
-                            )
+                            "WARNING: could not find parent recipe identifier. "
+                            f"Defaulting to {self.env.get('RECIPE_CACHE_DIR')} "
+                            "which may need editing."
                         )
-                        parent_recipe = os.path.basename(
-                            self.env.get("RECIPE_CACHE_DIR")
-                        )
+                        parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
             if not parent_recipe:
                 self.output(
-                    (
-                        "WARNING: could not find parent recipe identifier. "
-                        f'Defaulting to {self.env.get("RECIPE_CACHE_DIR")} '
-                        "which may need editing."
-                    )
+                    "WARNING: could not find parent recipe identifier. "
+                    f"Defaulting to {self.env.get('RECIPE_CACHE_DIR')} "
+                    "which may need editing."
                 )
                 parent_recipe = os.path.basename(self.env.get("RECIPE_CACHE_DIR"))
         else:
@@ -324,13 +308,8 @@ class JamfRecipeMaker(Processor):
         # write recipe data
         # common settings
         data = {
-            "Comment": (
-                f"Recipe automatically generated from {run_recipe_identifier} "
-                "by JamfRecipeMaker"
-            ),
-            "Identifier": (
-                identifier_prefix + ".jamf." + name.replace(" ", "") + "-pkg-upload"
-            ),
+            "Comment": (f"Recipe automatically generated from {run_recipe_identifier} by JamfRecipeMaker"),
+            "Identifier": (identifier_prefix + ".jamf." + name.replace(" ", "") + "-pkg-upload"),
             "ParentRecipe": parent_recipe,
             "MinimumVersion": "2.3",
             "Input": {"NAME": name, "CATEGORY": category},
@@ -339,27 +318,19 @@ class JamfRecipeMaker(Processor):
         if make_policy:
             data["Identifier"] = identifier_prefix + ".jamf." + name.replace(" ", "")
         else:
-            data["Identifier"] = (
-                identifier_prefix + ".jamf." + name.replace(" ", "") + "-pkg-upload"
-            )
+            data["Identifier"] = identifier_prefix + ".jamf." + name.replace(" ", "") + "-pkg-upload"
 
         # JamfCategoryUploader
         if make_categories:
-            data["Process"].append(
-                {
-                    "Processor": (
-                        "com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader"
-                    ),
-                    "Arguments": {"category_name": "%CATEGORY%"},
-                }
-            )
+            data["Process"].append({
+                "Processor": ("com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader"),
+                "Arguments": {"category_name": "%CATEGORY%"},
+            })
         # JamfPackageUploader
-        data["Process"].append(
-            {
-                "Processor": "com.github.grahampugh.jamf-upload.processors/JamfPackageUploader",
-                "Arguments": {"pkg_category": "%CATEGORY%"},
-            }
-        )
+        data["Process"].append({
+            "Processor": "com.github.grahampugh.jamf-upload.processors/JamfPackageUploader",
+            "Arguments": {"pkg_category": "%CATEGORY%"},
+        })
         if make_policy:
             # JamfComputerGroupUploader
             data["Input"]["GROUP_NAME"] = group_name
@@ -372,54 +343,36 @@ class JamfRecipeMaker(Processor):
             data["Input"]["SELF_SERVICE_DESCRIPTION"] = self_service_description
             data["Input"]["SELF_SERVICE_ICON"] = "%NAME%.png"
             data["Input"]["UPDATE_PREDICATE"] = "pkg_uploaded == False"
-            data["Process"].append(
-                {
-                    "Processor": "StopProcessingIf",
-                    "Arguments": {"predicate": "%UPDATE_PREDICATE%"},
-                }
-            )
+            data["Process"].append({
+                "Processor": "StopProcessingIf",
+                "Arguments": {"predicate": "%UPDATE_PREDICATE%"},
+            })
             if add_regex:
-                data["Process"].append(
-                    {
-                        "Processor": (
-                            "com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator"
-                        ),
-                    }
-                )
-            data["Process"].append(
-                {
-                    "Processor": (
-                        "com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader"
-                    ),
-                    "Arguments": {
-                        "computergroup_name": "%GROUP_NAME%",
-                        "computergroup_template": "%GROUP_TEMPLATE%",
-                        "replace_group": "True",
-                    },
-                }
-            )
+                data["Process"].append({
+                    "Processor": ("com.github.grahampugh.recipes.commonprocessors/VersionRegexGenerator"),
+                })
+            data["Process"].append({
+                "Processor": ("com.github.grahampugh.jamf-upload.processors/JamfComputerGroupUploader"),
+                "Arguments": {
+                    "computergroup_name": "%GROUP_NAME%",
+                    "computergroup_template": "%GROUP_TEMPLATE%",
+                    "replace_group": "True",
+                },
+            })
             if make_categories:
-                data["Process"].append(
-                    {
-                        "Processor": (
-                            "com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader"
-                        ),
-                        "Arguments": {"category_name": "%POLICY_CATEGORY%"},
-                    }
-                )
-            data["Process"].append(
-                {
-                    "Processor": (
-                        "com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader"
-                    ),
-                    "Arguments": {
-                        "policy_name": "%POLICY_NAME%",
-                        "policy_template": "%POLICY_TEMPLATE%",
-                        "icon": "%SELF_SERVICE_ICON%",
-                        "replace_policy": "True",
-                    },
-                }
-            )
+                data["Process"].append({
+                    "Processor": ("com.github.grahampugh.jamf-upload.processors/JamfCategoryUploader"),
+                    "Arguments": {"category_name": "%POLICY_CATEGORY%"},
+                })
+            data["Process"].append({
+                "Processor": ("com.github.grahampugh.jamf-upload.processors/JamfPolicyUploader"),
+                "Arguments": {
+                    "policy_name": "%POLICY_NAME%",
+                    "policy_template": "%POLICY_TEMPLATE%",
+                    "icon": "%SELF_SERVICE_ICON%",
+                    "replace_policy": "True",
+                },
+            })
 
         if recipe_format == "plist":
             output = self.convert_to_plist(data)
@@ -429,7 +382,7 @@ class JamfRecipeMaker(Processor):
             output = self.format_yaml_recipes(output)
         out_file = open(output_file, "w")
         out_file.writelines(output)
-        self.output("Wrote to : {}\n".format(output_file))
+        self.output(f"Wrote to : {output_file}\n")
 
 
 if __name__ == "__main__":

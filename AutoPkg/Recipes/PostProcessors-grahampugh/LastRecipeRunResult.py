@@ -19,11 +19,10 @@
 # limitations under the License.
 """See docstring for LastRecipeRunResult class"""
 
-import os.path
 import json
+import os.path
 
 from autopkglib import Processor  # pylint: disable=import-error
-
 
 __all__ = ["LastRecipeRunResult"]
 
@@ -92,8 +91,7 @@ class LastRecipeRunResult(Processor):
         },
         "minimum_os_version": {
             "description": (
-                "The minimum OS version compatibility of a package, "
-                "determined by a PlistReader processor."
+                "The minimum OS version compatibility of a package, determined by a PlistReader processor."
             ),
             "required": False,
             "default": "",
@@ -117,9 +115,7 @@ class LastRecipeRunResult(Processor):
         "pkg_name": {"description": ("the package name.")},
         "PKG_CATEGORY": {"description": ("The package category.")},
         "policy_name": {"description": ("The policy name.")},
-        "minimum_os_version": {
-            "description": ("The minimum OS version compatibility of a package.")
-        },
+        "minimum_os_version": {"description": ("The minimum OS version compatibility of a package.")},
         "SELFSERVICE_DESCRIPTION": {"description": ("The self-service description.")},
     }
 
@@ -128,9 +124,9 @@ class LastRecipeRunResult(Processor):
     def get_latest_recipe_run_info(self, output_file):
         """get information from the output files of a LastRecipeRunResult processor"""
         try:
-            with open(output_file, "r") as fp:
+            with open(output_file) as fp:
                 data = json.load(fp)
-        except (IOError, ValueError):
+        except (OSError, ValueError):
             data = {}
         return data
 
@@ -154,31 +150,31 @@ class LastRecipeRunResult(Processor):
         self_service_description = self.env.get("SELFSERVICE_DESCRIPTION")
 
         if pathname:
-            self.output("Download: {}".format(pathname))
+            self.output(f"Download: {pathname}")
         if pkg_path:
-            self.output("Package path: {}".format(pkg_path))
+            self.output(f"Package path: {pkg_path}")
         if pkg_name:
-            self.output("Package name: {}".format(pkg_name))
+            self.output(f"Package name: {pkg_name}")
         if pkg_uploaded:
-            self.output("Package updated on last run: {}".format(pkg_uploaded))
+            self.output(f"Package updated on last run: {pkg_uploaded}")
         if pkg_metadata_updated:
-            self.output("Package metadata updated on last run: {}".format(pkg_metadata_updated))
+            self.output(f"Package metadata updated on last run: {pkg_metadata_updated}")
         if url:
-            self.output("URL: {}".format(url))
+            self.output(f"URL: {url}")
         if version:
-            self.output("Version: {}".format(version))
+            self.output(f"Version: {version}")
         if bundleid:
-            self.output("Bundle identifier: {}".format(bundleid))
+            self.output(f"Bundle identifier: {bundleid}")
         if license_key:
-            self.output("License Key: {}".format(license_key))
+            self.output(f"License Key: {license_key}")
         if category:
-            self.output("Pkg Category: {}".format(category))
+            self.output(f"Pkg Category: {category}")
         if policy_name:
-            self.output("Policy name: {}".format(policy_name))
+            self.output(f"Policy name: {policy_name}")
         if minimum_os_version:
-            self.output("Minimum OS version: {}".format(minimum_os_version))
+            self.output(f"Minimum OS version: {minimum_os_version}")
         if self_service_description:
-            self.output("Self Service Description: {}".format(self_service_description))
+            self.output(f"Self Service Description: {self_service_description}")
 
         if not output_file_path:
             output_file_path = self.env.get("RECIPE_CACHE_DIR")

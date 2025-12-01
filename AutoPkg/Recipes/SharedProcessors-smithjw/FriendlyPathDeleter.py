@@ -34,10 +34,7 @@ class FriendlyPathDeleter(Processor):
     input_variables = {
         "path_list": {
             "required": True,
-            "description": (
-                "An array or list of pathnames to be deleted, "
-                "even if that list contains a single item."
-            ),
+            "description": ("An array or list of pathnames to be deleted, even if that list contains a single item."),
         },
         "fail_deleter_silently": {
             "required": False,
@@ -89,10 +86,7 @@ class FriendlyPathDeleter(Processor):
                     else:
                         self.output(f"Path does not exist, skipping: {path}")
                 else:
-                    raise ProcessorError(
-                        f"Could not remove {path} - it is not a file, link, "
-                        "or directory"
-                    )
+                    raise ProcessorError(f"Could not remove {path} - it is not a file, link, or directory")
             except OSError as err:
                 raise ProcessorError(f"Could not remove {path}: {err}") from err
 

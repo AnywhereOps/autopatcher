@@ -19,15 +19,12 @@
 # limitations under the License.
 """See docstring for BlackMagicURLProvider class"""
 
-
-
 import json
 import re
-from autopkglib.URLGetter import URLGetter
 from distutils.version import LooseVersion
-from operator import itemgetter
 
-from autopkglib import Processor, ProcessorError
+from autopkglib import ProcessorError
+from autopkglib.URLGetter import URLGetter
 
 __all__ = ["BlackMagicURLProvider"]
 
@@ -41,51 +38,46 @@ REQUIRED_REG_KEYS = [
     "country",
 ]
 
+
 class BlackMagicURLProvider(URLGetter):
     """Provides a version and dmg download for the Barebones product given."""
+
     description = __doc__
     input_variables = {
         "version_pattern": {
             "required": False,
-            "description":
-                "Regex pattern that will applied to all 'name' elements in, "
-                "the downloads JSON metadata. Only downloads matching this "
-                "pattern will be considered. This pattern _must_ contain "
-                "at least a named group 'version', which will be used to "
-                "sort the results by evaluating this using distutils' "
-                "LooseVersion."
+            "description": "Regex pattern that will applied to all 'name' elements in, "
+            "the downloads JSON metadata. Only downloads matching this "
+            "pattern will be considered. This pattern _must_ contain "
+            "at least a named group 'version', which will be used to "
+            "sort the results by evaluating this using distutils' "
+            "LooseVersion.",
         },
         "product_name": {
             "required": True,
-            "description":
-                "Product to fetch URL for. See the list of names "
-                "given in the metadata file at %s. For example, 'DaVinci "
-                "Resolve Lite'" % DOWNLOADS_URL
+            "description": "Product to fetch URL for. See the list of names "
+            "given in the metadata file at %s. For example, 'DaVinci "
+            "Resolve Lite'" % DOWNLOADS_URL,
         },
         "product_name_pattern": {
             "required": True,
-            "description":
-                "Regex pattern that will applied to all 'name' elements in, "
-                "the downloads JSON metadata. Only downloads matching this "
-                "pattern will be considered. This pattern _must_ contain "
-                "at least a named group 'version', which will be used to "
-                "sort the results by evaluating this using distutils' "
-                "LooseVersion."
+            "description": "Regex pattern that will applied to all 'name' elements in, "
+            "the downloads JSON metadata. Only downloads matching this "
+            "pattern will be considered. This pattern _must_ contain "
+            "at least a named group 'version', which will be used to "
+            "sort the results by evaluating this using distutils' "
+            "LooseVersion.",
         },
         "registration_info": {
             "required": False,
-            "description":
-                "A dictionary containing registration information. This "
-                "is only required for downloads that require registration, "
-                "such as DaVinci Resolve Lite. This can otherwise be "
-                "omitted. It must contain the following keys: %s."
-                % ", ".join(REQUIRED_REG_KEYS)
+            "description": "A dictionary containing registration information. This "
+            "is only required for downloads that require registration, "
+            "such as DaVinci Resolve Lite. This can otherwise be "
+            "omitted. It must contain the following keys: %s." % ", ".join(REQUIRED_REG_KEYS),
         },
     }
     output_variables = {
-        "description": {
-            "description:" "Description of the product."
-        },
+        "description": {"description:Description of the product."},
         "version": {
             "description": "Version of the product.",
         },
@@ -94,18 +86,17 @@ class BlackMagicURLProvider(URLGetter):
         },
     }
 
-
     def get_downloads_metadata(self):
-        '''Return a deserialized json object from the BM downloads metadata.'''
+        """Return a deserialized json object from the BM downloads metadata."""
         metadata = self.download(DOWNLOADS_URL, text=True)
         json_data = json.loads(metadata)
         return json_data
 
     def main(self):
-        '''Find the download URL'''
+        """Find the download URL"""
 
         def compare_version(this, that):
-            '''compare LooseVersions'''
+            """compare LooseVersions"""
             return cmp(LooseVersion(this), LooseVersion(that))
 
         metadata = self.get_downloads_metadata()
@@ -115,54 +106,44 @@ class BlackMagicURLProvider(URLGetter):
         #   (this name gets POSTed back to request the download URL)
         # - name element must match our 'product_name_pattern' regex
 
-        self.output("Filtering json 'name' attributes with regex %s" %
-                        self.env["product_name_pattern"])
+        self.output("Filtering json 'name' attributes with regex %s" % self.env["product_name_pattern"])
         prods = []
         for m_prod in metadata["downloads"]:
-
             match = re.match(self.env["product_name_pattern"], m_prod["name"])
             if match:
                 if not match.group("version"):
-                    self.output("WARNING: Regex matched but no "
-                                "named group 'version' matched!")
+                    self.output("WARNING: Regex matched but no named group 'version' matched!")
                 p = m_prod.copy()
                 # recording the version extracted by our named group in
                 # 'product_name_pattern'
                 p["version"] = match.group("version")
                 prods.append(p)
         # sort by version and grab the highest one
-        latest_prod = sorted(
-            prods,
-            key=lambda v:LooseVersion(v['version']))[-1]
+        latest_prod = sorted(prods, key=lambda v: LooseVersion(v["version"]))[-1]
 
         # ensure our product contains info we need
         try:
             download_id = latest_prod["urls"]["Mac OS X"][0]["downloadId"]
             desc = latest_prod["desc"]
         except KeyError:
-            raise ProcessorError("Metadata for product is missing at the "
-                                 "expected location in feed.")
-
+            raise ProcessorError("Metadata for product is missing at the expected location in feed.")
 
         # now build a request JSON to finally ask for the download URL
-        req_data = {
-            "country": "us",
-            "platform": "Mac OS X",
-            "product": self.env["product_name"]
-        }
+        req_data = {"country": "us", "platform": "Mac OS X", "product": self.env["product_name"]}
 
         # if this download needs registration, or we want to register
         # otherwise, ensure we've set everything
         if latest_prod["requiresRegistration"]:
-            errormsg = ("This product requires registration. Please set all "
-                        "registration information in this processor using "
-                        "the 'registration_info' input variable.")
+            errormsg = (
+                "This product requires registration. Please set all "
+                "registration information in this processor using "
+                "the 'registration_info' input variable."
+            )
             if not self.env.get("registration_info"):
                 raise ProcessorError(errormsg)
             else:
                 for key in REQUIRED_REG_KEYS:
-                    if key not in self.env["registration_info"] or \
-                       not self.env["registration_info"][key]:
+                    if key not in self.env["registration_info"] or not self.env["registration_info"][key]:
                         raise ProcessorError(errormsg)
             # then add the registration info to req_data
             for k in self.env["registration_info"]:
@@ -172,14 +153,11 @@ class BlackMagicURLProvider(URLGetter):
         url = "https://www.blackmagicdesign.com/api/register/us/download/"
         url += str(download_id)
 
-        headers = {
-            "Content-Type": "application/json;charset=UTF-8",
-            "User-Agent": "Mozilla/5.0"
-        }
+        headers = {"Content-Type": "application/json;charset=UTF-8", "User-Agent": "Mozilla/5.0"}
 
         curl_cmd = self.prepare_curl_cmd()
         self.add_curl_headers(curl_cmd, headers)
-        curl_cmd.append('--data')
+        curl_cmd.append("--data")
         curl_cmd.append(req_data)
         curl_cmd.append(url)
         download_url = self.download_with_curl(curl_cmd)
@@ -187,10 +165,10 @@ class BlackMagicURLProvider(URLGetter):
         self.env["version"] = latest_prod["version"]
         self.env["url"] = download_url
         self.env["description"] = desc
-        self.output("Found download URL for %s, version %s: %s" %
-                    (self.env["product_name"],
-                    self.env["version"],
-                    self.env["url"]))
+        self.output(
+            "Found download URL for %s, version %s: %s"
+            % (self.env["product_name"], self.env["version"], self.env["url"])
+        )
 
 
 if __name__ == "__main__":

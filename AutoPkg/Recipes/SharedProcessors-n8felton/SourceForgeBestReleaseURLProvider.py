@@ -22,7 +22,7 @@ Release"."""
 
 import json
 
-from autopkglib import Processor, ProcessorError, URLGetter
+from autopkglib import URLGetter
 
 __all__ = ["SourceForgeBestReleaseURLProvider"]
 
@@ -50,9 +50,7 @@ class SourceForgeBestReleaseURLProvider(URLGetter):
     }
     output_variables = {
         "url": {"description": "The full url for the file you want to download."},
-        "md5checksum": {
-            "description": "The MD5 checksum of the file, provided by the API."
-        },
+        "md5checksum": {"description": "The MD5 checksum of the file, provided by the API."},
     }
 
     def get_project_best_release(self, project_url):
@@ -63,7 +61,7 @@ class SourceForgeBestReleaseURLProvider(URLGetter):
 
     def main(self):
         project_url = BEST_RELEASE_API_URL.format(self.env["SOURCEFORGE_PROJECT_NAME"])
-        self.output("Project URL: {project_url}".format(project_url=project_url), 2)
+        self.output(f"Project URL: {project_url}", 2)
         releases = self.get_project_best_release(project_url)
         self.output(releases, 3)
         self.env["url"] = releases["platform_releases"]["mac"]["url"]

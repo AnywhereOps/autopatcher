@@ -21,8 +21,7 @@
 import os
 import re
 
-from autopkglib import Processor, ProcessorError, FileFinder, Unarchiver, is_mac
-
+from autopkglib import FileFinder, Processor, ProcessorError, Unarchiver, is_mac
 
 __all__ = ["ConditionalUnarchiver"]
 
@@ -34,10 +33,10 @@ def _default_use_python_native_extractor() -> bool:
 class ConditionalUnarchiver(Processor):
     """This process provides a condition wrapper around the Core Unarchiver Processor.
 
-    If extraction is needed, it uses Unarchiver to do and then (optionally) uses the FileFinder 
+    If extraction is needed, it uses Unarchiver to do and then (optionally) uses the FileFinder
     Processor to locate an extracted file.
 
-    If extraction is not needed, the processor simply assigns the %pathname% env variable to the 
+    If extraction is not needed, the processor simply assigns the %pathname% env variable to the
     %found_filename% env variable.
     """
 
@@ -53,14 +52,12 @@ class ConditionalUnarchiver(Processor):
         "destination_path": {
             "required": False,
             "description": (
-                "Directory where archive will be unpacked, created "
-                "if necessary. Defaults to RECIPE_CACHE_DIR/NAME."
+                "Directory where archive will be unpacked, created if necessary. Defaults to RECIPE_CACHE_DIR/NAME."
             ),
         },
         "purge_destination": {
             "required": False,
-            "description": "Whether the contents of the destination directory "
-            "will be removed before unpacking.",
+            "description": "Whether the contents of the destination directory will be removed before unpacking.",
         },
         "archive_format": {
             "required": False,
@@ -81,18 +78,10 @@ class ConditionalUnarchiver(Processor):
             ),
             "default": _default_use_python_native_extractor(),
         },
-        "find_extracted_file_pattern": {
-            "required": False,
-            "description": "Shell glob pattern to match files by."
-        }
+        "find_extracted_file_pattern": {"required": False, "description": "Shell glob pattern to match files by."},
     }
 
-    output_variables = {
-        "found_filename": {
-            "description": "Returns the url to download."
-        }
-    }
-
+    output_variables = {"found_filename": {"description": "Returns the url to download."}}
 
     def main(self):
         """Do the main thing."""
@@ -103,7 +92,6 @@ class ConditionalUnarchiver(Processor):
         )
 
         if not re.search(r".+\.(zip|tar_gzip|tar_bzip2|tar)$", self.env.get("pathname")):
-
             self.output("File is NOT an archive...", verbose_level=2)
             self.env["found_filename"] = self.env.get("pathname")
 
@@ -116,7 +104,6 @@ class ConditionalUnarchiver(Processor):
                     raise ProcessorError(f"Can't create {destination_path}: {err.strerror}") from err
 
         else:
-
             self.output("File is an archive...", verbose_level=2)
 
             # Decompress the archive
@@ -128,7 +115,6 @@ class ConditionalUnarchiver(Processor):
             find_extracted_file_pattern = self.env.get("find_extracted_file_pattern", None)
 
             if find_extracted_file_pattern:
-
                 # Find the requested file type within the destination path
                 file_finder = FileFinder()
                 self.env["pattern"] = f"{destination_path}/{find_extracted_file_pattern}"

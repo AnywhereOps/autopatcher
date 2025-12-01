@@ -27,7 +27,6 @@ import plistlib
 from autopkglib import ProcessorError
 from autopkglib.DmgMounter import DmgMounter
 
-
 __all__ = ["CFBundleInfo"]
 
 
@@ -38,38 +37,23 @@ class CFBundleInfo(DmgMounter):
     input_variables = {
         "input_plist_path": {
             "required": True,
-            "description": (
-                "File path to a plist. Can point to a path inside a .dmg "
-                "which will be mounted."
-            )
+            "description": ("File path to a plist. Can point to a path inside a .dmg which will be mounted."),
         }
     }
     output_variables = {
-        "cfbundle_version": {
-            "description": "Value of CFBundleVersion."
-        },
-        "cfbundle_shortversionstring": {
-            "description": "Value of CFBundleShortVersionString."
-        },
-        "cfbundle_identifier": {
-            "description": "Value of CFBundleIdentifier."
-        },
-        "version": {
-            "description": "Returns the .app's version for use in parent recipes."
-        }
+        "cfbundle_version": {"description": "Value of CFBundleVersion."},
+        "cfbundle_shortversionstring": {"description": "Value of CFBundleShortVersionString."},
+        "cfbundle_identifier": {"description": "Value of CFBundleIdentifier."},
+        "version": {"description": "Returns the .app's version for use in parent recipes."},
     }
-
 
     def main(self):
         """Return a version for file at input_plist_path"""
 
         # Check if we're trying to read something inside a dmg.
-        (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(
-            self.env["input_plist_path"]
-        )
+        (dmg_path, dmg, dmg_source_path) = self.parsePathForDMG(self.env["input_plist_path"])
 
         try:
-
             if dmg:
                 # Mount dmg and copy path inside.
                 mount_point = self.mount(dmg_path)
@@ -79,8 +63,7 @@ class CFBundleInfo(DmgMounter):
                 input_plist_path = self.env["input_plist_path"]
 
             if not os.path.exists(input_plist_path):
-                raise ProcessorError(
-                    f"File '{input_plist_path}' does not exist or could not be read.")
+                raise ProcessorError(f"File '{input_plist_path}' does not exist or could not be read.")
 
             try:
                 with open(input_plist_path, "rb") as f:

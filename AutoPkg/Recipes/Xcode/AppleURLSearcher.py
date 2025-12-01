@@ -23,13 +23,9 @@
 import datetime
 import json
 import os
-import posixpath
 import re
 
-from urllib.parse import urlsplit
-
 from autopkglib import ProcessorError, URLGetter
-
 
 __all__ = ["AppleURLSearcher"]
 
@@ -46,7 +42,7 @@ class AppleURLSearcher(URLGetter):
                 "'match' will be used."
             ),
             "default": "match",
-            "required": False
+            "required": False,
         },
         "re_pattern": {
             "description": (
@@ -55,8 +51,8 @@ class AppleURLSearcher(URLGetter):
                 "If BETA is set in the environment, only search Betas for "
                 "matches (i.e. isReleased is false)."
             ),
-            "required": True
-        }
+            "required": True,
+        },
     }
     output_variables = {
         "result_output_var_name": {
@@ -74,13 +70,8 @@ class AppleURLSearcher(URLGetter):
                 " For non-betas, this will be an empty string."
             )
         },
-        "beta_version_underscores": {
-            "description": (
-                "Same as beta_version, but with underscores instead of spaces."
-            )
-        }
+        "beta_version_underscores": {"description": ("Same as beta_version, but with underscores instead of spaces.")},
     }
-
 
     def generate_beta_name(self, beta_string, xcode_item, underscores=False):
         """Generate a string for beta or RC version"""
@@ -91,13 +82,12 @@ class AppleURLSearcher(URLGetter):
             return f"{beta_string} {beta_number}"
         return ""
 
-
     # xcode_item is a Dict defined in main()
     def parse_beta_info(self, xcode_item):
         """Parse download url to set beta environment variables"""
         self.env["is_beta"] = bool(self.env.get("BETA"))
         self.env["beta_version"] = ""
-        if not self.env.get("BETA"):    
+        if not self.env.get("BETA"):
             return
         if "beta" in xcode_item["displayName"].lower():
             self.env["beta_version"] = self.generate_beta_name("beta", xcode_item)
@@ -106,14 +96,15 @@ class AppleURLSearcher(URLGetter):
             self.env["beta_version_underscores"] = self.generate_beta_name("RC", xcode_item, underscores=True)
         self.output(f"Generated beta version string: {self.env['beta_version']}")
 
-
     def output_result(self, url):
         """Output the desired result."""
         # The final entry is the highest one
         self.output(f"Full URL: {url}")
         self.env[self.env["result_output_var_name"]] = url
-        self.output_variables = {self.env["result_output_var_name"]: url, self.env["beta_version"]: self.env["beta_version"]}
-
+        self.output_variables = {
+            self.env["result_output_var_name"]: url,
+            self.env["beta_version"]: self.env["beta_version"],
+        }
 
     def main(self):
         # If we have "URL" already passed in, we should just use it
@@ -126,9 +117,7 @@ class AppleURLSearcher(URLGetter):
         download_dir = os.path.join(self.env["RECIPE_CACHE_DIR"], "downloads")
         downloads = os.path.join(download_dir, "listDownloads.json")
         if not os.path.exists(downloads):
-            raise ProcessorError(
-                "Missing the download data from AppleCookieDownloader"
-            )
+            raise ProcessorError("Missing the download data from AppleCookieDownloader")
         pattern = self.env["re_pattern"]
         with open(downloads) as f:
             data = json.load(f)
@@ -155,9 +144,7 @@ class AppleURLSearcher(URLGetter):
                     continue
                 xcode_item = {
                     "datePublished_str": x["datePublished"],
-                    "datePublished_obj": datetime.datetime.strptime(
-                        x["datePublished"], "%m/%d/%y %H:%M"
-                    ),
+                    "datePublished_obj": datetime.datetime.strptime(x["datePublished"], "%m/%d/%y %H:%M"),
                     "remotePath": y["remotePath"],
                     "filename": y["filename"],
                     "displayName": y["displayName"],
@@ -168,10 +155,7 @@ class AppleURLSearcher(URLGetter):
         match = matches[-1]
         if not match or not xcode_list:
             raise ProcessorError("No match found!")
-        self.output(
-            f"Sorted list of possible filenames: {[x['filename'] for x in matches]}",
-            verbose_level=2
-        )
+        self.output(f"Sorted list of possible filenames: {[x['filename'] for x in matches]}", verbose_level=2)
         self.output(f"Found matching item: {match['filename']}")
         if not (full_url_match := match["full_url"]):
             raise ProcessorError("No matching URL found!")

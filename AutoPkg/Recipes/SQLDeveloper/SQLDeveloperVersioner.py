@@ -7,10 +7,11 @@
 
 """Processor for extracting SQL Developer version information."""
 
-from __future__ import absolute_import
-from typing import Iterator, TextIO
 import configparser
 import os.path
+from collections.abc import Iterator
+from typing import TextIO
+
 from autopkglib import Processor, ProcessorError
 
 
@@ -28,11 +29,7 @@ class SQLDeveloperVersioner(Processor):
             "description": "Path to SQLDeveloper.app bundle.",
         }
     }
-    output_variables = {
-        "version": {
-            "description": "Extracted version of SQL Developer."
-        }
-    }
+    output_variables = {"version": {"description": "Extracted version of SQL Developer."}}
 
     def _add_section_header(self, properties_file: TextIO, section_name: str) -> Iterator[str]:
         """
@@ -45,7 +42,7 @@ class SQLDeveloperVersioner(Processor):
         Yields:
             Lines of the modified properties file content
         """
-        yield f'[{section_name}]\n'
+        yield f"[{section_name}]\n"
         yield from properties_file
 
     def _get_properties_path(self) -> str:
@@ -79,15 +76,10 @@ class SQLDeveloperVersioner(Processor):
         try:
             with open(properties_path, encoding="utf-8") as prop_file:
                 config = configparser.ConfigParser()
-                config.read_file(
-                    self._add_section_header(prop_file, self.PROPERTIES_SECTION),
-                    source=properties_path
-                )
+                config.read_file(self._add_section_header(prop_file, self.PROPERTIES_SECTION), source=properties_path)
                 return config[self.PROPERTIES_SECTION][self.VERSION_PROPERTY_KEY]
-        except (IOError, KeyError, configparser.Error) as err:
-            raise ProcessorError(
-                f"Error reading version from {properties_path}: {str(err)}"
-            ) from err
+        except (OSError, KeyError, configparser.Error) as err:
+            raise ProcessorError(f"Error reading version from {properties_path}: {err!s}") from err
 
     def main(self):
         """Main processor logic to extract SQL Developer version."""

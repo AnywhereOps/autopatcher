@@ -25,17 +25,16 @@
 
 import glob
 import os
+import plistlib
 import re
 import shutil
 import subprocess
 import tempfile
-from xml.dom import minidom
 from urllib.parse import unquote
+from xml.dom import minidom
 
 from autopkglib import APLooseVersion  # pylint: disable=import-error
 from autopkglib.Copier import Copier  # pylint: disable=import-error
-
-import plistlib
 
 __all__ = ["PkgInfoReader"]
 
@@ -58,13 +57,11 @@ class PkgInfoReader(Copier):
             "description": "The version of the inputted package. Note that this will "
             "return the highest version found if multiple packages are found.",
         },
-        "packageid": {
-            "description": "The package ID of the package providing the version variable."},
-        "packageids": {
-            "description": "Array of all package IDs found in the package."},
+        "packageid": {"description": "The package ID of the package providing the version variable."},
+        "packageids": {"description": "Array of all package IDs found in the package."},
         "minimum_os_version": {"description": "The minimum OS version if supplied."},
         "installed_size": {"description": "The size of the app when installed (in kilobytes)."},
-        "installer_item_size": {"description": "The size of the package (in bytes)."}
+        "installer_item_size": {"description": "The size of the package (in bytes)."},
     }
 
     description = __doc__
@@ -87,9 +84,7 @@ class PkgInfoReader(Copier):
                     if payloads:
                         keys = list(payloads[0].attributes.keys())
                         if "installKBytes" in keys:
-                            pkginfo["installed_size"] = int(
-                                float(payloads[0].attributes["installKBytes"].value)
-                            )
+                            pkginfo["installed_size"] = int(float(payloads[0].attributes["installKBytes"].value))
                         if pkginfo not in info:
                             info.append(pkginfo)
                     # if there isn't a payload, no receipt is left by a flat
@@ -106,30 +101,22 @@ class PkgInfoReader(Copier):
                         if pkgid not in pkgref_dict:
                             pkgref_dict[pkgid] = {"packageid": pkgid}
                         if "version" in keys:
-                            pkgref_dict[pkgid]["version"] = ref.attributes[
-                                "version"
-                            ].value
+                            pkgref_dict[pkgid]["version"] = ref.attributes["version"].value
                         if "installKBytes" in keys:
-                            pkgref_dict[pkgid]["installed_size"] = int(
-                                float(ref.attributes["installKBytes"].value)
-                            )
+                            pkgref_dict[pkgid]["installed_size"] = int(float(ref.attributes["installKBytes"].value))
                         if ref.firstChild:
                             text = ref.firstChild.wholeText
                             if text.endswith(".pkg"):
                                 if text.startswith("file:"):
                                     relativepath = unquote(text[5:])
                                     pkgdir = os.path.dirname(path_to_pkg or filename)
-                                    pkgref_dict[pkgid]["file"] = os.path.join(
-                                        pkgdir, relativepath
-                                    )
+                                    pkgref_dict[pkgid]["file"] = os.path.join(pkgdir, relativepath)
                                 else:
                                     if text.startswith("#"):
                                         text = text[1:]
                                     relativepath = unquote(text)
                                     thisdir = os.path.dirname(filename)
-                                    pkgref_dict[pkgid]["file"] = os.path.join(
-                                        thisdir, relativepath
-                                    )
+                                    pkgref_dict[pkgid]["file"] = os.path.join(thisdir, relativepath)
 
                 for key in pkgref_dict:
                     pkgref = pkgref_dict[key]
@@ -177,9 +164,7 @@ class PkgInfoReader(Copier):
         os.chdir(pkgtmp)
         # Get the TOC of the flat pkg so we can search it later
         cmd_toc = ["/usr/bin/xar", "-tf", abspkgpath]
-        proc = subprocess.Popen(
-            cmd_toc, bufsize=-1, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        proc = subprocess.Popen(cmd_toc, bufsize=-1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (toc, err) = proc.communicate()
         toc = toc.decode("UTF-8").strip().split("\n")
         if proc.returncode == 0:
@@ -190,47 +175,31 @@ class PkgInfoReader(Copier):
                     cmd_extract = ["/usr/bin/xar", "-xf", abspkgpath, toc_entry]
                     result = subprocess.call(cmd_extract)
                     if result == 0:
-                        packageinfoabspath = os.path.abspath(
-                            os.path.join(pkgtmp, toc_entry)
-                        )
+                        packageinfoabspath = os.path.abspath(os.path.join(pkgtmp, toc_entry))
                         infoarray = self.parsePkgRefs(packageinfoabspath)
                         break
                     else:
-                        self.output(
-                            f"An error occurred while extracting {toc_entry}: {err}"
-                        )
+                        self.output(f"An error occurred while extracting {toc_entry}: {err}")
                 # If there are PackageInfo files elsewhere, gather them up
                 elif toc_entry.endswith(".pkg/PackageInfo"):
                     cmd_extract = ["/usr/bin/xar", "-xf", abspkgpath, toc_entry]
                     result = subprocess.call(cmd_extract)
                     if result == 0:
-                        packageinfoabspath = os.path.abspath(
-                            os.path.join(pkgtmp, toc_entry)
-                        )
+                        packageinfoabspath = os.path.abspath(os.path.join(pkgtmp, toc_entry))
                         infoarray.extend(self.parsePkgRefs(packageinfoabspath))
                     else:
-                        self.output(
-                            f"An error occurred while extracting {toc_entry}: {err}"
-                        )
+                        self.output(f"An error occurred while extracting {toc_entry}: {err}")
             if not infoarray:
-                for toc_entry in [
-                    item for item in toc if item.startswith("Distribution")
-                ]:
+                for toc_entry in [item for item in toc if item.startswith("Distribution")]:
                     # Extract the Distribution file
                     cmd_extract = ["/usr/bin/xar", "-xf", abspkgpath, toc_entry]
                     result = subprocess.call(cmd_extract)
                     if result == 0:
-                        distributionabspath = os.path.abspath(
-                            os.path.join(pkgtmp, toc_entry)
-                        )
-                        infoarray = self.parsePkgRefs(
-                            distributionabspath, path_to_pkg=pkgpath
-                        )
+                        distributionabspath = os.path.abspath(os.path.join(pkgtmp, toc_entry))
+                        infoarray = self.parsePkgRefs(distributionabspath, path_to_pkg=pkgpath)
                         break
                     else:
-                        self.output(
-                            f"An error occurred while extracting {toc_entry}: {err}"
-                        )
+                        self.output(f"An error occurred while extracting {toc_entry}: {err}")
 
             if not infoarray:
                 self.output("No valid Distribution or PackageInfo found.")
@@ -582,17 +551,12 @@ class PkgInfoReader(Copier):
             matches = glob.glob(source_pkg)
             matched_source_path = matches[0]
             if len(matches) > 1:
-                self.output(
-                    f"WARNING: Multiple paths match 'source_pkg' glob '{source_pkg}':"
-                )
+                self.output(f"WARNING: Multiple paths match 'source_pkg' glob '{source_pkg}':")
                 for match in matches:
                     self.output(f"  - {match}")
 
             if [c for c in "*?[]!" if c in source_pkg]:
-                self.output(
-                    f"Using path '{matched_source_path}' matched from globbed "
-                    f"'{source_pkg}'."
-                )
+                self.output(f"Using path '{matched_source_path}' matched from globbed '{source_pkg}'.")
 
             cataloginfo = self.getPackageMetaData(matched_source_path)
             self.env["infodict"] = cataloginfo

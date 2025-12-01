@@ -26,11 +26,9 @@
 # pylint: disable=e1101,f0401
 
 import os
-
 from urllib.parse import quote
 
 from autopkglib import Processor, ProcessorError
-
 
 __all__ = ["AppleDataGatherer"]
 
@@ -40,34 +38,17 @@ class AppleDataGatherer(Processor):
 
     description = __doc__
     input_variables = {
-        "apple_id": {
-            "description": "AppleID that can log into the Apple dev portal.",
-            "required": True
-        },
-        "password": {
-            "description": (
-                "Password for AppleID that can log into Apple dev portal."
-            ),
-            "required": False
-        },
+        "apple_id": {"description": "AppleID that can log into the Apple dev portal.", "required": True},
+        "password": {"description": ("Password for AppleID that can log into Apple dev portal."), "required": False},
         "password_file": {
             "description": (
-                "A path to a file to read the password from. Using "
-                "this will ignore the 'password' argument."
+                "A path to a file to read the password from. Using this will ignore the 'password' argument."
             ),
-            "required": False
+            "required": False,
         },
-        "appID_key": {
-            "description": "App ID key to log into.",
-            "required": True
-        }
+        "appID_key": {"description": "App ID key to log into.", "required": True},
     }
-    output_variables = {
-        "data_pathname": {
-            "description": "Path to the data file."
-        }
-    }
-
+    output_variables = {"data_pathname": {"description": "Path to the data file."}}
 
     def main(self):
         """Store the login data file."""
@@ -76,9 +57,7 @@ class AppleDataGatherer(Processor):
             with open(self.env["password_file"]) as f:
                 password = f.read()
         if not password:
-            raise ProcessorError(
-                "You must provide either the 'password' or 'password_file' argument."
-            )
+            raise ProcessorError("You must provide either the 'password' or 'password_file' argument.")
         appleIDstring = f"appleId={quote(self.env['apple_id'])}&"
         appIDKeystring = f"appIdKey={self.env['appID_key']}&"
         passwordstring = f"accountPassword={password}"
@@ -91,9 +70,7 @@ class AppleDataGatherer(Processor):
             try:
                 os.makedirs(download_dir)
             except OSError as err:
-                raise ProcessorError(
-                    f"Can't create {download_dir}: {err.strerror}"
-                )
+                raise ProcessorError(f"Can't create {download_dir}: {err.strerror}")
         self.output("Writing data to file")
         self.env["data_pathname"] = os.path.join(download_dir, filename)
         with open(self.env["data_pathname"], "w") as f:

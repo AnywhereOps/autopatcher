@@ -22,7 +22,6 @@
 
 from autopkglib import Processor
 
-
 __all__ = ["XcodeFileNamer"]
 
 
@@ -33,61 +32,37 @@ class XcodeFileNamer(Processor):
     input_variables = {
         "should_produce_versioned_name": {
             "description": (
-                "Whether or not we should produce a versioned name. "
-                "If this is non-empty, it's evaluated as true."
+                "Whether or not we should produce a versioned name. If this is non-empty, it's evaluated as true."
             ),
-            "required": True
+            "required": True,
         },
-        "major_version": {
-            "description": "Major version of Xcode - i.e. Xcode 7, 8.",
-            "required": True
-        },
-        "minor_version": {
-            "description": "Minor version of Xcode - i.e. Xcode X.1, X.2.",
-            "required": True
-        },
+        "major_version": {"description": "Major version of Xcode - i.e. Xcode 7, 8.", "required": True},
+        "minor_version": {"description": "Minor version of Xcode - i.e. Xcode X.1, X.2.", "required": True},
         "patch_version": {
             "description": (
                 "Patch version of Xcode - i.e. Xcode X.Y.0, X.Y.1. "
                 "Patch version will be normalized to 0 if missing (i.e. 8.3 "
                 "becomes 8.3.0)."
             ),
-            "required": True
+            "required": True,
         },
-        "is_beta": {
-            "description": (
-                "Boolean that is true if this Xcode is a beta version."
-            ),
-            "required": True
-        },
+        "is_beta": {"description": ("Boolean that is true if this Xcode is a beta version."), "required": True},
         "beta_version": {
             "description": (
-                "The beta number - 1, 2, 3, etc. Only used if is_beta is True. "
-                "Assumed to be 0 if not provided."
+                "The beta number - 1, 2, 3, etc. Only used if is_beta is True. Assumed to be 0 if not provided."
             ),
-            "required": False
+            "required": False,
         },
         "should_lowercase": {
-            "description": (
-                "If this value is non-empty, use a lower-case "
-                "filename - xcode_X.Y.0_suffix.app."
-            ),
-            "required": False
+            "description": ("If this value is non-empty, use a lower-case filename - xcode_X.Y.0_suffix.app."),
+            "required": False,
         },
         "suffix": {
-            "description": (
-                "Any additional suffix string to append to "
-                "the name prior to the .app extension."
-            ),
-            "required": False
-        }
+            "description": ("Any additional suffix string to append to the name prior to the .app extension."),
+            "required": False,
+        },
     }
-    output_variables = {
-        "xcode_filename": {
-            "description": "Allow producing a versioned Xcode name."
-        }
-    }
-
+    output_variables = {"xcode_filename": {"description": "Allow producing a versioned Xcode name."}}
 
     def main(self):
         """Main."""
@@ -98,10 +73,7 @@ class XcodeFileNamer(Processor):
         # end up with xcode_10.2.0_beta_4 or xcode_10.2.1
         prefix = "xcode" if self.env.get("should_lowercase") else "Xcode"
         name = "{}_{}.{}.{}".format(
-            prefix,
-            self.env["major_version"],
-            self.env["minor_version"],
-            self.env["patch_version"]
+            prefix, self.env["major_version"], self.env["minor_version"], self.env["patch_version"]
         )
         if self.env["is_beta"]:
             name += f"_beta_{self.env.get('beta_version', '0')}"
