@@ -1,3 +1,4 @@
+---
 name: Update Trust Info
 
 on:
@@ -8,11 +9,8 @@ on:
       - 'AutoPkg/Overrides/**/*.recipe'
       - 'AutoPkg/Overrides/**/*.recipe.yaml'
       - 'AutoPkg/Recipes/**/*.recipe'
-      - 'AutoPkg/Recipes/**/*.recipe.plist'
       - 'AutoPkg/Recipes/**/*.recipe.yaml'
-      - 'AutoPkg/Vendorer/**/*.recipe'
-      - 'AutoPkg/Vendorer/**/*.recipe.plist'
-      - 'AutoPkg/Vendorer/**/*.recipe.yaml'
+
   workflow_dispatch:
 
 jobs:
