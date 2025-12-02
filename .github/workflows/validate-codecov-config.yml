@@ -1,3 +1,4 @@
+---
 name: validate-codecov-config
 
 on:
