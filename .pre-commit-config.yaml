@@ -23,3 +23,10 @@ repos:
         exclude: ^AutoPkg/
       - id: ruff-format
         exclude: ^AutoPkg/
+
+  -   repo: https://github.com/homebysix/pre-commit-macadmin
+      rev: v1.22.0
+      hooks:
+      - id: check-plists
+      - id: check-autopkg-recipes
+        args: ['--override-prefix=com.anywhereops.autopkg.', 'check-autopkg-recipe-list']
