@@ -22,7 +22,6 @@
 
 from autopkglib import Processor, ProcessorError
 
-
 __all__ = ["XcodeVersioner"]
 
 
@@ -32,27 +31,17 @@ class XcodeVersioner(Processor):
     description = __doc__
     input_variables = {
         "version": {
-            "description": (
-                "CFBundleShortVersionString from an Xcode Info.plist. "
-                "Produced by PlistReader."
-            ),
+            "description": ("CFBundleShortVersionString from an Xcode Info.plist. Produced by PlistReader."),
             "required": True,
         },
         "app_path": {
-            "description": (
-                "Path to Xcode app to look up version"
-                "information from the bundle."
-            ),
-            "required": True
-        }
+            "description": ("Path to Xcode app to look up versioninformation from the bundle."),
+            "required": True,
+        },
     }
     output_variables = {
-        "major_version": {
-            "description": "Major version of Xcode - i.e. Xcode 7, 8."
-        },
-        "minor_version": {
-            "description": "Minor version of Xcode - i.e. Xcode X.1, X.2."
-        },
+        "major_version": {"description": "Major version of Xcode - i.e. Xcode 7, 8."},
+        "minor_version": {"description": "Minor version of Xcode - i.e. Xcode X.1, X.2."},
         "patch_version": {
             "description": (
                 "Patch version of Xcode - i.e. Xcode X.Y.0, X.Y.1. "
@@ -60,19 +49,10 @@ class XcodeVersioner(Processor):
                 "becomes 8.3.0)."
             )
         },
-        "is_beta": {
-            "description": (
-                "Boolean that is true if this Xcode is a beta version."
-            )
-        },
-        "beta_version": {
-            "description": "The beta number - 1, 2, 3, etc."
-        },
-        "build_version": {
-            "description": "Build version of Xcode - e.g. 11B500"
-        }
+        "is_beta": {"description": ("Boolean that is true if this Xcode is a beta version.")},
+        "beta_version": {"description": "The beta number - 1, 2, 3, etc."},
+        "build_version": {"description": "Build version of Xcode - e.g. 11B500"},
     }
-
 
     def main(self):
         """Main."""
@@ -80,8 +60,7 @@ class XcodeVersioner(Processor):
         split_string = main_version_string.split(".")
         if len(split_string) < 2:
             raise ProcessorError(
-                "Version string should be in format X.Y, unless Apple broke "
-                "literally everything again."
+                "Version string should be in format X.Y, unless Apple broke literally everything again."
             )
         self.env["major_version"] = str(split_string[0])
         self.output(f"Major version: {self.env['major_version']}")
@@ -99,6 +78,7 @@ class XcodeVersioner(Processor):
             self.output("Not a beta version")
         else:
             self.output(f"Beta version: {self.env['beta_version']}")
+
 
 if __name__ == "__main__":
     PROCESSOR = XcodeVersioner()

@@ -25,7 +25,6 @@ import re
 
 from autopkglib import Processor
 
-
 __all__ = ["VersionMajorMinor"]
 
 
@@ -37,17 +36,9 @@ class VersionMajorMinor(Processor):
 
     description = __doc__
     input_variables = {
-        "version": {
-            "required": True,
-            "description": "The version string that needs to be parsed."
-        },
+        "version": {"required": True, "description": "The version string that needs to be parsed."},
     }
-    output_variables = {
-        "version_major_minor": {
-            "description": "The formatted up version string."
-        }
-    }
-
+    output_variables = {"version_major_minor": {"description": "The formatted up version string."}}
 
     def main(self):
         version_major_minor = re.search(r"^\d+[.]\d+", self.env["version"])

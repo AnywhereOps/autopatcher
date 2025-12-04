@@ -18,7 +18,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
 
 import os
 import subprocess
@@ -30,6 +29,7 @@ __all__ = ["GIMPPermissionsFixer"]
 
 class GIMPPermissionsFixer(Processor):
     """Fixes incorrect permissions on given GIMP.app"""
+
     input_variables = {
         "gimp_app_path": {
             "required": True,
@@ -38,10 +38,10 @@ class GIMPPermissionsFixer(Processor):
     }
     output_variables = {}
     description = __doc__
-    
+
     def main(self):
         gimp_app_path = self.env.get("gimp_app_path")
-        
+
         if os.path.exists(gimp_app_path):
             gimp_bin_path = os.path.join(gimp_app_path, "Contents/MacOS/GIMP")
             cmd = ["/bin/chmod", "+x", gimp_bin_path]

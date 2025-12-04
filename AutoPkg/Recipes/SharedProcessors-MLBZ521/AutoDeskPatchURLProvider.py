@@ -22,7 +22,6 @@ import json
 
 from autopkglib import ProcessorError, URLGetter
 
-
 __all__ = ["AutoDeskPatchURLProvider"]
 
 
@@ -39,33 +38,26 @@ class AutoDeskPatchURLProvider(URLGetter):
         "major_version": {
             "required": True,
             "description": "Which AutoDesk Major Version to look for available patches.",
-        }
+        },
     }
     output_variables = {
-        "search_url": {
-            "description": "Returns the url to download."
-        },
-        "search_pattern": {
-            "description": "Returns the pattern to search for in the search_url."
-        }
+        "search_url": {"description": "Returns the url to download."},
+        "search_pattern": {"description": "Returns the pattern to search for in the search_url."},
     }
-
 
     def main(self):
 
         # Define variables
-        product = self.env.get('product')
-        major_version = self.env.get('major_version')
+        product = self.env.get("product")
+        major_version = self.env.get("major_version")
 
         if not product:
-            raise ProcessorError(
-                "Expected an 'product' input variable but one was not set!")
+            raise ProcessorError("Expected an 'product' input variable but one was not set!")
 
         if not major_version:
-            raise ProcessorError(
-                "Expected an 'major_version' input variable but one was not set!")
+            raise ProcessorError("Expected an 'major_version' input variable but one was not set!")
 
-        self.output(f'Searching for patches for:  {product} {major_version}')
+        self.output(f"Searching for patches for:  {product} {major_version}")
 
         # Build the URLs
         lookupURL = f"https://knowledge.autodesk.com/autodesk-downloads-finder/search?p={product}&v={major_version}"
@@ -101,7 +93,9 @@ class AutoDeskPatchURLProvider(URLGetter):
             self.output(f"Search Pattern: {self.env['search_pattern']}")
 
         else:
-            raise ProcessorError(f"Failed to find a match for product '{product}' with major_version '{major_version}'.")
+            raise ProcessorError(
+                f"Failed to find a match for product '{product}' with major_version '{major_version}'."
+            )
 
 
 if __name__ == "__main__":

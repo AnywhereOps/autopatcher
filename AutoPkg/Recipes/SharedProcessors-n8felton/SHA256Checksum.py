@@ -28,6 +28,7 @@ __all__ = ["SHA256Checksum"]
 
 class SHA256Checksum(Processor):
     """Calculate a message-digest fingerprint (checksum) for a file"""
+
     description = __doc__
     input_variables = {
         "pathname": {
@@ -40,14 +41,11 @@ class SHA256Checksum(Processor):
         },
         "sha256checksumpath": {
             "required": False,
-            "description": "The path to a file containing the SHA256 checksum "
-            "to verify pathname.",
+            "description": "The path to a file containing the SHA256 checksum to verify pathname.",
         },
     }
     output_variables = {
-        "sha256checksum": {
-            "description": "SHA256 checksum calculated from pathname."
-        },
+        "sha256checksum": {"description": "SHA256 checksum calculated from pathname."},
     }
 
     def sha256(self, file_name):
@@ -66,9 +64,9 @@ class SHA256Checksum(Processor):
 
     def main(self):
         sha256checksum = self.sha256(self.env["pathname"])
-        self.output("{sha256checksum}".format(sha256checksum=sha256checksum), 1)
-        if self.env.get('sha256checksum'):
-            if not self.env['sha256checksum'] == sha256checksum:
+        self.output(f"{sha256checksum}", 1)
+        if self.env.get("sha256checksum"):
+            if not self.env["sha256checksum"] == sha256checksum:
                 raise ProcessorError("SHA256 Checksum verification failed.")
             else:
                 self.output("SHA256 checksum matches", 1)
@@ -81,6 +79,7 @@ class SHA256Checksum(Processor):
             else:
                 self.output("SHA256 checksum from file matches", 1)
         self.env["sha256checksum"] = sha256checksum
+
 
 if __name__ == "__main__":
     PROCESSOR = SHA256Checksum()

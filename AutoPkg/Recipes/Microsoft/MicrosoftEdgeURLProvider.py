@@ -19,7 +19,7 @@
 # limitations under the License.
 """See docstring for MicrosoftEdgeURLProvider class"""
 
-from autopkglib import Processor, ProcessorError
+from autopkglib import Processor
 
 __all__ = ["MicrosoftEdgeURLProvider"]
 
@@ -39,16 +39,14 @@ CHANNEL_LINKID = {
 
 
 class MicrosoftEdgeURLProvider(Processor):
-    ("Provides the URL to the latest version of the selected release of Microsoft Edge")
+    "Provides the URL to the latest version of the selected release of Microsoft Edge"
+
     description = __doc__
     input_variables = {
         "CHANNEL": {
             "required": False,
             "default": "Stable",
-            "description": (
-                "Which channel to download. "
-                "Options: {}".format(CHANNEL_LINKID.keys())
-            ),
+            "description": (f"Which channel to download. Options: {CHANNEL_LINKID.keys()}"),
         }
     }
     output_variables = {
@@ -57,9 +55,9 @@ class MicrosoftEdgeURLProvider(Processor):
     }
 
     def main(self):
-        self.output("Available channels: {}".format(CHANNEL_LINKID.keys(), 2))
+        self.output(f"Available channels: {CHANNEL_LINKID.keys()}")
         channel = self.env.get("CHANNEL") or self.input_variables["CHANNEL"]["default"]
-        self.output("Using {} channel".format(channel), 1)
+        self.output(f"Using {channel} channel", 1)
         url = MS_FWLINK_URL.format(linkid=CHANNEL_LINKID[channel])
         self.env["url"] = url
         self.env["CHANNEL"] = channel

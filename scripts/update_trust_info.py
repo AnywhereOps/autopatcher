@@ -76,16 +76,17 @@ CORE_PROCESSOR_NAMES = [
 def run_git(args, cwd=None):
     """Run git command, return output or None on failure."""
     try:
-        result = subprocess.run(
-            ["git"] + args,
+        result = subprocess.run(  # noqa: S603
+            ["git", *args],
             cwd=cwd,
             capture_output=True,
             text=True,
             check=True,
         )
-        return result.stdout
     except (subprocess.CalledProcessError, FileNotFoundError):
         return None
+    else:
+        return result.stdout
 
 
 def get_git_commit_hash(filepath):
@@ -99,9 +100,7 @@ def get_git_commit_hash(filepath):
     toplevel = toplevel.strip()
 
     relative_path = os.path.relpath(filepath, toplevel)
-    git_hash = run_git(
-        ["rev-list", "-1", "HEAD", "--", relative_path], cwd=toplevel
-    )
+    git_hash = run_git(["rev-list", "-1", "HEAD", "--", relative_path], cwd=toplevel)
     if not git_hash:
         return None
     git_hash = git_hash.strip()
@@ -157,7 +156,7 @@ def recipe_from_file(filename):
     try:
         if filename.endswith(".yaml"):
             with open(filename, "rb") as f:
-                return yaml.load(f, Loader=yaml.FullLoader)
+                return yaml.safe_load(f)
         else:
             with open(filename, "rb") as f:
                 return plistlib.load(f)
@@ -199,9 +198,7 @@ def extract_processor_name_with_recipe_identifier(processor_name):
 
 def find_processor_path(processor_name, recipe, search_dirs, existing_trust=None):
     """Find path to a processor .py file."""
-    processor_name, recipe_id = extract_processor_name_with_recipe_identifier(
-        processor_name
-    )
+    processor_name, recipe_id = extract_processor_name_with_recipe_identifier(processor_name)
 
     # Try existing path from trust info first
     if existing_trust and processor_name in existing_trust:
@@ -252,7 +249,7 @@ def load_recipe(name_or_path, search_dirs):
     parent_id = recipe.get("ParentRecipe") or recipe.get("Recipe")
     if parent_id:
         child = recipe
-        parent_search = search_dirs + [os.path.dirname(recipe_file)]
+        parent_search = [*search_dirs, os.path.dirname(recipe_file)]
         recipe = load_recipe(parent_id, parent_search)
 
         if recipe:
@@ -278,7 +275,7 @@ def get_trust_info(recipe, search_dirs, existing_trust=None):
         existing_processors = existing_trust.get("non_core_processors", {})
 
     # Hash parent recipes
-    parent_paths = recipe.get("PARENT_RECIPES", []) + [recipe["RECIPE_PATH"]]
+    parent_paths = [*recipe.get("PARENT_RECIPES", []), recipe["RECIPE_PATH"]]
     parent_hashes = {}
 
     for path in parent_paths:
@@ -308,9 +305,7 @@ def get_trust_info(recipe, search_dirs, existing_trust=None):
             if git_hash:
                 processor_hashes[processor]["git_hash"] = git_hash
         else:
-            print(
-                f"WARNING: processor path not found: {processor}", file=sys.stderr
-            )
+            print(f"WARNING: processor path not found: {processor}", file=sys.stderr)
             processor_hashes[processor] = {
                 "path": "",
                 "sha256_hash": "PROCESSOR FILEPATH NOT FOUND",
@@ -371,9 +366,7 @@ def find_overrides(directory):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Update parent recipe trust info in recipe overrides"
-    )
+    parser = argparse.ArgumentParser(description="Update parent recipe trust info in recipe overrides")
     parser.add_argument(
         "override",
         help="Path to override file, or directory if --all is used",

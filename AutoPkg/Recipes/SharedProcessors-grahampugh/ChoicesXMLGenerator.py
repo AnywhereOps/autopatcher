@@ -19,13 +19,11 @@
 # limitations under the License.
 """See docstring for SubDirectoryList class"""
 
-from __future__ import absolute_import
-
 import plistlib
 import re
 import subprocess
-
 from builtins import str
+
 from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
 
 __all__ = ["ChoicesXMLGenerator"]
@@ -42,7 +40,7 @@ class ChoicesXMLGenerator(Processor):
             "required": True,
         },
         "desired_choices": {
-            "description": ("A dictionary of choices." "Defaults to empty"),
+            "description": ("A dictionary of choices.Defaults to empty"),
             "default": "choice_vpn",
             "required": False,
         },
@@ -54,7 +52,7 @@ class ChoicesXMLGenerator(Processor):
             "description": "Enables recursively identifying child items of child items",
             "default": "False",
             "required": False,
-        }
+        },
     }
     output_variables = {}
 
@@ -77,22 +75,18 @@ class ChoicesXMLGenerator(Processor):
         if choices_result:
             try:
                 choices_plist = bytearray(
-                    re.search(
-                        r"(?s)<\?xml.*</plist>", choices_result.decode("utf-8")
-                    ).group(),
+                    re.search(r"(?s)<\?xml.*</plist>", choices_result.decode("utf-8")).group(),
                     "utf-8",
                 )
                 choices_list = plistlib.loads(choices_plist)
             except Exception as err:
-                raise ProcessorError(
-                    f"Unexpected error parsing manifest as a plist: '{err}'"
-                )
+                raise ProcessorError(f"Unexpected error parsing manifest as a plist: '{err}'")
             child_items = choices_list[0]["childItems"]
             return child_items
         if error:
             raise ProcessorError("No Plist generated from installer command")
 
-    def parse_choices_list(self, child_items, desired_choices, recursive_child_items = False):
+    def parse_choices_list(self, child_items, desired_choices, recursive_child_items=False):
         """Generates the python dictionary of choices.
         Desired choices are given the choice attribute '1' (chosen).
         Other choices found are given the choice attribute '0'
@@ -100,27 +94,25 @@ class ChoicesXMLGenerator(Processor):
         parsed_choices = []
         for child_dict in child_items:
             if recursive_child_items and child_dict["childItems"]:
-                parsed_choices.extend(self.parse_choices_list(child_dict["childItems"], desired_choices, recursive_child_items))
+                parsed_choices.extend(
+                    self.parse_choices_list(child_dict["childItems"], desired_choices, recursive_child_items)
+                )
             try:
                 choice_identifier = child_dict["choiceIdentifier"]
                 if choice_identifier in desired_choices:
-                    self.output(f"Selected choice: {str(choice_identifier)}")
-                    parsed_choices.append(
-                        {
-                            "choiceIdentifier": str(choice_identifier),
-                            "choiceAttribute": "selected",
-                            "attributeSetting": 1,
-                        }
-                    )
+                    self.output(f"Selected choice: {choice_identifier!s}")
+                    parsed_choices.append({
+                        "choiceIdentifier": str(choice_identifier),
+                        "choiceAttribute": "selected",
+                        "attributeSetting": 1,
+                    })
                 else:
-                    self.output(f"Deselected choice: {str(choice_identifier)}")
-                    parsed_choices.append(
-                        {
-                            "choiceIdentifier": str(choice_identifier),
-                            "choiceAttribute": "selected",
-                            "attributeSetting": 0,
-                        }
-                    )
+                    self.output(f"Deselected choice: {choice_identifier!s}")
+                    parsed_choices.append({
+                        "choiceIdentifier": str(choice_identifier),
+                        "choiceAttribute": "selected",
+                        "attributeSetting": 0,
+                    })
             except:
                 pass
         return parsed_choices

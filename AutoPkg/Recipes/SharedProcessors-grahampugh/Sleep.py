@@ -20,7 +20,7 @@
 
 from time import sleep
 
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
+from autopkglib import Processor  # pylint: disable=import-error
 
 __all__ = ["Sleep"]
 

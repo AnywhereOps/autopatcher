@@ -21,11 +21,9 @@
 """Get all Version information from Xcode."""
 
 from os.path import basename, expandvars, splitext
-
 from urllib.parse import urlsplit
 
 from autopkglib import Processor
-
 
 __all__ = ["XcodeVersionEmitter"]
 
@@ -36,27 +34,14 @@ class XcodeVersionEmitter(Processor):
     description = __doc__
     input_variables = {
         "dont_skip": {
-            "description": (
-                "If this evaluates as truthy, do not skip this step."
-            ),
+            "description": ("If this evaluates as truthy, do not skip this step."),
             "default": False,
-            "required": False
+            "required": False,
         },
-        "url": {
-            "description": "URL to parse the version from.",
-            "required": True
-        },
-        "output_filepath": {
-            "description": "Path to which xcode version tag is emitted.",
-            "required": True
-        }
+        "url": {"description": "URL to parse the version from.", "required": True},
+        "output_filepath": {"description": "Path to which xcode version tag is emitted.", "required": True},
     }
-    output_variables = {
-        "derived_filename": {
-            "description": "The derived filename to emit."
-        }
-    }
-
+    output_variables = {"derived_filename": {"description": "The derived filename to emit."}}
 
     def main(self):
         """Main."""
@@ -65,8 +50,8 @@ class XcodeVersionEmitter(Processor):
             return
         url = self.env["url"]
         url_split_object = urlsplit(url)
-        # "https://download.developer.apple.com/Developer_Tools/Xcode_10.2.1/Xcode_10.2.1.xip"  # noqa
-        # "https://developer.apple.com//services-account/download?path=/Developer_Tools/Xcode_11_Beta_2/Xcode_11_Beta_2.xip"  # noqa
+        # "https://download.developer.apple.com/Developer_Tools/Xcode_10.2.1/Xcode_10.2.1.xip"
+        # "https://developer.apple.com//services-account/download?path=/Developer_Tools/Xcode_11_Beta_2/Xcode_11_Beta_2.xip"
         filename = splitext(basename(url_split_object.path))[0].lower()
         self.output(f"Derived filename: {filename}")
         self.env["derived_filename"] = filename
@@ -74,8 +59,7 @@ class XcodeVersionEmitter(Processor):
         destination = expandvars(self.env["output_filepath"])
         with open(destination, "w") as f:
             f.write(filename)
-        self.output(
-            f"Derived filename ({filename}) written to disk at {destination}")
+        self.output(f"Derived filename ({filename}) written to disk at {destination}")
 
 
 if __name__ == "__main__":

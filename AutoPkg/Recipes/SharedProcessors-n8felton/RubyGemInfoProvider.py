@@ -19,8 +19,8 @@
 # limitations under the License.
 """Provides information about the latest version of a given Ruby gem"""
 
-import subprocess
 import re
+import subprocess
 
 from autopkglib import Processor, ProcessorError
 
@@ -29,21 +29,14 @@ __all__ = ["RubyGemInfoProvider"]
 
 class RubyGemInfoProvider(Processor):
     """Provides information about the latest version of a given Ruby gem"""
+
     description = __doc__
     input_variables = {
-        "gem_name": {
-            "required": True,
-            "description":
-                "The name of the ruby gem you want the information for."
-        },
+        "gem_name": {"required": True, "description": "The name of the ruby gem you want the information for."},
     }
     output_variables = {
-        "gem_description": {
-            "description": "Short description of the gem."
-        },
-        "gem_version": {
-            "description": "The latest version of the gem."
-        },
+        "gem_description": {"description": "Short description of the gem."},
+        "gem_version": {"description": "The latest version of the gem."},
     }
 
     def __init__(self):
@@ -51,14 +44,9 @@ class RubyGemInfoProvider(Processor):
         self.gem = None
 
     def gem_details(self, gem_name):
-        search_name = '^{}$'.format(gem_name)
-        gem = ['/usr/bin/gem',
-               'search',
-               search_name,
-               '--details']
-        proc = subprocess.Popen(gem,
-                                stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+        search_name = f"^{gem_name}$"
+        gem = ["/usr/bin/gem", "search", search_name, "--details"]
+        proc = subprocess.Popen(gem, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (gem_details, e) = proc.communicate()
         if e:
             raise ProcessorError(e)
@@ -66,20 +54,23 @@ class RubyGemInfoProvider(Processor):
 
     def gem_description(self):
         gem = self.gem
-        return gem.split('\n')[-1].strip()
+        return gem.split("\n")[-1].strip()
 
     def gem_version(self):
-        version_re = (r'(?P<version>(?:(?P<major>\d+)\.)?(?:(?P<minor>\d+)\.)?'
-                      r'(?P<patch>\d+))')
+        version_re = (
+            r"(?P<version>(?:(?P<major>\d+)\.)?(?:(?P<minor>\d+)\.)?"
+            r"(?P<patch>\d+))"
+        )
         gem = self.gem
         gem_version = re.search(version_re, gem)
-        return gem_version.group('version')
+        return gem_version.group("version")
 
     def main(self):
-        gem_name = self.env['gem_name']
+        gem_name = self.env["gem_name"]
         self.gem_details(gem_name)
-        self.env['gem_description'] = self.gem_description()
-        self.env['gem_version'] = self.gem_version()
+        self.env["gem_description"] = self.gem_description()
+        self.env["gem_version"] = self.gem_version()
+
 
 if __name__ == "__main__":
     PROCESSOR = RubyGemInfoProvider()

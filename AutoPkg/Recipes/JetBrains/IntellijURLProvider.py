@@ -12,8 +12,6 @@
 # of patent rights can be found in the PATENTS file in the same directory.
 #
 
-from __future__ import absolute_import
-
 import sys
 from xml.dom import minidom
 
@@ -31,23 +29,15 @@ class IntellijURLProvider(URLGetter):
     input_variables = {
         "base_url": {
             "required": False,
-            "description": (
-                "Default is " "https://www.jetbrains.com/updates/updates.xml"
-            ),
+            "description": ("Default is https://www.jetbrains.com/updates/updates.xml"),
         },
         "edition": {
             "required": False,
-            "description": (
-                'Either "C" for "Community" or "U" for "Ultimate" '
-                'edition. Defaults to "C".'
-            ),
+            "description": ('Either "C" for "Community" or "U" for "Ultimate" edition. Defaults to "C".'),
         },
         "arch": {
             "required": False,
-            "description": (
-                'Target architecture: "intel" (default) or "aarch64" '
-                "(Apple Silicon)."
-            ),
+            "description": ('Target architecture: "intel" (default) or "aarch64" (Apple Silicon).'),
         },
     }
     output_variables = {"url": {"description": "URL to the latest release of Intellij"}}
@@ -72,22 +62,14 @@ class IntellijURLProvider(URLGetter):
 
         intellij_product = None
         for product in products:
-            if (
-                product.hasAttribute("name")
-                and product.getAttribute("name") == "IntelliJ IDEA"
-            ):
+            if product.hasAttribute("name") and product.getAttribute("name") == "IntelliJ IDEA":
                 intellij_product = product
 
         if intellij_product is not None:
             channels = intellij_product.getElementsByTagName("channel")
             for channel in channels:
-                if (
-                    channel.hasAttribute("licensing")
-                    and channel.getAttribute("licensing") == "release"
-                ):
-                    if channel.hasAttribute(
-                        "name"
-                    ) and "EAP" not in channel.getAttribute("name"):
+                if channel.hasAttribute("licensing") and channel.getAttribute("licensing") == "release":
+                    if channel.hasAttribute("name") and "EAP" not in channel.getAttribute("name"):
                         builds = channel.getElementsByTagName("build")
                         available_versions = list()
                         for build in builds:
@@ -107,16 +89,12 @@ class IntellijURLProvider(URLGetter):
         edition = self.env.get("edition", "C")
         arch = self.env.get("arch", "intel")
         if arch == "aarch64":
-            download_url = (
-                "https://download.jetbrains.com/idea/"
-                "ideaI%s-%s-aarch64.dmg"
-                % (
-                    edition,
-                    version,
-                )
+            download_url = "https://download.jetbrains.com/idea/ideaI%s-%s-aarch64.dmg" % (
+                edition,
+                version,
             )
         else:
-            download_url = "https://download.jetbrains.com/idea/" "ideaI%s-%s.dmg" % (
+            download_url = "https://download.jetbrains.com/idea/ideaI%s-%s.dmg" % (
                 edition,
                 version,
             )

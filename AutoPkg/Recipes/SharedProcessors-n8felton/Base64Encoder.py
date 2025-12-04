@@ -41,9 +41,7 @@ class Base64Encoder(Processor):
     }
 
     def main(self):
-        self.env["base64"] = base64.b64encode(
-            self.env.get("input").encode("ascii")
-        ).decode("ascii")
+        self.env["base64"] = base64.b64encode(self.env.get("input").encode("ascii")).decode("ascii")
 
 
 if __name__ == "__main__":

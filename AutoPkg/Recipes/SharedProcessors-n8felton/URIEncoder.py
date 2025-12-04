@@ -19,7 +19,7 @@
 # limitations under the License.
 """Percent-encodes a URI to be compatible with RFC 3986."""
 
-from autopkglib import Processor, ProcessorError, URLGetter
+from autopkglib import URLGetter
 
 try:
     from urllib.parse import quote  # For Python 3
@@ -34,10 +34,15 @@ class URIEncoder(URLGetter):
 
     description = __doc__
     input_variables = {
-        "url": {"required": True, "description": "The URL/URI to percent-encode.",},
+        "url": {
+            "required": True,
+            "description": "The URL/URI to percent-encode.",
+        },
     }
     output_variables = {
-        "url": {"description": "The encoded URL/URL.",},
+        "url": {
+            "description": "The encoded URL/URL.",
+        },
     }
 
     def main(self):

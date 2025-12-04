@@ -1,3 +1,4 @@
+---
 name: Update Trust Info
 
 on:
@@ -8,11 +9,8 @@ on:
       - 'AutoPkg/Overrides/**/*.recipe'
       - 'AutoPkg/Overrides/**/*.recipe.yaml'
       - 'AutoPkg/Recipes/**/*.recipe'
-      - 'AutoPkg/Recipes/**/*.recipe.plist'
       - 'AutoPkg/Recipes/**/*.recipe.yaml'
-      - 'AutoPkg/Vendorer/**/*.recipe'
-      - 'AutoPkg/Vendorer/**/*.recipe.plist'
-      - 'AutoPkg/Vendorer/**/*.recipe.yaml'
+
   workflow_dispatch:
 
 jobs:
@@ -26,16 +24,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 #6.0.0
 
-      - name: Set up Python
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 #5.6.0
-        with:
-          python-version: '3.12'
-
-      - name: Install dependencies
-        run: pip install pyyaml
+      - name: Set up the environment
+        uses: ./.github/actions/setup-python-env
 
       - name: Update trust info
-        run: python scripts/update_trust_info.py --all AutoPkg/Overrides AutoPkg/Recipes AutoPkg/Vendorer
+        run: uv run python scripts/update_trust_info.py --all AutoPkg/Overrides
 
       - name: Commit and push if changed
         run: |

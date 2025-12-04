@@ -17,7 +17,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from autopkglib import Processor  # noqa: F401
+from autopkglib import Processor
 
 __all__ = ["VersionSplitter"]
 
@@ -40,13 +40,11 @@ class VersionSplitter(Processor):  # pylint: disable=invalid-name
         },
         "split_on": {
             "required": False,
-            "description": "The character(s) to use for splitting the "
-            "version. (Defaults to a space.)",
+            "description": "The character(s) to use for splitting the version. (Defaults to a space.)",
         },
         "index": {
             "required": False,
-            "description": "The index of the version string to be "
-            "returned. (Defaults to 0.)",
+            "description": "The index of the version string to be returned. (Defaults to 0.)",
         },
     }
     output_variables = {"version": {"description": "The cleaned up version string."}}

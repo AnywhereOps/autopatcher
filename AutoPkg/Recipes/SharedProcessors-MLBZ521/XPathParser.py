@@ -36,37 +36,25 @@ class XPathParser(Processor):
 
     description = __doc__
     input_variables = {
-        "xml_file": {
-            "required": True,
-            "description": "Path to xml file to parse."
-        },
+        "xml_file": {"required": True, "description": "Path to xml file to parse."},
         "xpath": {
             "required": True,
-            "description": ("XPath string to search for.  Only the "
-                            "first result is returned if there are "
-                            "multiple matches")
+            "description": (
+                "XPath string to search for.  Only the first result is returned if there are multiple matches"
+            ),
         },
-        "attribute_one": {
-            "required": True,
-            "description": "Attribute to get the value from."
-        },
-        "attribute_two": {
-            "required": False,
-            "description": "A second attribute to get the value from."
-        },
+        "attribute_one": {"required": True, "description": "Attribute to get the value from."},
+        "attribute_two": {"required": False, "description": "A second attribute to get the value from."},
         "return_variable_attribute_one": {
             "required": False,
-            "description": ("The name of the variable to assign the "
-                            "value of attribute_one")
+            "description": ("The name of the variable to assign the value of attribute_one"),
         },
         "return_variable_attribute_two": {
             "required": False,
-            "description": ("The name of the variable to assign the "
-                            "value of attribute_two")
-        }
+            "description": ("The name of the variable to assign the value of attribute_two"),
+        },
     }
     output_variables = {}
-
 
     def main(self):
 
@@ -79,7 +67,7 @@ class XPathParser(Processor):
         # Check if a second attribute was desired
         try:
             attribute_two = self.env["attribute_two"]
-            return_variable_two =self.env["return_variable_attribute_two"]
+            return_variable_two = self.env["return_variable_attribute_two"]
         except Exception:
             attribute_two = None
             return_variable_two = None
@@ -100,22 +88,22 @@ class XPathParser(Processor):
                 value_two = xml_info.get(attribute_two)
 
         except Exception as error:
-                raise ProcessorError(f"Can't parse xml file {xml_file}: {error}") from error
+            raise ProcessorError(f"Can't parse xml file {xml_file}: {error}") from error
 
         if not value_one:
             raise ProcessorError(f"Unable to determine a value for:  {attribute_one}")
 
-        self.output(f'attribute_one:  {value_one}')
+        self.output(f"attribute_one:  {value_one}")
         self.env[return_variable_one] = value_one
 
         if attribute_two != None:
             if not value_two:
                 raise ProcessorError(f"Unable to determine a value for:  {attribute_two}")
 
-            self.output(f'attribute_two:  {value_two}')
+            self.output(f"attribute_two:  {value_two}")
             self.env[return_variable_two] = value_two
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     PROCESSOR = XPathParser()
     PROCESSOR.execute_shell()

@@ -3,30 +3,31 @@
 # Copyright 2019 ZenPayroll, Inc., dba Gusto
 #
 
-import os
-import re
-import sys
 import json
-import arrow
 import logging
-import datetime
+import os
 import plistlib
+import re
 import subprocess
+import sys
+from collections import OrderedDict
+from logging import StreamHandler
+from logging.handlers import RotatingFileHandler
+from ssl import PROTOCOL_TLS_CLIENT, SSLContext
+from xml.parsers.expat import ExpatError
+
+import arrow
 import certifi
-from ssl import SSLContext, PROTOCOL_TLS_CLIENT
+from dotenv import load_dotenv
+from packaging import version as semantic_version
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-from dotenv import load_dotenv
-from xml.parsers.expat import ExpatError
-from packaging import version as semantic_version
-from logging.handlers import RotatingFileHandler
-from logging import StreamHandler
-from collections import OrderedDict
 
 CONFIG_FILE = os.getenv("CONFIG_FILE", "/usr/local/munki/autopromote.json")
 PKGINFOS_PATHS = []
 DEBUG = bool(os.environ.get("DEBUG"))
 SECONDS_IN_DAY = 60 * 60 * 24
+
 
 # Because things get easier if the catalogs are ordered - we don't always need to check "next"
 # in the catalog definition while considering a package for promotion.
@@ -68,7 +69,7 @@ def load_deny_and_allow_lists(config):
     def load(*lists):
         for config_item in lists:
             if isinstance(config_item, list):
-                config_item = {k: None for k in config_item}
+                config_item = dict.fromkeys(config_item)
 
             for name, version in config_item.copy().items():
                 version = re.compile(
@@ -79,9 +80,7 @@ def load_deny_and_allow_lists(config):
 
             yield config_item
 
-    config["denylist"], config["allowlist"] = tuple(
-        l for l in load(config["denylist"], config["allowlist"])
-    )
+    config["denylist"], config["allowlist"] = tuple(load(config["denylist"], config["allowlist"]))
     return config
 
 
@@ -102,9 +101,7 @@ def load_logger(logfile):
     logger = logging.getLogger("autopromote")
     level = logging.DEBUG if DEBUG else logging.INFO
 
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     if logfile == "stdout":
         handler = StreamHandler(sys.stdout)
@@ -126,7 +123,7 @@ def get_pkgs(root):
     """Returns a list of pkginfo paths given a root directory."""
 
     pkgs = []
-    for directory, subdirs, pkginfos in os.walk(root):
+    for directory, _subdirs, pkginfos in os.walk(root):
         for pkginfo in pkginfos:
             pkgs.append(os.path.join(directory, pkginfo))
     return pkgs
@@ -147,11 +144,11 @@ def safe_read_pkg(pkginfo):
             plist = plistlib.load(f)
     except (ExpatError, plistlib.InvalidFileException) as e:
         # This is raised if a plist cannot be parsed (generally because its not a plist, but some clutter eg DS_Store)
-        logger.warning(f"Failed to parse {pkginfo} because: {repr(e)}")
+        logger.warning(f"Failed to parse {pkginfo} because: {e!r}")
         plist = None
-    except Exception as e:
-        logger.error(f"Error parsing {pkginfo}")
-        raise e
+    except Exception:
+        logger.exception(f"Error parsing {pkginfo}")
+        raise
     return plist
 
 
@@ -176,18 +173,12 @@ def get_previous_pkg(current):
 
     last = None
     current_version = pkg_version(current)
-    for plist, pkginfo in PKGINFOS_PATHS:
+    for plist, _pkginfo in PKGINFOS_PATHS:
         if plist["name"] == current["name"] and plist["version"] != current["version"]:
             plist_version = pkg_version(plist)
             if last:
                 last_version = pkg_version(last)
-                last = (
-                    last
-                    if plist_version < last_version
-                    else plist
-                    if plist_version < current_version
-                    else last
-                )
+                last = last if plist_version < last_version else plist if plist_version < current_version else last
             else:
                 last = plist
     if last:
@@ -216,7 +207,7 @@ def get_ideal_catalogs(catalogs):
     in CONFIG['catalog_order'] and and the list of catalogs leading up to that catalog
     """
 
-    custom_catalogs = [c for c in catalogs if not c in CONFIG["catalog_order"]]
+    custom_catalogs = [c for c in catalogs if c not in CONFIG["catalog_order"]]
     config_catalogs = [c for c in CONFIG["catalog_order"] if c in catalogs]
     latest_catalog = None if not config_catalogs else config_catalogs[-1]
 
@@ -270,9 +261,7 @@ def permitted(name, version):
         raise f"{name} is in both allow and deny lists!"
 
     if not allowed and CONFIG["allowlist"].get(name):
-        logger.warning(
-            f"Skipping {name}-{version}: {name} is in allowlist but version {version} not matched"
-        )
+        logger.warning(f"Skipping {name}-{version}: {name} is in allowlist but version {version} not matched")
         return False
     elif denied:
         logger.warning(f"Skipping {name}-{version}: in denylist")
@@ -281,7 +270,7 @@ def permitted(name, version):
     return True
 
 
-def promote_pkg(current_plist, path):
+def promote_pkg(current_plist, path):  # noqa: C901
     """
     Given a pkginfo plist, parse its catalogs, apply a new catalog (promotion)
     and shift force_install_after_date if neccessary.
@@ -318,9 +307,7 @@ def promote_pkg(current_plist, path):
     logger.debug(f"Promotion period for package {fullname} is {promotion_period}")
 
     if promotion_period is None:
-        logger.debug(
-            f"No defined promotion period for {latest_catalog} catalog, skipping"
-        )
+        logger.debug(f"No defined promotion period for {latest_catalog} catalog, skipping")
         return promoted, result
 
     last_promoted = plist.get("_metadata", {}).get("last_promoted")
@@ -347,15 +334,11 @@ def promote_pkg(current_plist, path):
         promotion_due = False
     else:
         channel_shifted = promotion_period * get_channel_multiplier(plist)
-        logger.debug(
-            f"Channel-shifted promotion period for {fullname} is {channel_shifted}"
-        )
+        logger.debug(f"Channel-shifted promotion period for {fullname} is {channel_shifted}")
 
         since_last_promotion = arrow.now() - last_promoted
         days_since_last_promotion = since_last_promotion.days + since_last_promotion.seconds / SECONDS_IN_DAY
-        logger.debug(
-            f"{fullname} was last promoted {days_since_last_promotion} days ago"
-        )
+        logger.debug(f"{fullname} was last promoted {days_since_last_promotion} days ago")
 
         promotion_due = days_since_last_promotion >= channel_shifted
 
@@ -364,9 +347,9 @@ def promote_pkg(current_plist, path):
 
     next_catalog = CONFIG["catalogs"][latest_catalog]["next"]
     if next_catalog is None:
-        assert (
-            promotion_period is None
-        ), "Cannot define a next catalog without a promotion period."
+        if promotion_period is not None:
+            msg = "Cannot define a next catalog without a promotion period."
+            raise ValueError(msg)
         return promoted, result
 
     plist["catalogs"].append(next_catalog)
@@ -375,10 +358,8 @@ def promote_pkg(current_plist, path):
     result["from"] = latest_catalog
     result["to"] = next_catalog
     plist["_metadata"]["last_promoted"] = arrow.now().datetime
-    if CONFIG.get("enforce_force_install_date") and not name in CONFIG.get("force_install_denylist", []):
-        plist["force_install_after_date"] = (
-            arrow.now().shift(days=+get_force_install_days(next_catalog)).datetime
-        )
+    if CONFIG.get("enforce_force_install_date") and name not in CONFIG.get("force_install_denylist", []):
+        plist["force_install_after_date"] = arrow.now().shift(days=+get_force_install_days(next_catalog)).datetime
 
         if CONFIG.get("enforce_force_install_time") and CONFIG.get("force_install_time"):
             plist["force_install_after_date"] = get_force_install_time(plist)
@@ -426,34 +407,26 @@ def notify_slack(promotions, error):
     # Build out the Slack message attachment showing what was promoted
     attachments = {
         "fields": [
-            {"title": pkg, "value": f"{result['from']} => {result['to']}"}
-            for pkg, result in promotions.items()
+            {"title": pkg, "value": f"{result['from']} => {result['to']}"} for pkg, result in promotions.items()
         ],
         "color": "danger" if error else "good",
         "title": "Autopromotion run completed",
-        "text": ""
-        if promotions
-        else "No packages promoted"
-        if not error
-        else f"Error: {error}",
+        "text": "" if promotions else "No packages promoted" if not error else f"Error: {error}",
         "footer": "Alerts #withGusto",
     }
     logger.debug(promotions)
     logger.debug(attachments)
     # Actually send the Slack message
     try:
-        response = client.chat_postMessage(
+        client.chat_postMessage(
             channel=CONFIG.get("slack_channel", "#test-please-ignore"),
             text="new autopromote.py run complete",
             username="munki autopromoter",
             icon_emoji=":munki:",
-            attachments=[attachments])
-        assert response["message"]["text"] == "new autopromote.py run complete"
+            attachments=[attachments],
+        )
     except SlackApiError as e:
-        # You will get a SlackApiError if "ok" is False
-        assert e.response["ok"] is False
-        assert e.response["error"]  # str like 'invalid_auth', 'channel_not_found'
-        logger.error(f"Slack error: {e.response['error']}")
+        logger.exception(f"Slack error: {e.response['error']}")
 
 
 def output_results(promotions, error):
@@ -480,28 +453,26 @@ def main():
         # Hello, this looks scary. It is not. We filter a list of packages
         # by whether safe_read_pkg returns None or a parsed plist.
         # This generates our list of valid packages to operate on.
-        pkgs = filter(
-            lambda x: x[0] != None, map(lambda x: [safe_read_pkg(x), x], get_pkgs(repo))
-        )
+        pkgs = ((plist, path) for path in get_pkgs(repo) if (plist := safe_read_pkg(path)) is not None)
 
         # We write that list to a global variable. Several functions iterate
         # over it, and this seems cleaner than passing the value around or going full OO.
         global PKGINFOS_PATHS
-        PKGINFOS_PATHS = [p for p in pkgs]
+        PKGINFOS_PATHS = list(pkgs)
 
         # Let's do the promoting!
         promotions = promote_pkgs(PKGINFOS_PATHS)
 
         if CONFIG.get("run_makecatalogs", True):
             logger.debug("Calling makecatalogs...")
-            subprocess.call(
+            subprocess.call(  # noqa: S603
                 ["/usr/local/munki/makecatalogs", CONFIG["munki_repo"]],
-                stdout=open(os.devnull, "w"),
+                stdout=subprocess.DEVNULL,
             )
     except Exception as e:
-        logger.error(e)
+        logger.exception("Failed to promote packages")
         error = e
-        raise e
+        raise
     finally:
         if CONFIG.get("notify_slack"):
             notify_slack(promotions, error)

@@ -30,9 +30,7 @@ class HomebrewCaskURL(URLGetter):
     input_variables = {
         "cask_name": {
             "required": True,
-            "description": (
-                "Name of cask to fetch, as would be given to the 'brew' command. Example: 'firefox'"
-            ),
+            "description": ("Name of cask to fetch, as would be given to the 'brew' command. Example: 'firefox'"),
         }
     }
     output_variables = {"url": {"description": ("URL for the Cask's download.")}}

@@ -21,7 +21,7 @@
 
 import re
 
-from autopkglib import URLGetter, ProcessorError
+from autopkglib import ProcessorError, URLGetter
 
 __all__ = ["AppleSupportDownloadInfoProvider"]
 
@@ -52,9 +52,7 @@ class AppleSupportDownloadInfoProvider(URLGetter):
         },
     }
     output_variables = {
-        "article_url": {
-            "description": "The url for the KB article related to the download."
-        },
+        "article_url": {"description": "The url for the KB article related to the download."},
         "url": {"description": "The full url for the file you want to download."},
         "version": {"description": "The version of the support download"},
     }
@@ -62,18 +60,16 @@ class AppleSupportDownloadInfoProvider(URLGetter):
     def get_url(self, download_url):
         """Follows HTTP 302 redirects to fetch the final url of a download."""
         curl_cmd = self.prepare_curl_cmd()
-        curl_cmd.extend(
-            [
-                "--silent",
-                "--head",
-                "--write-out",
-                "%{url_effective}",
-                "--url",
-                download_url,
-                "--output",
-                "/dev/null",
-            ]
-        )
+        curl_cmd.extend([
+            "--silent",
+            "--head",
+            "--write-out",
+            "%{url_effective}",
+            "--url",
+            download_url,
+            "--output",
+            "/dev/null",
+        ])
         file_url = self.download_with_curl(curl_cmd)
         return file_url
 
@@ -85,7 +81,7 @@ class AppleSupportDownloadInfoProvider(URLGetter):
         title = re.search(r"(?i)\<title\>(.*?)\</title\>", head)
         if title:
             title = title.group(1)
-            self.output("Article title: {title}".format(title=title), 2)
+            self.output(f"Article title: {title}", 2)
             return title
         else:
             raise ProcessorError("Unable to determine version")
@@ -98,7 +94,7 @@ class AppleSupportDownloadInfoProvider(URLGetter):
         match = re.search(regex, title)
         if match:
             version = match.group(0)
-            self.output("Version: {version}".format(version=match.group(0)), 2)
+            self.output(f"Version: {match.group(0)}", 2)
             return version
         else:
             raise ProcessorError("Unable to determine version.")
@@ -111,19 +107,15 @@ class AppleSupportDownloadInfoProvider(URLGetter):
         locale = self.env.get("LOCALE", "en_US")
 
         # Determine URL of article
-        article_url = "{base_url}/kb/DL{article_number}".format(
-            base_url=APPLE_SUPPORT_URL, article_number=article_number
-        )
+        article_url = f"{APPLE_SUPPORT_URL}/kb/DL{article_number}"
         self.env["article_url"] = article_url
-        self.output("Article URL: {article_url}".format(article_url=article_url), 2)
+        self.output(f"Article URL: {article_url}", 2)
 
         # Determine URL of associated download
-        download_url = "{base_url}/downloads/DL{article_number}/{locale}/&".format(
-            base_url=APPLE_SUPPORT_URL, article_number=article_number, locale=locale
-        )
-        self.output("Download URL: {download_url}".format(download_url=download_url), 2)
+        download_url = f"{APPLE_SUPPORT_URL}/downloads/DL{article_number}/{locale}/&"
+        self.output(f"Download URL: {download_url}", 2)
         full_url = self.get_url(download_url)
-        self.output("Full URL: {full_url}".format(full_url=full_url), 2)
+        self.output(f"Full URL: {full_url}", 2)
 
         # Set output variables
         self.env["url"] = full_url

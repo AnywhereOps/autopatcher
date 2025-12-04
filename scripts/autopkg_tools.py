@@ -5,9 +5,6 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 
-from git import Repo
-from github import Auth, Github
-
 from cloud_autopkg_runner import (
     AutoPkgPrefs,
     Recipe,
@@ -15,6 +12,8 @@ from cloud_autopkg_runner import (
     Settings,
     logging_config,
 )
+from git import Repo
+from github import Auth, Github
 
 
 def git_commit_push_pr(
@@ -87,8 +86,8 @@ async def commit_worker(
                 token,
             )
             logger.info("Opened PR for %s %s: %s", name, version, pr_url)
-        except Exception as e:
-            logger.error("Failed to commit/PR for %s: %s", item.get("name", "unknown"), e)
+        except Exception:
+            logger.exception("Failed to commit/PR for %s", item.get("name", "unknown"))
         finally:
             queue.task_done()
 
@@ -108,8 +107,8 @@ async def process_recipe(
         results = await Recipe(recipe, settings.report_dir, autopkg_prefs).run()
         logger.debug("AutoPkg recipe run results: %s", results)
         logger.info("Recipe run %s complete", recipe_name)
-    except Exception as e:
-        logger.error("Recipe %s failed: %s", recipe_name, e)
+    except Exception:
+        logger.exception("Recipe %s failed", recipe_name)
         return
 
     if not results["munki_imported_items"]:
@@ -156,9 +155,7 @@ async def main() -> None:
     recipe_list = json.loads((autopkg_dir / "recipe_list.json").read_text())
     recipe_paths = [await recipe_finder.find_recipe(r) for r in recipe_list]
 
-    await asyncio.gather(
-        *(process_recipe(recipe, queue, settings, autopkg_prefs) for recipe in recipe_paths)
-    )
+    await asyncio.gather(*(process_recipe(recipe, queue, settings, autopkg_prefs) for recipe in recipe_paths))
 
     # Wait for all queued items to be processed
     await queue.join()

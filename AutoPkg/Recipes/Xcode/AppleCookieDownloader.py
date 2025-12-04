@@ -25,8 +25,8 @@ import os.path
 
 from autopkglib import ProcessorError, URLGetter
 
-
 __all__ = ["AppleCookieDownloader"]
+
 
 class DownloadCookieError(Exception):
     def __init__(self, message):
@@ -34,23 +34,12 @@ class DownloadCookieError(Exception):
         super().__init__(self.message)
 
 
-
 class AppleCookieDownloader(URLGetter):
     """Downloads a URL to the specified download_dir using curl."""
 
     description = __doc__
-    input_variables = {
-        "login_data": {
-            "description": "Path to login data file.",
-            "required": True
-        }
-    }
-    output_variables = {
-        "download_cookies": {
-            "description": "Path to the download cookies."
-        }
-    }
-
+    input_variables = {"login_data": {"description": "Path to login data file.", "required": True}}
+    output_variables = {"download_cookies": {"description": "Path to the download cookies."}}
 
     def main(self):
         download_dir = os.path.join(self.env["RECIPE_CACHE_DIR"], "downloads")
@@ -61,9 +50,7 @@ class AppleCookieDownloader(URLGetter):
             try:
                 os.makedirs(download_dir)
             except OSError as err:
-                raise ProcessorError(
-                    f"Can't create {download_dir}: {err.strerror}"
-                )
+                raise ProcessorError(f"Can't create {download_dir}: {err.strerror}")
         # We need to POST a request to the auth page to get the
         # 'myacinfo' cookie
         self.output("Getting login cookie")
@@ -74,8 +61,10 @@ class AppleCookieDownloader(URLGetter):
             "--silent",
             "--show-error",
             "--no-buffer",
-            "--dump-header", "-",
-            "--speed-time", "30"
+            "--dump-header",
+            "-",
+            "--speed-time",
+            "30",
         ]
         # Curl options to acquire login cookies
         login_curl_opts = [
@@ -86,13 +75,11 @@ class AppleCookieDownloader(URLGetter):
             "--cookie-jar",
             login_cookies,
             "--output",
-            "-"
+            "-",
         ]
         # Initialize the curl_cmd, add base curl options, and execute curl
         prepped_curl_cmd = self.prepare_curl_cmd()
-        self.download_with_curl(
-            prepped_curl_cmd + base_curl_opts + login_curl_opts
-        )
+        self.download_with_curl(prepped_curl_cmd + base_curl_opts + login_curl_opts)
         # Now we need to get the download cookie
         output = os.path.join(download_dir, "listDownloads.json")
         self.output("Getting download cookie")
@@ -108,13 +95,11 @@ class AppleCookieDownloader(URLGetter):
             "--cookie-jar",
             download_cookies,
             "--output",
-            output
+            output,
         ]
         headers = {"Content-length": "0"}
         self.add_curl_headers(dl_curl_opts, headers)
-        self.download_with_curl(
-            prepped_curl_cmd + base_curl_opts + dl_curl_opts
-        )
+        self.download_with_curl(prepped_curl_cmd + base_curl_opts + dl_curl_opts)
         self.env["download_cookies"] = download_cookies
         try:
             with open(output) as f:
@@ -123,14 +108,12 @@ class AppleCookieDownloader(URLGetter):
                 if result_string := login_attempt.get("resultString"):
                     if "your session has expired" in result_string.lower():
                         raise DownloadCookieError(login_attempt)
-        except IOError as error:
-            raise ProcessorError(
-                "Unable to load the listDownloads.json file.") from error
+        except OSError as error:
+            raise ProcessorError("Unable to load the listDownloads.json file.") from error
         except DownloadCookieError as error:
             raise ProcessorError(error)
         except Exception as error:
-            raise ProcessorError(
-                f"Unknown error loading the list of downloads. Error:  {error}") from error
+            raise ProcessorError(f"Unknown error loading the list of downloads. Error:  {error}") from error
         self.output("Successfully acquired the download list")
 
 

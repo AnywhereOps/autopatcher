@@ -18,7 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from autopkglib import Processor, ProcessorError  # pylint: disable=import-error
+from autopkglib import Processor  # pylint: disable=import-error
 
 __all__ = ["StringReplacer"]
 
@@ -49,7 +49,9 @@ class StringReplacer(Processor):
         },
     }
     output_variables = {
-        "output_string": {"description": "The string that has been worked on.",}
+        "output_string": {
+            "description": "The string that has been worked on.",
+        }
     }
 
     description = __doc__
@@ -59,10 +61,10 @@ class StringReplacer(Processor):
         input_string = self.env.get("input_string")
         string_to_replace = self.env.get("string_to_replace")
         replacement_string = self.env.get("replacement_string")
-        self.output("Input String: {}".format(input_string))
+        self.output(f"Input String: {input_string}")
         output_string = input_string.replace(string_to_replace, replacement_string)
         self.env["output_string"] = output_string
-        self.output("Output String: {}".format(output_string))
+        self.output(f"Output String: {output_string}")
 
 
 if __name__ == "__main__":

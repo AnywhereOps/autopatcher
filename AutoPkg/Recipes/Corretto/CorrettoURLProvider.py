@@ -6,7 +6,6 @@
 
 import json
 
-from autopkglib import ProcessorError
 from autopkglib.URLGetter import URLGetter
 
 __all__ = ["CorrettoURLProvider"]
@@ -38,9 +37,7 @@ class CorrettoURLProvider(URLGetter):
     output_variables = {
         "version": {"description": "Version of latest major version"},
         "url": {"description": "Download URL for specified version and architecture"},
-        "supported_architectures": {
-            "description": "Converted to Munki supported architecture type"
-        },
+        "supported_architectures": {"description": "Converted to Munki supported architecture type"},
     }
     description = __doc__
 
@@ -53,14 +50,10 @@ class CorrettoURLProvider(URLGetter):
         json_data = self.download(self.env["corretto_indexmap_url"])
         self.output("Got latest indexmap")
         indexmap = json.loads(json_data)
-        tail_url = indexmap["macos"][self.env["architecture"]]["jdk"][
-            self.env["major_version"]
-        ]["pkg"]["resource"]
+        tail_url = indexmap["macos"][self.env["architecture"]]["jdk"][self.env["major_version"]]["pkg"]["resource"]
         self.env["url"] = f"https://corretto.aws{tail_url}"
         self.env["version"] = tail_url.split("-", 3)[2]
-        self.env["supported_architectures"] = (
-            "x86_64" if self.env["architecture"] == "x64" else "arm64"
-        )
+        self.env["supported_architectures"] = "x86_64" if self.env["architecture"] == "x64" else "arm64"
 
 
 if __name__ == "__main__":

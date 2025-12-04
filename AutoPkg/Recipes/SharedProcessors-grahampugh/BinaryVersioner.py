@@ -62,7 +62,7 @@ class BinaryVersioner(Processor):
 
         if sout:
             # the output includes a newline so needs to be stripped of it
-            version = sout.decode('ascii').rstrip()
+            version = sout.decode("ascii").rstrip()
             self.env["version"] = version
             self.output(f"Version found: {version}")
         elif serr:
