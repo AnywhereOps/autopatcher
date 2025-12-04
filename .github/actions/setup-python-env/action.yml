@@ -15,7 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-python@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 #6.0.0
+    - uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 #6.1.0
       with:
         python-version: ${{ inputs.python-version }}
 
