@@ -16,6 +16,9 @@ on:
 jobs:
   update-trust:
     runs-on: ubuntu-latest
+    env:
+      AUTOPKG_VERSION: "v2.7.6"
+      AUTOPKG_DIR: "${{ github.workspace }}/AutoPkg"
 
     permissions:
       contents: write
@@ -24,11 +27,101 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 #6.0.0
 
+      - name: Fetch base commit for diff
+        if: github.event_name == 'push'
+        run: git fetch --depth=1 origin ${{ github.event.before }} 2>/dev/null || true
+
+      - name: Find changed overrides
+        id: changed-overrides
+        run: |
+          base_sha="${{ github.event.before }}"
+
+          if [ -n "$base_sha" ] &&
+             [ "$base_sha" != "0000000000000000000000000000000000000000" ] &&
+             git rev-parse --verify "$base_sha^{commit}" >/dev/null 2>&1; then
+            echo "mode=selective" >> "$GITHUB_OUTPUT"
+            files=$(git diff --name-only "$base_sha" HEAD -- 'AutoPkg/Overrides/' | grep -E '\.recipe(\.yaml)?$' || true)
+          else
+            echo "mode=full" >> "$GITHUB_OUTPUT"
+            files=""
+          fi
+
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Find overrides affected by recipe changes
+        id: affected-overrides
+        if: steps.changed-overrides.outputs.mode == 'selective'
+        run: |
+          base_sha="${{ github.event.before }}"
+          files=""
+
+          for recipe in $(git diff --name-only "$base_sha" HEAD -- 'AutoPkg/Recipes/' | grep -E '\.recipe(\.yaml)?$' || true); do
+            if [ -f "$recipe" ]; then
+              recipe_id=$(grep -E '^Identifier:' "$recipe" 2>/dev/null | head -1 | sed 's/Identifier: *//' | tr -d '"' || true)
+              if [ -n "$recipe_id" ]; then
+                echo "Recipe changed: $recipe_id"
+                matching=$(grep -l "$recipe_id" AutoPkg/Overrides/*.recipe.yaml AutoPkg/Overrides/*.recipe 2>/dev/null || true)
+                files="$files $matching"
+              fi
+            fi
+          done
+
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Collect overrides to update
+        id: overrides
+        run: |
+          if [ "${{ steps.changed-overrides.outputs.mode }}" = "full" ]; then
+            files=$(find AutoPkg/Overrides -name '*.recipe' -o -name '*.recipe.yaml' | tr '\n' ' ')
+          else
+            files="${{ steps.changed-overrides.outputs.files }} ${{ steps.affected-overrides.outputs.files }}"
+          fi
+
+          # Dedupe
+          files=$(echo "$files" | tr ' ' '\n' | grep -v '^$' | sort -u | tr '\n' ' ')
+          count=$(echo "$files" | wc -w | tr -d ' ')
+
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Overrides to update ($count): $files"
+
       - name: Set up the environment
+        if: steps.overrides.outputs.count != '0'
         uses: ./.github/actions/setup-python-env
 
+      - name: Install AutoPkg
+        if: steps.overrides.outputs.count != '0'
+        run: git clone --depth 1 --branch ${{ env.AUTOPKG_VERSION }} https://github.com/autopkg/autopkg.git autopkg
+
+      - name: Configure AutoPkg
+        if: steps.overrides.outputs.count != '0'
+        run: |
+          mkdir -p ~/.config/Autopkg
+          cat > ~/.config/Autopkg/config.json << EOF
+          {
+            "CACHE_DIR": "${AUTOPKG_DIR}/Cache",
+            "RECIPE_OVERRIDE_DIRS": ["${AUTOPKG_DIR}/Overrides"],
+            "RECIPE_SEARCH_DIRS": ["${AUTOPKG_DIR}/Recipes", "${{ github.workspace }}/autopkg/RecipeRepos"],
+            "FAIL_RECIPES_WITHOUT_TRUST_INFO": false
+          }
+          EOF
+
+      - name: Add recipe repos
+        if: steps.overrides.outputs.count != '0'
+        run: |
+          python autopkg/Code/autopkg repo-add recipes
+          python autopkg/Code/autopkg repo-add grahampugh-recipes
+
       - name: Update trust info
-        run: uv run python scripts/update_trust_info.py --all AutoPkg/Overrides
+        if: steps.overrides.outputs.count != '0'
+        run: |
+          for file in ${{ steps.overrides.outputs.files }}; do
+            if [ -f "$file" ]; then
+              echo "::group::$file"
+              python autopkg/Code/autopkg update-trust-info "$file" || echo "::warning::Failed to update $file"
+              echo "::endgroup::"
+            fi
+          done
 
       - name: Commit and push if changed
         run: |
