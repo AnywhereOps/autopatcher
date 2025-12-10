@@ -106,12 +106,6 @@ jobs:
           }
           EOF
 
-      - name: Add recipe repos
-        if: steps.overrides.outputs.count != '0'
-        run: |
-          python autopkg/Code/autopkg repo-add recipes
-          python autopkg/Code/autopkg repo-add grahampugh-recipes
-
       - name: Update trust info
         if: steps.overrides.outputs.count != '0'
         run: |
